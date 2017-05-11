@@ -2,7 +2,7 @@
 % Please edit documentation in R/utility_Functions.R
 \name{chias_count_BC}
 \alias{chias_count_BC}
-\title{Determine number of chiasmata count before centromere}
+\title{Determine number of chiasmata before centromere}
 \usage{
 chias_count_BC(chiasmata_pos, center_loc)
 }

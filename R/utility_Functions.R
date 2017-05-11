@@ -20,7 +20,7 @@ gam_order <- function(){
 }
 
 
-#' Determine number of chiasmata count before centromere
+#' Determine number of chiasmata before centromere
 #'
 #' For internal use.
 #'
