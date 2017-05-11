@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim_seqFunctions.R
 \name{reconstruct_fromHaplotype}
 \alias{reconstruct_fromHaplotype}
-\title{Reconstruct offspring sequence from parental alleles}
+\title{Construct offspring sequence from parental allele vector (Internal)}
 \usage{
 reconstruct_fromHaplotype(parental_genotypes, Clinkage_map, inherited_haplotype,
   chiasmata_locations)
@@ -20,6 +20,6 @@ reconstruct_fromHaplotype(parental_genotypes, Clinkage_map, inherited_haplotype,
 offspring_seq
 }
 \description{
-Reconstruct offspring sequence from parental alleles
+Construct offspring sequence from parental allele vector (Internal)
 }
 

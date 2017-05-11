@@ -4,7 +4,8 @@
 \alias{sim_RVseq}
 \title{Simulate sequence data for a pedigree}
 \usage{
-sim_RVseq(ped_file, founder_genotypes, linkage_map, chrom_map, RV_marker)
+sim_RVseq(ped_file, founder_genotypes, linkage_map, chrom_map, RV_marker,
+  burn_in = 1000, gamma_params = c(2.63, 2.63/0.5))
 }
 \arguments{
 \item{ped_file}{Data frame. Must match format of pedigree simulated by sim_RVped}

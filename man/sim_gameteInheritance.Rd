@@ -2,10 +2,10 @@
 % Please edit documentation in R/choose_gameteFunctions.R
 \name{sim_gameteInheritance}
 \alias{sim_gameteInheritance}
-\title{Simulate inheritance of parental gamete based on offsring's rare variant status}
+\title{Simulate inheritance of parental gamete to offspring}
 \usage{
 sim_gameteInheritance(RV_locus, parent_RValleles, offspring_RVstatus, chrom_map,
-  allele_IDs)
+  allele_IDs, burn_in = 1000, gamma_params = c(2.63, 2.63/0.5))
 }
 \arguments{
 \item{RV_locus}{Numeric list of length 2. A list containing (1) the chromosome upon which the rare variant resides (2) the position in cM where the rare variant resides.}
@@ -20,7 +20,18 @@ sim_gameteInheritance(RV_locus, parent_RValleles, offspring_RVstatus, chrom_map,
 A list containing (1) a list of inherited haplotype codings (2) the chiasmata locations
 }
 \description{
-Simulate inheritance of parental gamete based on offsring's rare variant status
+Simulate inheritance of parental gamete to offspring based on rare variant statuses of parent and offspring.
+}
+\details{
+Here we use the RV statuses of the parent and offspring to determine which of the parental gametes are appropriate options for transmission.  Upon reducing the sample space appropriately we choose from the remaining options with equal probability.
+\enumerate{
+\item If the parent \strong{is not} a carrier of the rare variant then we choose any of the four gametes with equal probability since the offpring could not have inherited the rare variant from this parent.
+\item If the parent \strong{is} a carrier of the rare variant and
+\itemize{
+\item the offspring \strong{is not} a carrier of the rare variant, we choose with equal probability from the two gametes that \strong{do not} contain the rare variant.
+\item the offspring \strong{is} a carrier of the rare variant, we choose with equal probability from the two gametes that \strong{do}contain the rare variant.
+}
+}
 }
 \examples{
 library(SimRVPedigree)
@@ -29,14 +40,24 @@ data(AgeSpecific_Hazards)
 
 # Simulate pedigree ascertained for multiple affected individuals
 set.seed(13)
-ex_RVped <- sim_RVped(onset_hazard = AgeSpecific_Hazards[,1],
-                      death_hazard = AgeSpecific_Hazards[,c(2,3)],
+ex_RVped <- sim_RVped(onset_hazard = AgeSpecific_Hazards[, 1],
+                      death_hazard = AgeSpecific_Hazards[, c(2,3)],
                       part = seq(0, 100, by = 1),
                       RR = 15, FamID = 1,
                       founder_byears = c(1900, 1910),
                       ascertain_span = c(1900, 2015),
                       num_affected = 2, stop_year = 2015,
                       recall_probs = c(1, 0.75, 0.5))[[2]]
+library(kinship2)
+ex_ped <- with(ex_RVped, pedigree(id = ID,
+                                  dadid = dad_id,
+                                  momid = mom_id,
+                                  sex = gender + 1,
+                                  affected = cbind(Affected = affected,
+                                                   Proband = proband,
+                                                   RV_status = DA1 + DA2),
+                                 status = ifelse(is.na(death_year), 0, 1)))
+plot(ex_ped)
 
 # say we are simulating gamete inheritance from the parent
 # with ID 1 to the offspring with ID 3

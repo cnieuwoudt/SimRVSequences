@@ -10,7 +10,7 @@ gam_order()
 A list corresponding to assigned gamete order.
 }
 \description{
-Assign gamete order
+For internal use.
 }
 \examples{
 gam_order()

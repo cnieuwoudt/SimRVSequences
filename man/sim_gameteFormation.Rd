@@ -4,12 +4,17 @@
 \alias{sim_gameteFormation}
 \title{Simulate gamete formation}
 \usage{
-sim_gameteFormation(chrom_map, allele_IDs)
+sim_gameteFormation(chrom_map, allele_IDs, burn_in = 1000,
+  gamma_params = c(2.63, 2.63/0.5))
 }
 \arguments{
 \item{chrom_map}{Data.frame.  A data.frame consisting of three columns: column 1 contains the chromosome numbers, column 2 start postion of chromosome (in cM), column 3 end position of chromosome (in cM).}
 
-\item{allele_IDs}{Numeric list of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination.}
+\item{allele_IDs}{List of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination. (Can accomodate numeric or string entries)}
+
+\item{burn_in}{Numeric. The burn in distance in cM.}
+
+\item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata, default from Vorrips.}
 }
 \value{
 chrom_haps and gamete_group
@@ -18,12 +23,14 @@ chrom_haps and gamete_group
 Simulate gamete formation
 }
 \examples{
-my_chrom_map = data.frame(chrom = c(1, 2, 3),
-                          start_pos = c(0, 0, 0),
-                          end_pos = c(250, 120, 75),
-                          center = c(50, 24, 15))
+my_chrom_map = data.frame(chrom = c(1, 2),
+                          start_pos = c(0, 0),
+                          end_pos = c(250, 120),
+                          center = c(50, 24))
 
 sim_gameteFormation(my_chrom_map, allele_IDs = c(0, 1))
+sim_gameteFormation(my_chrom_map, allele_IDs = c("a", "b"))
+sim_gameteFormation(my_chrom_map, allele_IDs = c(34, "gb"))
 
 system.time(for (i in 1:10000) {
   sim_gameteFormation(my_chrom_map, c(0, 1))

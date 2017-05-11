@@ -2,7 +2,7 @@
 % Please edit documentation in R/utility_Functions.R
 \name{reduce_to_events}
 \alias{reduce_to_events}
-\title{Remove chiasmata locations that a gamete is not involved in.}
+\title{Reduce chiasmata vector to crossovers that transmitted gamete participates in based on the allele vector.}
 \usage{
 reduce_to_events(gamete_haplo, chias_locations)
 }
@@ -15,6 +15,13 @@ reduce_to_events(gamete_haplo, chias_locations)
 The locations of crossovers
 }
 \description{
-Remove chiasmata locations that a gamete is not involved in.
+For internal use.
+}
+\examples{
+haplo_vec <- sample(x = c(2, 3), size = 10, replace = T)
+chias_vec <- cumsum(rgamma(9, shape = 2.63, rate = 2*2.63))
+reduce_to_events(gamete_haplo = haplo_vec,
+                 chias_locations = chias_vec)
+
 }
 

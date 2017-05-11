@@ -15,7 +15,7 @@ chias_count_BC(chiasmata_pos, center_loc)
 The number of chiasmata before the centromere
 }
 \description{
-Determine number of chiasmata count before centromere
+For internal use.
 }
 \examples{
 ex_chias <- sim_chiasmataPositions(chrom_map = data.frame(start = 47, stop = 198))

@@ -1,4 +1,6 @@
-#' Reconstruct offspring sequence from parental alleles
+#' Construct offspring sequence from parental allele vector
+#'
+#' For internal use.
 #'
 #' @param parental_genotypes The parental genotype sequence information.
 #' @param Clinkage_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
@@ -7,6 +9,7 @@
 #'
 #' @return offspring_seq
 #' @export
+#'
 #'
 #'
 #'
@@ -151,19 +154,25 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #'                       RV_marker = my_RV_marker))
 #'
 sim_RVseq <- function(ped_file, founder_genotypes,
-                      linkage_map, chrom_map, RV_marker){
+                      linkage_map, chrom_map, RV_marker,
+                      burn_in = 1000, gamma_params = c(2.63, 2.63/0.5)){
 
+  #Get parent/offspring information
+  #i.e. for each offspring find RV_status,
+  #parent IDs, and parent alleles at RV locus
   PO_info <- get_parOffInfo(ped_file)
   PO_info <- PO_info[order(PO_info$Gen, PO_info$offspring_ID),]
 
   pedigree_genotypes <- founder_genotypes
 
+  #for each offspring simulate transmission of parental data
   for (i in 1:nrow(PO_info)) {
     loop_gams <- sim_gameteInheritance(RV_locus = linkage_map[which(linkage_map$marker == RV_marker), c(2:3)],
                                        parent_RValleles = PO_info[i, c(6, 7)],
                                        offspring_RVstatus = PO_info[i, 5],
                                        chrom_map,
-                                       allele_IDs = c(1, 2))
+                                       allele_IDs = c(1, 2),
+                                       burn_in, gamma_params)
 
     loop_seq <- lapply(c(1:nrow(chrom_map)),
                        function(x){

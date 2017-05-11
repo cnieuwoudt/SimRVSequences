@@ -1,5 +1,7 @@
 #' Assign gamete order
 #'
+#' For internal use.
+#'
 #' @return A list corresponding to assigned gamete order.
 #' @export
 #'
@@ -19,6 +21,8 @@ gam_order <- function(){
 
 
 #' Determine number of chiasmata count before centromere
+#'
+#' For internal use.
 #'
 #' @param chiasmata_pos The simulated chiasmata postions
 #' @param center_loc The centromere locations
@@ -75,13 +79,21 @@ get_parOffInfo <- function(ped_file){
 }
 
 
-#' Remove chiasmata locations that a gamete is not involved in.
+#' Reduce chiasmata vector to crossovers that transmitted gamete participates in based on the allele vector.
+#'
+#' For internal use.
 #'
 #' @param gamete_haplo Numeric vector. The inherited haplotype.
 #' @param chias_locations  Numeric vector.  Chiasmata locations.
 #'
 #' @return The locations of crossovers
 #' @export
+#'
+#' @examples
+#' haplo_vec <- sample(x = c(2, 3), size = 10, replace = T)
+#' chias_vec <- cumsum(rgamma(9, shape = 2.63, rate = 2*2.63))
+#' reduce_to_events(gamete_haplo = haplo_vec,
+#'                  chias_locations = chias_vec)
 #'
 reduce_to_events <- function(gamete_haplo, chias_locations){
   if(sum(gamete_haplo == gamete_haplo[1]) == length(gamete_haplo)){

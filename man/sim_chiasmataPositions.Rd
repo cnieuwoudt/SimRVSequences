@@ -4,29 +4,55 @@
 \alias{sim_chiasmataPositions}
 \title{Simulate chiasmata positions}
 \usage{
-sim_chiasmataPositions(chrom_map, mean_dist = 0.5, gamma_params = c(2.63,
+sim_chiasmataPositions(chrom_map, burn_in = 1000, gamma_params = c(2.63,
   2.63/0.5))
 }
 \arguments{
 \item{chrom_map}{Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.}
 
-\item{gamma_params}{Numeric list of length 2. The respective shape and scale parameters gamma distribution used to simulate distance between chiasmata, default from Vorrips.}
+\item{burn_in}{Numeric. The burn in distance in cM.}
+
+\item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata, default from Vorrips.}
 }
 \value{
-A list containing chiasmata postions and the number of chiasmata that occur before the centromere.
+A list of chiasmata postions.
 }
 \description{
-Simulate chiasmata positions among a group of four chromatids.
+Simulate locations of chiasmata along a chromatid bundle.
+}
+\details{
+Simulate the locations of chiasmata along a chromatid bundle according to the model proposed by Voorrips.  Voorrips proposes to use a gamma distribution with shape 2.63 and rate parameter 2*2.63 to model the distance between successive chiasmata.  To use this model, Voorrips notes that we must incorporate a burn-in process for the first chiasmata location since "in the case of chiasmata interference [...] the position of the next chiasmata location is affected by the position of the previous chiasmata."   The burn-in is accomplished by
+\enumerate{
+\item Setting the burn-in distance.  From Voorrips code, and verified by my own investigations a burn-in of 1000 cM seems sufficent.
+\item Generate location of first chiasmata (from burn-start) from an exponential distribution with mean 50 cM. (Why exponential and not gamma? I think this is to do with stationary renewal processes)
+\item Generate successive chiasmata from a gamma(shape = 2.63, rate = 2*2.63) distribution until a chiasmata location exceeds the chromosome start position, this is used as the position of the first chiasmata.
+}
+After we simulate the position of the first chiasmata, successive chiasmata are drawn from a  gamma(shape = 2.63, rate = 2*2.63) distribution until a proposed chiasmata exceeds the end of the chromosome.
+
+NOTE: To simulate chiasmata formation \strong{without chiasmata interference} (i.e. Haldane's model) we assume that the distance between successive chiasmata is distributed as an exponential distribution with mean 50 cM.  This can be accomplished by setting \code{burn_in = 0} and \code{gamma_params = c(1, 2)}.
 }
 \examples{
 
-sim_chiasmataPositions(chrom_map = data.frame(start = 47, stop = 198, center = 100))
+sim_chiasmataPositions(chrom_map = data.frame(start = 0,
+                                              stop = 250,
+                                              center = 50))
+
+sim_chiasmataPositions(chrom_map = data.frame(start = 0,
+                                              stop = 250,
+                                              center = 50),
+                       burn_in = 0,
+                       gamma_params = c(1, 2))
 
 set.seed(1)
 system.time(for(i in 1:10000){
-sim_chiasmataPositions(chrom_map = data.frame(start = 0, stop = 200, center = 50))
+sim_chiasmataPositions(chrom_map = data.frame(start = 0,
+                                              stop = 200,
+                                              center = 50))
 })
 
 
+}
+\references{
+Roeland E. Voorrips, Chris A Maliepaard. (2012), \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
 }
 
