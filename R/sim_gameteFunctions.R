@@ -1,6 +1,6 @@
 #' Simulate crossover positions
 #'
-#' Simulate crossover positions along a chromatid bundle. This will likely become an internal function.
+#' Simulate crossover positions along a chromatid bundle. \strong{This function will likely become an internal function}.
 #'
 #' Simulate the locations of chiasmata along a chromatid bundle according to the model proposed by Voorrips.  Voorrips proposes to use a gamma distribution with shape 2.63 and rate parameter 2*2.63 to model the distance between successive chiasmata.  To use this model, Voorrips notes that we must incorporate a burn-in process for the first chiasmata location since "in the case of chiasmata interference [...] the position of the next chiasmata location is affected by the position of the previous chiasmata."   The burn-in is accomplished by
 #' \enumerate{
@@ -85,17 +85,25 @@ sim_chiasmataPositions <- function(chrom_map,
 
 
 
-#' Simulate recombination along a bundle of four chromatids.
+#' Simulate recombination among chromatids.
 #'
-#' Simulate recombination along a bundle of four chromatids.
+#' Simulate recombination among a bundle of four chromatids.  \strong{This function will likely become an internal function}.
 #'
-#' Given the possible chiasmata positions returned from \code{sim_chiasmataPostions}, we want to randomly select two non-sister chromatids to participate in each recombination event.  We assume no chromatid interference so that the non-sister chromatids participating in a crossover event are independent of those chosen in previous crossover events.
+#' Given the possible chiasmata positions returned from \code{sim_chiasmataPostions}, we randomly select two non-sister chromatids to participate in each recombination event.  We assume no chromatid interference so that the non-sister chromatids participating in a crossover event are independent of those chosen in previous crossover events.
+#'
+#' After simulating recombination among the bundle, we simulate meiosis I and II, as follows: refercence (Thompson 2000)
+#' \itemize{
+#' \item (Meiosis I: Single Cell to Two Cells) After recombination we assign bivalents to one of the two daughter cells with equal probability.  Remember recombination has already occurred, so we identify sister chromatids by the their centromeres (location specified by user).  This process is occurs independently for different chromosomes.
+#' \item (Meiosis II: Each cell from meiosis I splits into two gametes) Each pair of homologous chromosomes are separated into two gametes with equal probability and independently from the assortment of non-homologous chromosome.
+#' }
 #'
 #' @param num_chiasmata Numeric. The number of chiasmata to simulate among the chromatid bundle.
 #' @param allele_IDs List of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination. (Can accomodate numeric or string entries)
 #'
-#' @return haploid_mat. A matrix with rows representing recombined haplotypes.
+#' @return haploid_mat. A matrix with rows representing recombined haplotypes along with an identifier that defines which group each haploid will be associated with after meiosis II.
 #' @export
+#'
+#' @references Thompson, E. (2000). \emph{Statistical Inference from Genetic Data on Pedigrees.} NSF-CBMS Regional Conference Series in Probability and Statistics, 6, I-169. Retrieved from http://www.jstor.org.proxy.lib.sfu.ca/stable/4153187
 #'
 #' @seealso \code{\link{sim_chiasmataPostions}}
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim_gameteFunctions.R
 \name{sim_haploidFormation}
 \alias{sim_haploidFormation}
-\title{Simulate recombination along a bundle of four chromatids.}
+\title{Simulate recombination among chromatids.}
 \usage{
 sim_haploidFormation(num_chiasmata, before_center, allele_IDs)
 }
@@ -12,13 +12,19 @@ sim_haploidFormation(num_chiasmata, before_center, allele_IDs)
 \item{allele_IDs}{List of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination. (Can accomodate numeric or string entries)}
 }
 \value{
-haploid_mat. A matrix with rows representing recombined haplotypes.
+haploid_mat. A matrix with rows representing recombined haplotypes along with an identifier that defines which group each haploid will be associated with after meiosis II.
 }
 \description{
-Simulate recombination along a bundle of four chromatids.
+Simulate recombination among a bundle of four chromatids.  \strong{This function will likely become an internal function}.
 }
 \details{
-Given the possible chiasmata positions returned from \code{sim_chiasmataPostions}, we want to randomly select two non-sister chromatids to participate in each recombination event.  We assume no chromatid interference so that the non-sister chromatids participating in a crossover event are independent of those chosen in previous crossover events.
+Given the possible chiasmata positions returned from \code{sim_chiasmataPostions}, we randomly select two non-sister chromatids to participate in each recombination event.  We assume no chromatid interference so that the non-sister chromatids participating in a crossover event are independent of those chosen in previous crossover events.
+
+After simulating recombination among the bundle, we simulate meiosis I and II, as follows: refercence (Thompson 2000)
+\itemize{
+\item (Meiosis I: Single Cell to Two Cells) After recombination we assign bivalents to one of the two daughter cells with equal probability.  Remember recombination has already occurred, so we identify sister chromatids by the their centromeres (location specified by user).  This process is occurs independently for different chromosomes.
+\item (Meiosis II: Each cell from meiosis I splits into two gametes) Each pair of homologous chromosomes are separated into two gametes with equal probability and independently from the assortment of non-homologous chromosome.
+}
 }
 \examples{
 my_chrom_map <- data.frame(start = 0, stop = 200, center = 40)
@@ -35,6 +41,9 @@ sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
                      allele_IDs = c(2, 3))
 })
 
+}
+\references{
+Thompson, E. (2000). \emph{Statistical Inference from Genetic Data on Pedigrees.} NSF-CBMS Regional Conference Series in Probability and Statistics, 6, I-169. Retrieved from http://www.jstor.org.proxy.lib.sfu.ca/stable/4153187
 }
 \seealso{
 \code{\link{sim_chiasmataPostions}}

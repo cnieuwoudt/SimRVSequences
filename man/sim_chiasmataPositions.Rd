@@ -18,7 +18,7 @@ sim_chiasmataPositions(chrom_map, burn_in = 1000, gamma_params = c(2.63,
 A list of chiasmata postions.
 }
 \description{
-Simulate crossover positions along a chromatid bundle. This will likely become an internal function.
+Simulate crossover positions along a chromatid bundle. \strong{This function will likely become an internal function}.
 }
 \details{
 Simulate the locations of chiasmata along a chromatid bundle according to the model proposed by Voorrips.  Voorrips proposes to use a gamma distribution with shape 2.63 and rate parameter 2*2.63 to model the distance between successive chiasmata.  To use this model, Voorrips notes that we must incorporate a burn-in process for the first chiasmata location since "in the case of chiasmata interference [...] the position of the next chiasmata location is affected by the position of the previous chiasmata."   The burn-in is accomplished by
