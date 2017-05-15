@@ -217,18 +217,26 @@ affected_onlyPed = function(ped_file){
 #' @export
 #'
 get_FGenos <- function(founder_ids, RV_founder, FamID, founder_genotypes, FamRV) {
+  #choose row corresponding to seq_data for RV founder
   RV_founder_row <- sample(size = 1,
                            x = which(founder_genotypes[ , which(colnames(founder_genotypes) == FamRV)] == 1))
 
+  #choose row corresponding to seq_data for other founders
   NOTRV_founder_row <- sample(size = 2*length(founder_ids) + 1,
                            x = which(founder_genotypes[ , which(colnames(founder_genotypes) == FamRV)] == 0),
                            replace = FALSE)
 
+  #combine into 1 DF
   fam_genos <- rbind(founder_genotypes[RV_founder_row, ],
                      founder_genotypes[NOTRV_founder_row, ])
-  fam_genos$FamID = FamID
+
+  #update ID variable
   fam_genos$ID <- c(rep(RV_founder, 2), rep(founder_ids, each = 2))
 
+  #ramdomly permute RV founders rows so that half of the time the RV is a maternally inherited and the other half of the time it is paternally inherited.
+  fam_genos[c(1,2), ] <- fam_genos[sample(x = c(1, 2), size = 2, replace = F), ]
+
+  #reduce genotypes DF so that these rows cannot be chosen again
   red_genotypes <- founder_genotypes[-c(RV_founder_row, NOTRV_founder_row), ]
 
   my_return <- list(fam_genos, red_genotypes)

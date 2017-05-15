@@ -188,5 +188,10 @@ sim_RVseq <- function(ped_file, founder_genotypes,
     pedigree_genotypes <- rbind(pedigree_genotypes, do.call("cbind", loop_seq))
   }
 
+  pedigree_genotypes <- pedigree_genotypes[order(pedigree_genotypes$ID),]
+  pedigree_genotypes$FamID <- ped_file$FamID[1]
+  pedigree_genotypes$FamRV <- RV_marker
+  rownames(pedigree_genotypes) = NULL
+
   return(pedigree_genotypes)
 }
