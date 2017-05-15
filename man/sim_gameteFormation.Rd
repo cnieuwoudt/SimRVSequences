@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim_gameteFunctions.R
 \name{sim_gameteFormation}
 \alias{sim_gameteFormation}
-\title{Simulate gamete formation}
+\title{Simulate formation of gametes.}
 \usage{
 sim_gameteFormation(chrom_map, allele_IDs, burn_in = 1000,
   gamma_params = c(2.63, 2.63/0.5))
@@ -17,10 +17,14 @@ sim_gameteFormation(chrom_map, allele_IDs, burn_in = 1000,
 \item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata, default from Vorrips.}
 }
 \value{
-chrom_haps and gamete_group
+A list containing the following:
+
+\code{chrom_haps} A list of dataframes, each dataframe is a set of four recombined haplotypes for a single chromosome (in the order specified in \code{chrom_map}), each with a gamete group identifier column.
+
+\code{gamete_group} A list of lists, each list contains the crossover positions for a single chromosome (in the order specified in \code{chrom_map}).
 }
 \description{
-Simulate gamete formation
+Simulate formation of gametes. \strong{This function will likely become an internal function}.
 }
 \examples{
 my_chrom_map = data.frame(chrom = c(1, 2),

@@ -20,7 +20,7 @@ Simulate recombination among a bundle of four chromatids.  \strong{This function
 \details{
 Given the possible chiasmata positions returned from \code{sim_chiasmataPostions}, we randomly select two non-sister chromatids to participate in each recombination event.  We assume no chromatid interference so that the non-sister chromatids participating in a crossover event are independent of those chosen in previous crossover events.
 
-After simulating recombination among the bundle, we simulate meiosis I and II, as follows: refercence (Thompson 2000)
+After simulating recombination among the bundle, we simulate meiosis I and II, by assigning a group identifier to each hapliod: refercence (Thompson 2000)
 \itemize{
 \item (Meiosis I: Single Cell to Two Cells) After recombination we assign bivalents to one of the two daughter cells with equal probability.  Remember recombination has already occurred, so we identify sister chromatids by the their centromeres (location specified by user).  This process is occurs independently for different chromosomes.
 \item (Meiosis II: Each cell from meiosis I splits into two gametes) Each pair of homologous chromosomes are separated into two gametes with equal probability and independently from the assortment of non-homologous chromosome.

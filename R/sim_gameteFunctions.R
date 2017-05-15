@@ -15,7 +15,7 @@
 #'
 #' @references Roeland E. Voorrips, Chris A Maliepaard. (2012), \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
 #'
-#' @param chrom_map Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.
+#' @param cmap Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.
 #' @param gamma_params Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata, default from Vorrips.
 #' @param burn_in Numeric. The burn in distance in cM.
 #'
@@ -27,26 +27,33 @@
 #'
 #' @examples
 #'
-#' sim_chiasmataPositions(chrom_map = data.frame(start = 0,
-#'                                               stop = 250,
-#'                                               center = 50))
+#' set.seed(1)
+#' sim_chiasmataPositions(cmap = data.frame(start = 70,
+#'                                          stop = 250,
+#'                                          center = 120))
+#'
+#' set.seed(1)
+#' sim_chiasmataPositions(cmap = data.frame(start = 0,
+#'                                          stop = 250,
+#'                                          center = 50))
 #'
 #' #to simulate chiasmata according to Haldane's Model
-#' sim_chiasmataPositions(chrom_map = data.frame(start = 0,
-#'                                               stop = 250,
-#'                                               center = 50),
+#' set.seed(1)
+#' sim_chiasmataPositions(cmap = data.frame(start = 0,
+#'                                          stop = 250,
+#'                                          center = 50),
 #'                        burn_in = 0,
 #'                        gamma_params = c(1, 2))
 #'
 #' set.seed(1)
 #' system.time(for(i in 1:10000){
-#' sim_chiasmataPositions(chrom_map = data.frame(start = 0,
-#'                                               stop = 200,
-#'                                               center = 50))
+#' sim_chiasmataPositions(cmap = data.frame(start = 0,
+#'                                          stop = 200,
+#'                                          center = 50))
 #' })
 #'
 #'
-sim_chiasmataPositions <- function(chrom_map,
+sim_chiasmataPositions <- function(cmap,
                                    burn_in = 1000,
                                    gamma_params = c(2.63, 2.63/0.5)){
 
@@ -65,19 +72,19 @@ sim_chiasmataPositions <- function(chrom_map,
                  )
   }
 
-  chiasmata_pos <- try_pos[min(which(try_pos > burnDist))] - burnDist
+  chiasmata_pos <- try_pos[min(which(try_pos > burnDist))] - burnDist + cmap[1,1]
 
   #simulate chiasmata along the length of the chromosome
-  while (length(chiasmata_pos[which(chiasmata_pos >= chrom_map[1, 2] )]) == 0){
+  while (length(chiasmata_pos[which(chiasmata_pos >= cmap[1, 2] )]) == 0){
     chiasmata_pos <- c(chiasmata_pos,
                        chiasmata_pos[length(chiasmata_pos)] +
-                         cumsum(rgamma(max(5, 5*round((diff(as.numeric(chrom_map)))/50)),
+                         cumsum(rgamma(max(5, 5*round((diff(as.numeric(cmap)))/50)),
                                        shape = gamma_params[1],
                                        rate = gamma_params[2])*100)
                        )
   }
 
-  chiasmata_pos <- chiasmata_pos[which(chiasmata_pos < chrom_map[1, 2] )]
+  chiasmata_pos <- chiasmata_pos[which(chiasmata_pos < cmap[1, 2] )]
 
   return(chiasmata_pos)
 
@@ -91,7 +98,7 @@ sim_chiasmataPositions <- function(chrom_map,
 #'
 #' Given the possible chiasmata positions returned from \code{sim_chiasmataPostions}, we randomly select two non-sister chromatids to participate in each recombination event.  We assume no chromatid interference so that the non-sister chromatids participating in a crossover event are independent of those chosen in previous crossover events.
 #'
-#' After simulating recombination among the bundle, we simulate meiosis I and II, as follows: refercence (Thompson 2000)
+#' After simulating recombination among the bundle, we simulate meiosis I and II, by assigning a group identifier to each hapliod: refercence (Thompson 2000)
 #' \itemize{
 #' \item (Meiosis I: Single Cell to Two Cells) After recombination we assign bivalents to one of the two daughter cells with equal probability.  Remember recombination has already occurred, so we identify sister chromatids by the their centromeres (location specified by user).  This process is occurs independently for different chromosomes.
 #' \item (Meiosis II: Each cell from meiosis I splits into two gametes) Each pair of homologous chromosomes are separated into two gametes with equal probability and independently from the assortment of non-homologous chromosome.
@@ -150,16 +157,18 @@ sim_haploidFormation <- function(num_chiasmata,
 }
 
 
-#' Simulate gamete formation
+#' Simulate formation of gametes.
 #'
-#' Simulate gamete formation
+#' Simulate formation of gametes. \strong{This function will likely become an internal function}.
 #'
 #' @inheritParams sim_haploidFormation
 #' @inheritParams sim_chiasmataPositions
 #'
 #' @param chrom_map Data.frame.  A data.frame consisting of three columns: column 1 contains the chromosome numbers, column 2 start postion of chromosome (in cM), column 3 end position of chromosome (in cM).
 #'
-#' @return chrom_haps and gamete_group
+#' @return  A list containing the following:
+#' @return \code{chrom_haps} A list of dataframes, each dataframe is a set of four recombined haplotypes for a single chromosome (in the order specified in \code{chrom_map}), each with a gamete group identifier column.
+#' @return \code{gamete_group} A list of lists, each list contains the crossover positions for a single chromosome (in the order specified in \code{chrom_map}).
 #' @export
 #'
 #' @examples
@@ -180,7 +189,7 @@ sim_gameteFormation <- function(chrom_map, allele_IDs,
 
   chrom_chiasmataPos <- lapply(c(1:nrow(chrom_map)),
                                function(x){
-                                 sim_chiasmataPositions(chrom_map = chrom_map[x, -1],
+                                 sim_chiasmataPositions(cmap = chrom_map[x, -1],
                                                         burn_in, gamma_params)
                                  })
 

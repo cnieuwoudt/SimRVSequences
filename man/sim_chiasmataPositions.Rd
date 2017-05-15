@@ -4,11 +4,11 @@
 \alias{sim_chiasmataPositions}
 \title{Simulate crossover positions}
 \usage{
-sim_chiasmataPositions(chrom_map, burn_in = 1000, gamma_params = c(2.63,
+sim_chiasmataPositions(cmap, burn_in = 1000, gamma_params = c(2.63,
   2.63/0.5))
 }
 \arguments{
-\item{chrom_map}{Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.}
+\item{cmap}{Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.}
 
 \item{burn_in}{Numeric. The burn in distance in cM.}
 
@@ -33,22 +33,29 @@ NOTE: To simulate chiasmata formation \strong{without chiasmata interference} (i
 }
 \examples{
 
-sim_chiasmataPositions(chrom_map = data.frame(start = 0,
-                                              stop = 250,
-                                              center = 50))
+set.seed(1)
+sim_chiasmataPositions(cmap = data.frame(start = 70,
+                                         stop = 250,
+                                         center = 120))
+
+set.seed(1)
+sim_chiasmataPositions(cmap = data.frame(start = 0,
+                                         stop = 250,
+                                         center = 50))
 
 #to simulate chiasmata according to Haldane's Model
-sim_chiasmataPositions(chrom_map = data.frame(start = 0,
-                                              stop = 250,
-                                              center = 50),
+set.seed(1)
+sim_chiasmataPositions(cmap = data.frame(start = 0,
+                                         stop = 250,
+                                         center = 50),
                        burn_in = 0,
                        gamma_params = c(1, 2))
 
 set.seed(1)
 system.time(for(i in 1:10000){
-sim_chiasmataPositions(chrom_map = data.frame(start = 0,
-                                              stop = 200,
-                                              center = 50))
+sim_chiasmataPositions(cmap = data.frame(start = 0,
+                                         stop = 200,
+                                         center = 50))
 })
 
 
