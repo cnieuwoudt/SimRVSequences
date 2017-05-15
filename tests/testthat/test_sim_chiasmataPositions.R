@@ -7,7 +7,7 @@ test_that("sim_chiasmataPositions should never return a chiasmata position outsi
     my_endPoints <- data.frame(start = round(runif(1, 0, 500)))
     my_endPoints$stop <- my_endPoints$start + round(runif(1, 50, 300))
 
-    ex_chiasPos <- sim_chiasmataPositions(cmap = my_endPoints)
+    ex_chiasPos <- sim_chiasmataPositions(chrom_map = my_endPoints)
     B <- length(ex_chiasPos)
   }
 
@@ -23,7 +23,7 @@ test_that("successive chiasmata locations returned by sim_chiasmataPositions sho
     my_endPoints <- data.frame(start = round(runif(1, 0, 500)))
     my_endPoints$stop <- my_endPoints$start + round(runif(1, 50, 300))
 
-    ex_chiasPos <- sim_chiasmataPositions(cmap = my_endPoints)
+    ex_chiasPos <- sim_chiasmataPositions(chrom_map = my_endPoints)
     B <- length(ex_chiasPos)
   }
 
