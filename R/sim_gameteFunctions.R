@@ -15,7 +15,7 @@
 #'
 #' @references Roeland E. Voorrips, Chris A Maliepaard. (2012), \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
 #'
-#' @param cmap Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.
+#' @param chrom_map Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.
 #' @param gamma_params Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata, default from Vorrips.
 #' @param burn_in Numeric. The burn in distance in cM.
 #'
@@ -28,18 +28,18 @@
 #' @examples
 #'
 #' set.seed(1)
-#' sim_chiasmataPositions(cmap = data.frame(start = 70,
+#' sim_chiasmataPositions(chrom_map = data.frame(start = 70,
 #'                                          stop = 250,
 #'                                          center = 120))
 #'
 #' set.seed(1)
-#' sim_chiasmataPositions(cmap = data.frame(start = 0,
+#' sim_chiasmataPositions(chrom_map = data.frame(start = 0,
 #'                                          stop = 250,
 #'                                          center = 50))
 #'
 #' #to simulate chiasmata according to Haldane's Model
 #' set.seed(1)
-#' sim_chiasmataPositions(cmap = data.frame(start = 0,
+#' sim_chiasmataPositions(chrom_map = data.frame(start = 0,
 #'                                          stop = 250,
 #'                                          center = 50),
 #'                        burn_in = 0,
@@ -47,13 +47,13 @@
 #'
 #' set.seed(1)
 #' system.time(for(i in 1:10000){
-#' sim_chiasmataPositions(cmap = data.frame(start = 0,
+#' sim_chiasmataPositions(chrom_map = data.frame(start = 0,
 #'                                          stop = 200,
 #'                                          center = 50))
 #' })
 #'
 #'
-sim_chiasmataPositions <- function(cmap,
+sim_chiasmataPositions <- function(chrom_map,
                                    burn_in = 1000,
                                    gamma_params = c(2.63, 2.63/0.5)){
 
@@ -72,19 +72,19 @@ sim_chiasmataPositions <- function(cmap,
                  )
   }
 
-  chiasmata_pos <- try_pos[min(which(try_pos > burnDist))] - burnDist + cmap[1,1]
+  chiasmata_pos <- try_pos[min(which(try_pos > burnDist))] - burnDist + chrom_map[1,1]
 
   #simulate chiasmata along the length of the chromosome
-  while (length(chiasmata_pos[which(chiasmata_pos >= cmap[1, 2] )]) == 0){
+  while (length(chiasmata_pos[which(chiasmata_pos >= chrom_map[1, 2] )]) == 0){
     chiasmata_pos <- c(chiasmata_pos,
                        chiasmata_pos[length(chiasmata_pos)] +
-                         cumsum(rgamma(max(5, 5*round((diff(as.numeric(cmap)))/50)),
+                         cumsum(rgamma(max(5, 5*round((diff(as.numeric(chrom_map)))/50)),
                                        shape = gamma_params[1],
                                        rate = gamma_params[2])*100)
                        )
   }
 
-  chiasmata_pos <- chiasmata_pos[which(chiasmata_pos < cmap[1, 2] )]
+  chiasmata_pos <- chiasmata_pos[which(chiasmata_pos < chrom_map[1, 2] )]
 
   return(chiasmata_pos)
 
@@ -189,7 +189,7 @@ sim_gameteFormation <- function(chrom_map, allele_IDs,
 
   chrom_chiasmataPos <- lapply(c(1:nrow(chrom_map)),
                                function(x){
-                                 sim_chiasmataPositions(cmap = chrom_map[x, -1],
+                                 sim_chiasmataPositions(chrom_map = chrom_map[x, -1],
                                                         burn_in, gamma_params)
                                  })
 
