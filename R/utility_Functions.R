@@ -134,3 +134,78 @@ reduce_to_events <- function(gamete_haplo, chias_locations){
 #'
 is_odd <- function(x) {x %% 2 != 0}
 
+#' Remove unaffected relatives
+#'
+#' Remove unaffected relatives
+#'
+#' @param ped_file data.frame. A pedigree.
+#'
+#' @return \code{retA_ped} A pedigree containing only affected members, obligate carriers, and founders.
+#' @export
+#'
+#' @references OUR MANUSCRIPT
+#' @references Thompson, E. (2000). \emph{Statistical Inference from Genetic Data on Pedigrees.} NSF-CBMS Regional Conference Series in Probability and Statistics, 6, I-169. Retrieved from http://www.jstor.org.proxy.lib.sfu.ca/stable/4153187
+#'
+#' @examples
+#' library(SimRVPedigree)
+#' #Read in example pedigrees
+#' data(EgPeds)
+#'
+#' library(kinship2)
+#' #plot full pedigree
+#' ex_pedigree <- pedigree(id = EgPeds$ID,
+#'                         dadid = EgPeds$dad_id,
+#'                         momid = EgPeds$mom_id,
+#'                         sex = (EgPeds$gender + 1),
+#'                         affected = EgPeds$affected,
+#'                         famid = EgPeds$FamID)
+#' plot(ex_pedigree['1'])
+#'
+#' #reduce to affected only pedigree
+#' Apeds = affected_onlyPed(EgPeds[which(EgPeds$FamID == 1), ])
+#' red_ped <- pedigree(id = Apeds$ID,
+#'                     dadid = Apeds$dad_id,
+#'                     momid = Apeds$mom_id,
+#'                     sex = (Apeds$gender + 1),
+#'                     affected = Apeds$affected,
+#'                     famid = Apeds$FamID)
+#' plot(red_ped['1'])
+#'
+affected_onlyPed = function(ped_file){
+
+  #create new ped file with affecteds only
+  retA_ped <- ped_file[which(ped_file$affected == 1), ]
+
+  if (nrow(retA_ped) == 0) {
+    warning("No affecteds to assign affected generation")
+    return(retA_ped)
+  } else {
+    d <- 0
+    while (d == 0) {
+      #find the dad IDs that are required but have been removed
+      miss_dad  <- !is.element(retA_ped$dad_id,
+                               retA_ped$ID[which(retA_ped$gender == 0)])
+      readd_dad <- retA_ped$dad_id[miss_dad]
+      readd_dad <- unique(readd_dad[!is.na(readd_dad)])
+
+      #find the mom IDs that are required but have been removed
+      miss_mom  <- !is.element(retA_ped$mom_id,
+                               retA_ped$ID[which(retA_ped$gender == 1)])
+      readd_mom <- retA_ped$mom_id[miss_mom]
+      readd_mom <- unique(readd_mom[!is.na(readd_mom)])
+
+      #check to see if we need to readd anyone
+      if (length(c(readd_dad, readd_mom)) == 0) {
+        d <- 1
+      } else {
+        #Now pull the rows containing the required parents
+        # from the original ped_file
+        readd <- ped_file[which(ped_file$ID %in% c(readd_dad, readd_mom)), ]
+
+        #combine with affected ped file
+        retA_ped <- rbind(retA_ped, readd)
+      }
+    }
+  }
+  return(retA_ped)
+}
