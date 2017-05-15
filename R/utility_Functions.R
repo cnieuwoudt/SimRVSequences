@@ -209,3 +209,28 @@ affected_onlyPed = function(ped_file){
   }
   return(retA_ped)
 }
+
+#' Set Founder Genotypes and Return Reduced DF of Genotypes
+#'
+#'
+#' @return list of (1) family genotypes and (2) a reduced pool of genos
+#' @export
+#'
+get_FGenos <- function(founder_ids, RV_founder, FamID, founder_genotypes, FamRV) {
+  RV_founder_row <- sample(size = 1,
+                           x = which(founder_genotypes[ , which(colnames(founder_genotypes) == FamRV)] == 1))
+
+  NOTRV_founder_row <- sample(size = 2*length(founder_ids) + 1,
+                           x = which(founder_genotypes[ , which(colnames(founder_genotypes) == FamRV)] == 0),
+                           replace = FALSE)
+
+  fam_genos <- rbind(founder_genotypes[RV_founder_row, ],
+                     founder_genotypes[NOTRV_founder_row, ])
+  fam_genos$FamID = FamID
+  fam_genos$ID <- c(rep(RV_founder, 2), rep(founder_ids, each = 2))
+
+  red_genotypes <- founder_genotypes[-c(RV_founder_row, NOTRV_founder_row), ]
+
+  my_return <- list(fam_genos, red_genotypes)
+  return(my_return)
+}
