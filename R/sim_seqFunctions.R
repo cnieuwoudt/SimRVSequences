@@ -2,6 +2,9 @@
 #'
 #' For internal use.
 #'
+#' May need to reasses this code, particularly at line 27.
+#' COMMENT THIS CODE ASAP
+#'
 #' @param parental_genotypes The parental genotype sequence information.
 #' @param Clinkage_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
 #' @param inherited_haplotype The inherited haplotype sequence.
@@ -70,9 +73,9 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #'
 #' @inheritParams sim_gameteInheritance
 #' @param ped_file Data frame. Must match format of pedigree simulated by sim_RVped
-#' @param founder_genotypes list of dataframes. Should contain, in the order listed in chrom_map, 1 dataframe for every chromosome contained in chrom_map.  Each data frame should contain two rows for each founder: the first to correspond to the paternally inherited gamete and the second to correspond to the maternally inherited gamete.
-#' @param linkage_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
+#' @param linkage_map Dataframe. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
 #' @param RV_marker character. The marker name of the RV locus.
+#' @param founder_genos Dataframe.  A dataframe with rows corresponding to founders, and colums corresponding to markers.  Markers must be listed in same order as \code{linkage_map}.
 #'
 #' @return offspring_sequences
 #' @export
@@ -140,7 +143,7 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #'
 #' set.seed(6)
 #' ped_seq <- sim_RVseq(ped_file = ex_RVped,
-#'                      founder_genotypes = founder_seq,
+#'                      founder_genos = founder_seq,
 #'                      linkage_map = link_map,
 #'                      chrom_map = my_chrom_map,
 #'                      RV_marker = my_RV_marker)
@@ -148,12 +151,12 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #'
 #' set.seed(6)
 #' system.time(sim_RVseq(ped_file = ex_RVped,
-#'                       founder_genotypes = founder_seq,
+#'                       founder_genos = founder_seq,
 #'                       linkage_map = link_map,
 #'                       chrom_map = my_chrom_map,
 #'                       RV_marker = my_RV_marker))
 #'
-sim_RVseq <- function(ped_file, founder_genotypes,
+sim_RVseq <- function(ped_file, founder_genos,
                       linkage_map, chrom_map, RV_marker,
                       burn_in = 1000, gamma_params = c(2.63, 2.63/0.5)){
 
@@ -163,7 +166,7 @@ sim_RVseq <- function(ped_file, founder_genotypes,
   PO_info <- get_parOffInfo(ped_file)
   PO_info <- PO_info[order(PO_info$Gen, PO_info$offspring_ID),]
 
-  pedigree_genotypes <- founder_genotypes
+  ped_genos <- founder_genos
 
   #for each offspring simulate transmission of parental data
   for (i in 1:nrow(PO_info)) {
@@ -177,7 +180,7 @@ sim_RVseq <- function(ped_file, founder_genotypes,
     loop_seq <- lapply(c(1:nrow(chrom_map)),
                        function(x){
                          reconstruct_fromHaplotype(parental_genotypes =
-                                                     pedigree_genotypes[which(pedigree_genotypes$ID == PO_info[i, 4]),
+                                                     ped_genos[which(ped_genos$ID == PO_info[i, 4]),
                                                                         which(linkage_map$chromosome == chrom_map$chrom[x])],
                                                    Clinkage_map = linkage_map[which(linkage_map$chromosome == chrom_map$chrom[x]),],
                                                    inherited_haplotype = loop_gams$haplotypes[[x]],
@@ -185,13 +188,13 @@ sim_RVseq <- function(ped_file, founder_genotypes,
                        })
     loop_seq[[nrow(chrom_map) + 1]] = data.frame(ID = PO_info[i, 1])
 
-    pedigree_genotypes <- rbind(pedigree_genotypes, do.call("cbind", loop_seq))
+    ped_genos <- rbind(ped_genos, do.call("cbind", loop_seq))
   }
 
-  pedigree_genotypes <- pedigree_genotypes[order(pedigree_genotypes$ID),]
-  pedigree_genotypes$FamID <- ped_file$FamID[1]
-  pedigree_genotypes$FamRV <- RV_marker
-  rownames(pedigree_genotypes) = NULL
+  #ped_genos <- ped_genos[order(ped_genos$ID),]
+  ped_genos$FamID <- ped_file$FamID[1]
+  ped_genos$FamRV <- RV_marker
+  #rownames(ped_genos) = NULL
 
-  return(pedigree_genotypes)
+  return(ped_genos)
 }

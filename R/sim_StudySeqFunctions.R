@@ -16,6 +16,9 @@
 #' data(EgPeds)
 #'
 #' my_study_peds = EgPeds
+#' length(my_study_peds[which(is.na(my_study_peds$dad_id)), ])
+#' length(unique(my_study_peds$FamID))
+#'
 #' my_chrom_map = data.frame(chrom     = c(1, 2),
 #'                           start_pos = c(0, 0),
 #'                           end_pos   = c(270, 200),
@@ -108,7 +111,7 @@ sim_RVstudy <- function(ped_files, founder_genotypes,
 
   ped_seqs <- lapply(c(1:length(FamIDs)), function(x){
     sim_RVseq(ped_file = ped_files[which(ped_files$FamID == FamIDs[x]), ],
-              founder_genotypes = f_genos[[x]],
+              founder_genos = f_genos[[x]],
               linkage_map, chrom_map,
               RV_marker = Fam_RVs[x],
               burn_in, gamma_params)

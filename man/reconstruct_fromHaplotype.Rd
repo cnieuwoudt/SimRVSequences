@@ -22,4 +22,8 @@ offspring_seq
 \description{
 For internal use.
 }
+\details{
+May need to reasses this code, particularly at line 27.
+COMMENT THIS CODE ASAP
+}
 

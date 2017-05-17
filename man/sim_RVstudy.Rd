@@ -30,6 +30,9 @@ library(kinship2)
 data(EgPeds)
 
 my_study_peds = EgPeds
+length(my_study_peds[which(is.na(my_study_peds$dad_id)), ])
+length(unique(my_study_peds$FamID))
+
 my_chrom_map = data.frame(chrom     = c(1, 2),
                           start_pos = c(0, 0),
                           end_pos   = c(270, 200),

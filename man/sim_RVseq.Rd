@@ -4,15 +4,15 @@
 \alias{sim_RVseq}
 \title{Simulate sequence data for a pedigree}
 \usage{
-sim_RVseq(ped_file, founder_genotypes, linkage_map, chrom_map, RV_marker,
+sim_RVseq(ped_file, founder_genos, linkage_map, chrom_map, RV_marker,
   burn_in = 1000, gamma_params = c(2.63, 2.63/0.5))
 }
 \arguments{
 \item{ped_file}{Data frame. Must match format of pedigree simulated by sim_RVped}
 
-\item{founder_genotypes}{list of dataframes. Should contain, in the order listed in chrom_map, 1 dataframe for every chromosome contained in chrom_map.  Each data frame should contain two rows for each founder: the first to correspond to the paternally inherited gamete and the second to correspond to the maternally inherited gamete.}
+\item{founder_genos}{Dataframe.  A dataframe with rows corresponding to founders, and colums corresponding to markers.  Markers must be listed in same order as \code{linkage_map}.}
 
-\item{linkage_map}{Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
+\item{linkage_map}{Dataframe. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
 
 \item{chrom_map}{Data.frame.  A data.frame consisting of three columns: column 1 contains the chromosome numbers, column 2 start postion of chromosome (in cM), column 3 end position of chromosome (in cM).}
 
@@ -87,7 +87,7 @@ founder_seq
 
 set.seed(6)
 ped_seq <- sim_RVseq(ped_file = ex_RVped,
-                     founder_genotypes = founder_seq,
+                     founder_genos = founder_seq,
                      linkage_map = link_map,
                      chrom_map = my_chrom_map,
                      RV_marker = my_RV_marker)
@@ -95,7 +95,7 @@ ped_seq
 
 set.seed(6)
 system.time(sim_RVseq(ped_file = ex_RVped,
-                      founder_genotypes = founder_seq,
+                      founder_genos = founder_seq,
                       linkage_map = link_map,
                       chrom_map = my_chrom_map,
                       RV_marker = my_RV_marker))

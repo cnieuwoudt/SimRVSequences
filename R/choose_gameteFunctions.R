@@ -118,7 +118,7 @@ sim_gameteInheritance <- function(RV_locus, parent_RValleles,
     # only have to worry about maternal/paternal inheritance in the parent
 
     # get the list location corresponding to the chromosome that the RV is located on
-    RV_chromLoc <- which(chrom_map[, 1] == RV_locus[1])
+    RV_chromLoc <- which(chrom_map[, 1] == RV_locus[1, 1])
 
     # Store the halpotype df for the RV chromosome
     RV_chromHaps <- parental_gametes[[1]][[RV_chromLoc]]
@@ -133,10 +133,10 @@ sim_gameteInheritance <- function(RV_locus, parent_RValleles,
     #determine which halpotype interval the RV lies in
     if(length(RV_chromChias) == 0){
       col_loc <- 1
-    } else if (RV_chromChias[length(RV_chromChias)] <  as.numeric(RV_locus[2])){
+    } else if (RV_chromChias[length(RV_chromChias)] <  RV_locus[1, 2]){
       col_loc <- length(RV_chromChias) + 1
     } else{
-      col_loc <- min(which(((RV_chromChias - as.numeric(RV_locus[2])) > 0) == TRUE))
+      col_loc <- min(which(((RV_chromChias - RV_locus[1, 2]) > 0) == TRUE))
     }
 
     #determine which gamete groups contain the appropriate
