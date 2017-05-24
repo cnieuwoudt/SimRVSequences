@@ -29,9 +29,15 @@ library(kinship2)
 #Read in age-specific hazards
 data(EgPeds)
 
-my_study_peds = EgPeds
-length(my_study_peds[which(is.na(my_study_peds$dad_id)), ])
-length(unique(my_study_peds$FamID))
+EgPeds5 <- EgPeds4 <- EgPeds3 <- EgPeds2 <- EgPeds
+EgPeds2$FamID <- EgPeds2$FamID + 5
+EgPeds3$FamID <- EgPeds3$FamID + 10
+EgPeds4$FamID <- EgPeds4$FamID + 15
+EgPeds5$FamID <- EgPeds5$FamID + 20
+ex_study_peds <- rbind(EgPeds, EgPeds2, EgPeds3, EgPeds4, EgPeds5)
+
+length(ex_study_peds[which(is.na(ex_study_peds$dad_id)), ])
+length(unique(ex_study_peds$FamID))
 
 my_chrom_map = data.frame(chrom     = c(1, 2),
                           start_pos = c(0, 0),
@@ -39,11 +45,11 @@ my_chrom_map = data.frame(chrom     = c(1, 2),
                           center = c(55, 40))
 my_chrom_map
 
-link_map <- data.frame(chrom = c(1, 1, 1, 1, 1, 1, 1,
+link_map <- data.frame(chromosome = c(1, 1, 1, 1, 1, 1, 1,
                                       2, 2, 2, 2, 2, 2),
                        position = c(20, 50, 100, 125, 175, 200, 250,
                                      10, 25,  75, 125, 150, 200))
-link_map$marker <- paste0(link_map$chrom, sep = "_", link_map$position)
+link_map$marker <- paste0(link_map$chromosome, sep = "_", link_map$position)
 link_map <- link_map[, c(3, 1, 2)]
 link_map
 
@@ -62,7 +68,7 @@ length(which(founder_seq$`1_50` == 1))
 
 
 set.seed(6)
-ped_seq <- sim_RVstudy(ped_files = my_study_peds,
+ped_seq <- sim_RVstudy(ped_files = ex_study_peds,
                        founder_genotypes = founder_seq,
                        linkage_map = link_map,
                        chrom_map = my_chrom_map,
@@ -70,11 +76,11 @@ ped_seq <- sim_RVstudy(ped_files = my_study_peds,
 ped_seq
 
 set.seed(6)
-system.time(sim_RVstudy(ped_files = my_study_peds,
+system.time(sim_RVstudy(ped_files = ex_study_peds,
                         founder_genotypes = founder_seq,
                         linkage_map = link_map,
                         chrom_map = my_chrom_map,
-                        RV_marker = my_RV_marker))
+                        RV_markers = my_RV_marker))
 
 }
 

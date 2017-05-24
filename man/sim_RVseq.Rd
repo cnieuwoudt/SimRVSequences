@@ -28,20 +28,9 @@ Simulate sequence data for a pedigree
 library(SimRVPedigree)
 library(kinship2)
 #Read in age-specific hazards
-data(AgeSpecific_Hazards)
+data(EgPeds)
 
-# Simulate pedigree ascertained for multiple affected individuals
-set.seed(2) #BIG PEDIGREE
-set.seed(3) #SMALL PEDIGREE
-set.seed(6)
-ex_RVped <- sim_RVped(onset_hazard = AgeSpecific_Hazards[,1],
-                      death_hazard = AgeSpecific_Hazards[,c(2,3)],
-                      part = seq(0, 100, by = 1),
-                      RR = 15, FamID = 1,
-                      founder_byears = c(1900, 1910),
-                      ascertain_span = c(2000, 2015),
-                      num_affected = 2, stop_year = 2015,
-                      recall_probs = c(1))[[2]]
+ex_RVped <- EgPeds[which(EgPeds$FamID == 4), ]
 
 # Define pedigree object for trimmed pedigree, i.e, pedigree with
 #proband selected and relatives trimmed
@@ -53,7 +42,7 @@ TrimRVped <- pedigree(id = ex_RVped$ID,
                                        Proband = ex_RVped$proband,
                                        RV_status = ex_RVped$DA1 +
                                                    ex_RVped$DA2),
-                      famid = ex_RVped$FamID)['1']
+                      famid = ex_RVped$FamID)['4']
 
  plot(TrimRVped)
  pedigree.legend(TrimRVped, location = "topleft",  radius = 0.25)
@@ -75,19 +64,19 @@ link_map
 
 
 set.seed(1)
-founder_seq <- matrix(sample(2*nrow(link_map)*length(which(is.na(ex_RVped$dad_id))),
+founder_seq2 <- matrix(sample(2*nrow(link_map)*length(which(is.na(ex_RVped$dad_id))),
                              x = c('a', 'c', 'g', 't'),  replace = T),
                              nrow = 2*length(which(is.na(ex_RVped$dad_id))))
-colnames(founder_seq) = as.character(link_map$marker)
+colnames(founder_seq2) = as.character(link_map$marker)
 
-founder_seq[1, which(colnames(founder_seq) == my_RV_marker)] <- 'X'
-founder_seq <- as.data.frame(founder_seq)
-founder_seq$ID = rep(ex_RVped$ID[which(is.na(ex_RVped$dad_id))], each = 2)
-founder_seq
+founder_seq2[1, which(colnames(founder_seq2) == my_RV_marker)] <- 'X'
+founder_seq2 <- as.data.frame(founder_seq2)
+founder_seq2$ID = rep(ex_RVped$ID[which(is.na(ex_RVped$dad_id))], each = 2)
+founder_seq2
 
 set.seed(6)
 ped_seq <- sim_RVseq(ped_file = ex_RVped,
-                     founder_genos = founder_seq,
+                     founder_genos = founder_seq2,
                      linkage_map = link_map,
                      chrom_map = my_chrom_map,
                      RV_marker = my_RV_marker)
@@ -95,7 +84,7 @@ ped_seq
 
 set.seed(6)
 system.time(sim_RVseq(ped_file = ex_RVped,
-                      founder_genos = founder_seq,
+                      founder_genos = founder_seq2,
                       linkage_map = link_map,
                       chrom_map = my_chrom_map,
                       RV_marker = my_RV_marker))
