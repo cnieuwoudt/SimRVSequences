@@ -54,17 +54,17 @@ my_chrom_map = data.frame(chrom     = c(1),
 my_chrom_map
 my_RV_marker <- "1_50"
 
-link_map <- data.frame(chromosome = c(1, 1, 1, 1, 1, 1, 1),
+mark_map <- data.frame(chromosome = c(1, 1, 1, 1, 1, 1, 1),
                        position = c(20, 50, 100, 125, 175, 200, 250))
-link_map$marker <- paste0(link_map$chromosome, sep = "_", link_map$position)
-link_map <- link_map[, c(3, 1, 2)]
-link_map
+mark_map$marker <- paste0(mark_map$chromosome, sep = "_", mark_map$position)
+mark_map <- mark_map[, c(3, 1, 2)]
+mark_map
 
 
-founder_seq2 <- matrix(rep(letters[1:(2*nrow(link_map))], length(which(is.na(ex_RVped$dad_id)))),
+founder_seq2 <- matrix(rep(letters[1:(2*nrow(mark_map))], length(which(is.na(ex_RVped$dad_id)))),
                        nrow = 2*length(which(is.na(ex_RVped$dad_id))),
                        byrow = T)
-colnames(founder_seq2) = as.character(link_map$marker)
+colnames(founder_seq2) = as.character(mark_map$marker)
 
 founder_seq2[1, which(colnames(founder_seq2) == my_RV_marker)] <- 'X'
 founder_seq2 <- as.data.frame(founder_seq2)
@@ -74,7 +74,7 @@ founder_seq2
 set.seed(6)
 ped_seq <- sim_RVseq(ped_file = ex_RVped,
                      founder_genos = founder_seq2,
-                     marker_map = link_map,
+                     marker_map = mark_map,
                      chrom_map = my_chrom_map,
                      RV_marker = my_RV_marker)
 ped_seq
@@ -82,7 +82,7 @@ ped_seq
 set.seed(6)
 system.time(sim_RVseq(ped_file = ex_RVped,
                       founder_genos = founder_seq2,
-                      marker_map = link_map,
+                      marker_map = mark_map,
                       chrom_map = my_chrom_map,
                       RV_marker = my_RV_marker))
 

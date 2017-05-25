@@ -4,9 +4,8 @@
 \alias{sim_RVstudy}
 \title{Simulate sequence data for a study}
 \usage{
-sim_RVstudy(ped_files, founder_genotypes, marker_map, chrom_map, RV_markers,
-  RV_marker_probs, affected_only = TRUE, burn_in = 1000,
-  gamma_params = c(2.63, 2.63/0.5))
+sim_RVstudy(ped_files, founder_genotypes, marker_map, chrom_map,
+  affected_only = TRUE, burn_in = 1000, gamma_params = c(2.63, 2.63/0.5))
 }
 \arguments{
 \item{ped_files}{Data frame. Must match format of pedigree simulated by sim_RVped}
@@ -35,8 +34,9 @@ EgPeds3$FamID <- EgPeds3$FamID + 10
 EgPeds4$FamID <- EgPeds4$FamID + 15
 EgPeds5$FamID <- EgPeds5$FamID + 20
 ex_study_peds <- rbind(EgPeds, EgPeds2, EgPeds3, EgPeds4, EgPeds5)
+ex_study_peds <- EgPeds
 
-length(ex_study_peds[which(is.na(ex_study_peds$dad_id)), ])
+nrow(ex_study_peds[which(is.na(ex_study_peds$dad_id)), ])
 length(unique(ex_study_peds$FamID))
 
 my_chrom_map = data.frame(chrom     = c(1, 2),
@@ -45,42 +45,40 @@ my_chrom_map = data.frame(chrom     = c(1, 2),
                           center = c(55, 40))
 my_chrom_map
 
-link_map <- data.frame(chromosome = c(1, 1, 1, 1, 1, 1, 1,
+mark_map <- data.frame(chromosome = c(1, 1, 1, 1, 1, 1, 1, 1,
                                       2, 2, 2, 2, 2, 2),
-                       position = c(20, 50, 100, 125, 175, 200, 250,
-                                     10, 25,  75, 125, 150, 200))
-link_map$marker <- paste0(link_map$chromosome, sep = "_", link_map$position)
-link_map <- link_map[, c(3, 1, 2)]
-link_map
-
-my_RV_markers <- c('1_50', '2_75', '2_150')
-my_RV_markers <- c('1_50')
-
+                       position = c(50, 51, 52, 176, 177, 178, 200, 201,
+                                    30, 32, 78, 78, 79, 180),
+                       pathwayID = c(1, 1, 1, 2, 2, 2, 1, 1,
+                                     2, 2, 1, 1, 1, 1),
+                       possibleRV = c(0, 1, 1, 0, 0, 0, 1, 1,
+                                      0, 0, 0, 1, 1, 1))
+mark_map$marker <- paste0(mark_map$chromosome, sep = "_", mark_map$position)
+mark_map$marker[12] <- "2_78b"
+mark_map <- mark_map[, c(5, 1:4)]
+mark_map
 
 set.seed(1)
-founder_seq <- as.data.frame(matrix(sample(2*nrow(link_map)*1000,
+founder_seq <- as.data.frame(matrix(sample(2*nrow(mark_map)*1000,
                                     x = c(0, 1),
                                     replace = T,
                                     prob = c(0.95, 0.05)),
                              nrow = 2*1000))
-colnames(founder_seq) = as.character(link_map$marker)
-length(which(founder_seq$`1_50` == 1))
+colnames(founder_seq) = as.character(mark_map$marker)
 
 
 set.seed(6)
 ped_seq <- sim_RVstudy(ped_files = ex_study_peds,
                        founder_genotypes = founder_seq,
-                       marker_map = link_map,
-                       chrom_map = my_chrom_map,
-                       RV_markers = my_RV_markers)
+                       marker_map = mark_map,
+                       chrom_map = my_chrom_map)
 ped_seq
 
 set.seed(6)
 system.time(sim_RVstudy(ped_files = ex_study_peds,
                         founder_genotypes = founder_seq,
-                        marker_map = link_map,
-                        chrom_map = my_chrom_map,
-                        RV_markers = my_RV_marker))
+                        marker_map = mark_map,
+                        chrom_map = my_chrom_map))
 
 }
 

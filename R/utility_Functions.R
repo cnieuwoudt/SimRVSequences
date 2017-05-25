@@ -59,7 +59,6 @@ get_parOffInfo <- function(ped_file){
                          which(colnames(ped_file) %in%
                                  c("ID", "dad_id", "mom_id", "Gen"))],
                 id = c("ID", "Gen"))
-  mdata <- mdata[, ]
   colnames(mdata) = c("offspring_ID", "Gen", "parent", "parent_ID")
 
 
