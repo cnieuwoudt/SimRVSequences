@@ -3,8 +3,8 @@
 #' @inheritParams sim_RVseq
 #' @param ped_files Data frame. Must match format of pedigree simulated by sim_RVped
 #' @param founder_genotypes list of dataframes. Should contain, in the order listed in chrom_map, 1 dataframe for every chromosome contained in chrom_map.  Each data frame should contain two rows for each founder: the first to correspond to the paternally inherited gamete and the second to correspond to the maternally inherited gamete.
-#' @param linkage_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
-#' @param RV_markers character. A list of possible RV markers. If missing all markers in \code{linkage_map} are assumed to be possible RV markers.
+#' @param marker_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
+#' @param RV_markers character. A list of possible RV markers. If missing all markers in \code{marker_map} are assumed to be possible RV markers.
 #'
 #' @return study_sequences
 #' @export
@@ -56,7 +56,7 @@
 #' set.seed(6)
 #' ped_seq <- sim_RVstudy(ped_files = ex_study_peds,
 #'                        founder_genotypes = founder_seq,
-#'                        linkage_map = link_map,
+#'                        marker_map = link_map,
 #'                        chrom_map = my_chrom_map,
 #'                        RV_markers = my_RV_markers)
 #' ped_seq
@@ -64,12 +64,12 @@
 #' set.seed(6)
 #' system.time(sim_RVstudy(ped_files = ex_study_peds,
 #'                         founder_genotypes = founder_seq,
-#'                         linkage_map = link_map,
+#'                         marker_map = link_map,
 #'                         chrom_map = my_chrom_map,
 #'                         RV_markers = my_RV_marker))
 #'
 sim_RVstudy <- function(ped_files, founder_genotypes,
-                        linkage_map, chrom_map, RV_markers,
+                        marker_map, chrom_map, RV_markers,
                         RV_marker_probs,
                         affected_only = TRUE,
                         burn_in = 1000, gamma_params = c(2.63, 2.63/0.5)){
@@ -90,7 +90,7 @@ sim_RVstudy <- function(ped_files, founder_genotypes,
   if (missing(RV_marker_probs) & !missing(RV_markers)) {
     RV_marker_probs <- rep(1/length(RV_markers), length(RV_markers))
   } else if (missing(RV_marker_probs) & missing(RV_markers)) {
-    RV_markers <- linkage_map$marker
+    RV_markers <- marker_map$marker
     RV_marker_probs <- rep(1/length(RV_markers), length(RV_markers))
   }
 
@@ -120,7 +120,7 @@ sim_RVstudy <- function(ped_files, founder_genotypes,
   # for(k in 1:length(FamIDs)){
   #   ped_seqs[[k]] <- sim_RVseq(ped_file = ped_files[which(ped_files$FamID == FamIDs[k]), ],
   #                               founder_genos = f_genos[[k]],
-  #                               linkage_map, chrom_map,
+  #                               marker_map, chrom_map,
   #                               RV_marker = Fam_RVs[k],
   #                               burn_in, gamma_params)
   # }
@@ -128,7 +128,7 @@ sim_RVstudy <- function(ped_files, founder_genotypes,
   ped_seqs <- lapply(c(1:length(FamIDs)), function(x){
     sim_RVseq(ped_file = ped_files[which(ped_files$FamID == FamIDs[x]), ],
               founder_genos = f_genos[[x]],
-              linkage_map, chrom_map,
+              marker_map, chrom_map,
               RV_marker = Fam_RVs[x],
               burn_in, gamma_params)
     })

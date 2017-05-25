@@ -4,13 +4,13 @@
 \alias{reconstruct_fromHaplotype}
 \title{Construct offspring sequence from parental allele vector}
 \usage{
-reconstruct_fromHaplotype(parental_genotypes, Clinkage_map, inherited_haplotype,
+reconstruct_fromHaplotype(parental_genotypes, Cmarker_map, inherited_haplotype,
   chiasmata_locations, REDchrom_map)
 }
 \arguments{
 \item{parental_genotypes}{The parental genotype sequence information.}
 
-\item{Clinkage_map}{Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
+\item{Cmarker_map}{Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
 
 \item{inherited_haplotype}{The inherited haplotype sequence.}
 

@@ -6,7 +6,7 @@
 #' COMMENT THIS CODE ASAP
 #'
 #' @param parental_genotypes The parental genotype sequence information.
-#' @param Clinkage_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
+#' @param Cmarker_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
 #' @param inherited_haplotype The inherited haplotype sequence.
 #' @param chiasmata_locations The chiasmata locations.
 #' @param REDchrom_map Data.frame.  The chromosome map, reduced to the chromosome in question.
@@ -18,7 +18,7 @@
 #'
 #'
 reconstruct_fromHaplotype <- function(parental_genotypes,
-                                      Clinkage_map,
+                                      Cmarker_map,
                                       inherited_haplotype,
                                       chiasmata_locations,
                                       REDchrom_map){
@@ -43,8 +43,8 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
       end_switch <- switch_alleles_loc[2*i]
 
       #switch alleles between chiasmata
-      offspring_seq[, which(Clinkage_map$position >= start_switch & Clinkage_map$position < end_switch)] <-
-        parental_genotypes[switch_alle, which(Clinkage_map$position >= start_switch & Clinkage_map$position < end_switch)]
+      offspring_seq[, which(Cmarker_map$position >= start_switch & Cmarker_map$position < end_switch)] <-
+        parental_genotypes[switch_alle, which(Cmarker_map$position >= start_switch & Cmarker_map$position < end_switch)]
     }
   } else {
     offspring_seq <- parental_genotypes[inherited_haplotype[1], ]
@@ -57,9 +57,9 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #'
 #' @inheritParams sim_gameteInheritance
 #' @param ped_file Data frame. Must match format of pedigree simulated by sim_RVped
-#' @param linkage_map Dataframe. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
+#' @param marker_map Dataframe. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
 #' @param RV_marker character. The marker name of the RV locus.
-#' @param founder_genos Dataframe.  A dataframe with rows corresponding to founders, and colums corresponding to markers.  Markers must be listed in same order as \code{linkage_map}.
+#' @param founder_genos Dataframe.  A dataframe with rows corresponding to founders, and colums corresponding to markers.  Markers must be listed in same order as \code{marker_map}.
 #'
 #' @return offspring_sequences
 #' @export
@@ -114,7 +114,7 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #' set.seed(6)
 #' ped_seq <- sim_RVseq(ped_file = ex_RVped,
 #'                      founder_genos = founder_seq2,
-#'                      linkage_map = link_map,
+#'                      marker_map = link_map,
 #'                      chrom_map = my_chrom_map,
 #'                      RV_marker = my_RV_marker)
 #' ped_seq
@@ -122,12 +122,12 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #' set.seed(6)
 #' system.time(sim_RVseq(ped_file = ex_RVped,
 #'                       founder_genos = founder_seq2,
-#'                       linkage_map = link_map,
+#'                       marker_map = link_map,
 #'                       chrom_map = my_chrom_map,
 #'                       RV_marker = my_RV_marker))
 #'
 sim_RVseq <- function(ped_file, founder_genos,
-                      linkage_map, chrom_map, RV_marker,
+                      marker_map, chrom_map, RV_marker,
                       burn_in = 1000, gamma_params = c(2.63, 2.63/0.5)){
 
   #Get parent/offspring information
@@ -140,7 +140,7 @@ sim_RVseq <- function(ped_file, founder_genos,
 
   #for each offspring simulate transmission of parental data
   for (i in 1:nrow(PO_info)) {
-    loop_gams <- sim_gameteInheritance(RV_locus = linkage_map[which(linkage_map$marker == RV_marker), c(2:3)],
+    loop_gams <- sim_gameteInheritance(RV_locus = marker_map[which(marker_map$marker == RV_marker), c(2:3)],
                                        parent_RValleles = PO_info[i, c(6, 7)],
                                        offspring_RVstatus = PO_info[i, 5],
                                        chrom_map,
@@ -151,8 +151,8 @@ sim_RVseq <- function(ped_file, founder_genos,
                        function(x){
                          reconstruct_fromHaplotype(parental_genotypes =
                                                      ped_genos[which(ped_genos$ID == PO_info[i, 4]),
-                                                                        which(linkage_map$chromosome == chrom_map$chrom[x])],
-                                                   Clinkage_map = linkage_map[which(linkage_map$chromosome == chrom_map$chrom[x]),],
+                                                                        which(marker_map$chromosome == chrom_map$chrom[x])],
+                                                   Cmarker_map = marker_map[which(marker_map$chromosome == chrom_map$chrom[x]),],
                                                    inherited_haplotype = loop_gams$haplotypes[[x]],
                                                    chiasmata_locations = loop_gams$cross_locations[[x]],
                                                    REDchrom_map = chrom_map[x, ])

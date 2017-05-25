@@ -4,7 +4,7 @@
 \alias{sim_RVstudy}
 \title{Simulate sequence data for a study}
 \usage{
-sim_RVstudy(ped_files, founder_genotypes, linkage_map, chrom_map, RV_markers,
+sim_RVstudy(ped_files, founder_genotypes, marker_map, chrom_map, RV_markers,
   RV_marker_probs, affected_only = TRUE, burn_in = 1000,
   gamma_params = c(2.63, 2.63/0.5))
 }
@@ -13,9 +13,9 @@ sim_RVstudy(ped_files, founder_genotypes, linkage_map, chrom_map, RV_markers,
 
 \item{founder_genotypes}{list of dataframes. Should contain, in the order listed in chrom_map, 1 dataframe for every chromosome contained in chrom_map.  Each data frame should contain two rows for each founder: the first to correspond to the paternally inherited gamete and the second to correspond to the maternally inherited gamete.}
 
-\item{linkage_map}{Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
+\item{marker_map}{Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
 
-\item{RV_markers}{character. A list of possible RV markers. If missing all markers in \code{linkage_map} are assumed to be possible RV markers.}
+\item{RV_markers}{character. A list of possible RV markers. If missing all markers in \code{marker_map} are assumed to be possible RV markers.}
 }
 \value{
 study_sequences
@@ -70,7 +70,7 @@ length(which(founder_seq$`1_50` == 1))
 set.seed(6)
 ped_seq <- sim_RVstudy(ped_files = ex_study_peds,
                        founder_genotypes = founder_seq,
-                       linkage_map = link_map,
+                       marker_map = link_map,
                        chrom_map = my_chrom_map,
                        RV_markers = my_RV_markers)
 ped_seq
@@ -78,7 +78,7 @@ ped_seq
 set.seed(6)
 system.time(sim_RVstudy(ped_files = ex_study_peds,
                         founder_genotypes = founder_seq,
-                        linkage_map = link_map,
+                        marker_map = link_map,
                         chrom_map = my_chrom_map,
                         RV_markers = my_RV_marker))
 
