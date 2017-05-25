@@ -9,6 +9,7 @@
 #' @param Clinkage_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
 #' @param inherited_haplotype The inherited haplotype sequence.
 #' @param chiasmata_locations The chiasmata locations.
+#' @param REDchrom_map Data.frame.  The chromosome map, reduced to the chromosome in question.
 #'
 #' @return offspring_seq
 #' @export
@@ -19,55 +20,38 @@
 reconstruct_fromHaplotype <- function(parental_genotypes,
                                       Clinkage_map,
                                       inherited_haplotype,
-                                      chiasmata_locations){
+                                      chiasmata_locations,
+                                      REDchrom_map){
 
   if (length(chiasmata_locations) > 0){
 
-    switch_alleles_loc <- reduce_to_events(as.numeric(inherited_haplotype), chiasmata_locations)
+    #determine which chiasmata inherited haplotype participated in
+    switch_alleles_loc <- c(REDchrom_map$start_pos,
+                            reduce_to_events(as.numeric(inherited_haplotype), chiasmata_locations),
+                            REDchrom_map$end_pos + 1) #1 added here in case of marker at end of chromosome
 
-    offspring_seq <- parental_genotypes[inherited_haplotype[1, 1], ]
+    #determine first allele ID in inherited_haplotype
+    #set the offspring's haplotype sequence to the other (original) parental haplotype
+    offspring_seq <- parental_genotypes[ifelse(inherited_haplotype[1, 1] == 1, 2, 1), ]
 
-    switch_alle <- ifelse(inherited_haplotype[1, 1] == 1, 2, 1)
+    #store the first allele ID in the haplotype sequence
+    switch_alle <- inherited_haplotype[1, 1]
 
+    #cycle through all swaps
+    for(i in 1:(length(switch_alleles_loc) %/% 2)){
+      start_switch <- switch_alleles_loc[2*i - 1]
+      end_switch <- switch_alleles_loc[2*i]
 
-    if (length(switch_alleles_loc) > 0) {
-      if (is_odd(length(switch_alleles_loc))) {
-        if(length(switch_alleles_loc) > 1){
-          for(i in 1:(length(switch_alleles_loc) %/% 2)){
-            start_switch <- switch_alleles_loc[2*i - 1]
-            end_switch <- switch_alleles_loc[2*i]
-
-            #switch alleles between chiasmata
-            offspring_seq[, which(Clinkage_map$position >= start_switch & Clinkage_map$position < end_switch)] <-
-              parental_genotypes[switch_alle, which(Clinkage_map$position >= start_switch & Clinkage_map$position < end_switch)]
-
-          }
-
-        }
-        #switch all alleles after the last chiasmata; used only when the number of chiasmata locations are odd
-        offspring_seq[, which(Clinkage_map$position >= switch_alleles_loc[length(switch_alleles_loc)])] <-
-          parental_genotypes[switch_alle,
-                             which(Clinkage_map$position >= switch_alleles_loc[length(switch_alleles_loc)])]
-
-      } else{
-        for(i in 1:(length(switch_alleles_loc) %/% 2)){
-          start_switch <- switch_alleles_loc[2*i - 1]
-          end_switch <- switch_alleles_loc[2*i]
-
-          offspring_seq[, which(Clinkage_map$position >= start_switch & Clinkage_map$position < end_switch)] <-
-            parental_genotypes[switch_alle, which(Clinkage_map$position >= start_switch & Clinkage_map$position < end_switch)]
-
-        }
-      }
+      #switch alleles between chiasmata
+      offspring_seq[, which(Clinkage_map$position >= start_switch & Clinkage_map$position < end_switch)] <-
+        parental_genotypes[switch_alle, which(Clinkage_map$position >= start_switch & Clinkage_map$position < end_switch)]
     }
   } else {
     offspring_seq <- parental_genotypes[inherited_haplotype[1], ]
   }
 
   return(offspring_seq)
-
 }
-
 
 #' Simulate sequence data for a pedigree
 #'
@@ -103,26 +87,23 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #'  plot(TrimRVped)
 #'  pedigree.legend(TrimRVped, location = "topleft",  radius = 0.25)
 #'
-#' my_chrom_map = data.frame(chrom     = c(1, 2),
-#'                           start_pos = c(0, 0),
-#'                           end_pos   = c(270, 200),
-#'                           center = c(55, 40))
+#' my_chrom_map = data.frame(chrom     = c(1),
+#'                           start_pos = c(0),
+#'                           end_pos   = c(250),
+#'                           center = c(50))
 #' my_chrom_map
 #' my_RV_marker <- "1_50"
 #'
-#' link_map <- data.frame(chromosome = c(1, 1, 1, 1, 1, 1, 1,
-#'                                       2, 2, 2, 2, 2, 2),
-#'                        position = c(20, 50, 100, 125, 175, 200, 250,
-#'                                      0, 25,  75, 125, 150, 200))
+#' link_map <- data.frame(chromosome = c(1, 1, 1, 1, 1, 1, 1),
+#'                        position = c(20, 50, 100, 125, 175, 200, 250))
 #' link_map$marker <- paste0(link_map$chromosome, sep = "_", link_map$position)
 #' link_map <- link_map[, c(3, 1, 2)]
 #' link_map
 #'
 #'
-#' set.seed(1)
-#' founder_seq2 <- matrix(sample(2*nrow(link_map)*length(which(is.na(ex_RVped$dad_id))),
-#'                              x = c('a', 'c', 'g', 't'),  replace = T),
-#'                              nrow = 2*length(which(is.na(ex_RVped$dad_id))))
+#' founder_seq2 <- matrix(rep(letters[1:(2*nrow(link_map))], length(which(is.na(ex_RVped$dad_id)))),
+#'                        nrow = 2*length(which(is.na(ex_RVped$dad_id))),
+#'                        byrow = T)
 #' colnames(founder_seq2) = as.character(link_map$marker)
 #'
 #' founder_seq2[1, which(colnames(founder_seq2) == my_RV_marker)] <- 'X'
@@ -173,7 +154,8 @@ sim_RVseq <- function(ped_file, founder_genos,
                                                                         which(linkage_map$chromosome == chrom_map$chrom[x])],
                                                    Clinkage_map = linkage_map[which(linkage_map$chromosome == chrom_map$chrom[x]),],
                                                    inherited_haplotype = loop_gams$haplotypes[[x]],
-                                                   chiasmata_locations = loop_gams$cross_locations[[x]])
+                                                   chiasmata_locations = loop_gams$cross_locations[[x]],
+                                                   REDchrom_map = chrom_map[x, ])
                        })
     loop_seq[[nrow(chrom_map) + 1]] = data.frame(ID = PO_info[i, 1])
 

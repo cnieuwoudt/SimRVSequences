@@ -5,7 +5,7 @@
 \title{Construct offspring sequence from parental allele vector}
 \usage{
 reconstruct_fromHaplotype(parental_genotypes, Clinkage_map, inherited_haplotype,
-  chiasmata_locations)
+  chiasmata_locations, REDchrom_map)
 }
 \arguments{
 \item{parental_genotypes}{The parental genotype sequence information.}
@@ -15,6 +15,8 @@ reconstruct_fromHaplotype(parental_genotypes, Clinkage_map, inherited_haplotype,
 \item{inherited_haplotype}{The inherited haplotype sequence.}
 
 \item{chiasmata_locations}{The chiasmata locations.}
+
+\item{REDchrom_map}{Data.frame.  The chromosome map, reduced to the chromosome in question.}
 }
 \value{
 offspring_seq
