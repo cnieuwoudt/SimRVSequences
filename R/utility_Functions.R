@@ -276,6 +276,36 @@ convert_CM_to_BP <- function(pos_CM){ pos_CM*1000000 }
 #' @export
 #' @importFrom plyr count
 #'
+#' @examples
+#' mark_map <- data.frame(chrom = c(1, 1, 1, 1, 1, 1, 1, 1,
+#'                                       2, 2, 2, 2, 2, 2),
+#'                        position = c(5012368, 5012369, 5012370,
+#'                                     78541008, 78541009, 78541010,
+#'                                     247199219, 247199220,
+#'                                     11330, 11332,
+#'                                     234577, 234578, 234579,
+#'                                     18799180),
+#'                        pathwayID = c(1, 1, 1, 2, 2, 2, 3, 3,
+#'                                      2, 2, 3, 3, 3, 1),
+#'                        possibleRV = c(0, 1, 1, 0, 0, 0, 1, 1,
+#'                                       0, 0, 0, 1, 1, 1))
+#' mark_map$marker <- paste0(mark_map$chrom, sep = "_", mark_map$position)
+#' mark_map <- mark_map[, c(5, 1:4)]
+#' mark_map
+#'
+#' set.seed(1)
+#' founder_seq <- as.data.frame(matrix(sample(2*nrow(mark_map)*1000,
+#'                                     x = c(0, 1),
+#'                                     replace = T,
+#'                                     prob = c(0.95, 0.05)),
+#'                              nrow = 2*1000))
+#' colnames(founder_seq) = as.character(mark_map$marker)
+#'
+#' hdist = estimate_haploDist(founder_seq, mark_map)
+#' hdist[[1]]
+#' hdist[[2]]
+#'
+#'
 estimate_haploDist <- function(pop_haplos, marker_map){
   haplo_dist <- list()
   for (i in 1:length(unique(marker_map$chrom))) {
@@ -287,3 +317,76 @@ estimate_haploDist <- function(pop_haplos, marker_map){
   return(haplo_dist)
 }
 
+
+#' Condition Haplotype distribution
+#'
+#' @param Chaplo_dist
+#' @param RV_marker
+#' @param RV_status
+#'
+#' @return
+#' @export
+#'
+condition_haploDist <- function(Chaplo_dist, RV_marker, RV_status){
+
+  #determine which rows of Chaplo_dist are appropriate given rv status
+  keep_rows <- which(Chaplo_dist[, which(colnames(Chaplo_dist) == RV_marker)] == RV_status)
+
+  cond_haploDist <- Chaplo_dist[keep_rows, ]
+  cond_haploDist$prob <- cond_haploDist$prob/sum(cond_haploDist$prob)
+
+  return(cond_haploDist)
+}
+
+
+#' Draw Founder Genotypes from Haplotype Distribution Given Familial Risk Variant
+#'
+#'
+#' @return list of familial founder genotypes
+#' @export
+#'
+sim_FGenos <- function(founder_ids, RV_founder, FamID, haplotype_dist, FamRV, marker_map) {
+
+  #store chromosomal postion (i.e. list position in haplotype_dist) of risk variant
+  RV_chrom_pos <- which(unique(marker_map$chrom) == marker_map$chrom[which(marker_map$marker == FamRV)])
+
+  fam_genos <- list()
+  #To change from SNVs to other will need to change RV_status
+  for (k in 1:length(unique(marker_map$chrom))) {
+    if (k == RV_chrom_pos) {
+      #Since the risk variant is located on this chromosome, we must condition the
+      #haplotype distribution on RV status before drawing haplotype
+      RVdist <- condition_haploDist(haplotype_dist[[k]],
+                                    RV_marker = FamRV, RV_status = 1)
+      RV_founder_dat = RVdist[sample(x = c(1:nrow(RVdist)),
+                                     size = 1,
+                                     prob = RVdist$prob),
+                              -ncol(RVdist)]
+
+      NRVdist <- condition_haploDist(haplotype_dist[[k]],
+                                     RV_marker = FamRV, RV_status = 0)
+      NRV_founder_dat = NRVdist[sample(x = c(1:nrow(NRVdist)),
+                                       size = (2*length(founder_ids) + 1),
+                                       replace = TRUE,
+                                       prob = NRVdist$prob),
+                                -ncol(NRVdist)]
+
+      fam_genos[[k]] <- rbind(RV_founder_dat, NRV_founder_dat)
+    } else {
+      fam_genos[[k]] = haplotype_dist[[k]][sample(x = c(1:nrow(haplotype_dist[[k]])),
+                                                  size = 2*(length(founder_ids) + 1),
+                                                  replace = TRUE,
+                                                  prob = haplotype_dist[[k]]$prob),
+                                           -ncol(haplotype_dist[[k]])]
+    }
+  }
+
+  founder_genos <- do.call("cbind", fam_genos)
+  founder_genos$ID <- rep(c(RV_founder, founder_ids), each = 2)
+  rownames(founder_genos) <- NULL
+
+  #ramdomly permute RV founders rows so that half of the time the RV is a maternally inherited and the other half of the time it is paternally inherited.
+  founder_genos[c(1,2), ] <- founder_genos[sample(x = c(1, 2), size = 2, replace = F), ]
+
+  return(founder_genos)
+}
