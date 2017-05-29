@@ -241,3 +241,49 @@ get_FGenos <- function(founder_ids, RV_founder, FamID, founder_genotypes, FamRV)
   my_return <- list(fam_genos, red_genotypes)
   return(my_return)
 }
+
+
+#' Convert from basepairs to centimorgan
+#'
+#' Convert from basepairs to centimorgan
+#'
+#' @param pos_BP Numeric.  The position in basepairs.
+#'
+#' @return pos_CM The postion in centiMorgans
+#' @export
+#'
+convert_BP_to_cM <- function(pos_BP){ pos_BP/1000000 }
+
+#' Convert from centiMorgan to basepairs
+#'
+#' Convert from centiMorgan to basepairs
+#'
+#' @param pos_CM Numeric.  The position in centiMorgan.
+#'
+#' @return pos_BP The postion in basepairs
+#' @export
+#'
+convert_CM_to_BP <- function(pos_CM){ pos_CM*1000000 }
+
+#' Estimate haplotype distribution
+#'
+#' Estimate haplotype distribution
+#'
+#' @inheritParams sim_RVstudy
+#' @param pop_haplos Data.frame.  A data frame containing the population haplotypes
+#'
+#' @return haplo_dist The haplotype distribution
+#' @export
+#' @importFrom plyr count
+#'
+estimate_haploDist <- function(pop_haplos, marker_map){
+  haplo_dist <- list()
+  for (i in 1:length(unique(marker_map$chrom))) {
+    haplo_dist[[i]] <- count(pop_haplos[, c(which(marker_map$chrom == unique(marker_map$chrom)[i]))])
+    haplo_dist[[i]]$freq <- haplo_dist[[i]]$freq/nrow(pop_haplos)
+    colnames(haplo_dist[[i]]) <- c(marker_map$marker[marker_map$chrom == unique(marker_map$chrom)[i]], "prob")
+  }
+
+  return(haplo_dist)
+}
+
