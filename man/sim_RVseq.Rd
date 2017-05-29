@@ -54,9 +54,9 @@ my_chrom_map = data.frame(chrom     = c(1),
 my_chrom_map
 my_RV_marker <- "1_50"
 
-mark_map <- data.frame(chromosome = c(1, 1, 1, 1, 1, 1, 1),
+mark_map <- data.frame(chrom = c(1, 1, 1, 1, 1, 1, 1),
                        position = c(20, 50, 100, 125, 175, 200, 250))
-mark_map$marker <- paste0(mark_map$chromosome, sep = "_", mark_map$position)
+mark_map$marker <- paste0(mark_map$chrom, sep = "_", mark_map$position)
 mark_map <- mark_map[, c(3, 1, 2)]
 mark_map
 

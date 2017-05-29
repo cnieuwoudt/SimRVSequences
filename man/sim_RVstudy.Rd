@@ -5,7 +5,8 @@
 \title{Simulate sequence data for a study}
 \usage{
 sim_RVstudy(ped_files, founder_genotypes, marker_map, chrom_map,
-  affected_only = TRUE, burn_in = 1000, gamma_params = c(2.63, 2.63/0.5))
+  affected_only = TRUE, convert_to_cM = TRUE, burn_in = 1000,
+  gamma_params = c(2.63, 2.63/0.5))
 }
 \arguments{
 \item{ped_files}{Data frame. Must match format of pedigree simulated by sim_RVped}
@@ -41,20 +42,23 @@ length(unique(ex_study_peds$FamID))
 
 my_chrom_map = data.frame(chrom     = c(1, 2),
                           start_pos = c(0, 0),
-                          end_pos   = c(270, 200),
-                          center = c(55, 40))
+                          end_pos   = c(247199719, 242751149),
+                          center = c(98879888, 97100460))
 my_chrom_map
 
-mark_map <- data.frame(chromosome = c(1, 1, 1, 1, 1, 1, 1, 1,
+mark_map <- data.frame(chrom = c(1, 1, 1, 1, 1, 1, 1, 1,
                                       2, 2, 2, 2, 2, 2),
-                       position = c(50, 51, 52, 176, 177, 178, 200, 201,
-                                    30, 32, 78, 78, 79, 180),
+                       position = c(5012368, 5012369, 5012370,
+                                    78541008, 78541009, 78541010,
+                                    247199219, 247199220,
+                                    11330, 11332,
+                                    234577, 234578, 234579,
+                                    18799180),
                        pathwayID = c(1, 1, 1, 2, 2, 2, 1, 1,
                                      2, 2, 1, 1, 1, 1),
                        possibleRV = c(0, 1, 1, 0, 0, 0, 1, 1,
                                       0, 0, 0, 1, 1, 1))
-mark_map$marker <- paste0(mark_map$chromosome, sep = "_", mark_map$position)
-mark_map$marker[12] <- "2_78b"
+mark_map$marker <- paste0(mark_map$chrom, sep = "_", mark_map$position)
 mark_map <- mark_map[, c(5, 1:4)]
 mark_map
 
@@ -65,7 +69,6 @@ founder_seq <- as.data.frame(matrix(sample(2*nrow(mark_map)*1000,
                                     prob = c(0.95, 0.05)),
                              nrow = 2*1000))
 colnames(founder_seq) = as.character(mark_map$marker)
-
 
 set.seed(6)
 ped_seq <- sim_RVstudy(ped_files = ex_study_peds,

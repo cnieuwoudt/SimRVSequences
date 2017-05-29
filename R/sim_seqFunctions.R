@@ -94,9 +94,9 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #' my_chrom_map
 #' my_RV_marker <- "1_50"
 #'
-#' mark_map <- data.frame(chromosome = c(1, 1, 1, 1, 1, 1, 1),
+#' mark_map <- data.frame(chrom = c(1, 1, 1, 1, 1, 1, 1),
 #'                        position = c(20, 50, 100, 125, 175, 200, 250))
-#' mark_map$marker <- paste0(mark_map$chromosome, sep = "_", mark_map$position)
+#' mark_map$marker <- paste0(mark_map$chrom, sep = "_", mark_map$position)
 #' mark_map <- mark_map[, c(3, 1, 2)]
 #' mark_map
 #'
@@ -151,8 +151,8 @@ sim_RVseq <- function(ped_file, founder_genos,
                        function(x){
                          reconstruct_fromHaplotype(parental_genotypes =
                                                      ped_genos[which(ped_genos$ID == PO_info[i, 4]),
-                                                                        which(marker_map$chromosome == chrom_map$chrom[x])],
-                                                   Cmarker_map = marker_map[which(marker_map$chromosome == chrom_map$chrom[x]),],
+                                                                        which(marker_map$chrom == chrom_map$chrom[x])],
+                                                   Cmarker_map = marker_map[which(marker_map$chrom == chrom_map$chrom[x]),],
                                                    inherited_haplotype = loop_gams$haplotypes[[x]],
                                                    chiasmata_locations = loop_gams$cross_locations[[x]],
                                                    REDchrom_map = chrom_map[x, ])
