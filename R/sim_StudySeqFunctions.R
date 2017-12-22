@@ -24,7 +24,7 @@
 #' ex_study_peds <- rbind(EgPeds, EgPeds2, EgPeds3, EgPeds4, EgPeds5)
 #' ex_study_peds <- EgPeds
 #'
-#' nrow(ex_study_peds[which(is.na(ex_study_peds$dad_id)), ])
+#' nrow(ex_study_peds[which(is.na(ex_study_peds$dadID)), ])
 #' length(unique(ex_study_peds$FamID))
 #'
 #' my_chrom_map = data.frame(chrom     = c(1, 2),
@@ -118,10 +118,10 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
   #of the familial risk variant
   f_genos <- lapply(c(1:length(FamIDs)), function(x){
     sim_FGenos(founder_ids = ped_files$ID[which(ped_files$FamID == FamIDs[x]
-                                                & is.na(ped_files$dad_id)
+                                                & is.na(ped_files$dadID)
                                                 & (ped_files$DA1 + ped_files$DA2) == 0)],
                RV_founder = ped_files$ID[which(ped_files$FamID == FamIDs[x]
-                                               & is.na(ped_files$dad_id)
+                                               & is.na(ped_files$dadID)
                                                & (ped_files$DA1 + ped_files$DA2) == 1)],
                FamID = FamIDs[x], haplotype_dist, FamRV = Fam_RVs[x], marker_map)
   })

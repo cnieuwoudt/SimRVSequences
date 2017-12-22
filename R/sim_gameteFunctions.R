@@ -16,7 +16,7 @@
 #' @references Roeland E. Voorrips, Chris A Maliepaard. (2012), \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
 #'
 #' @param chrom_map Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.
-#' @param gamma_params Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata, default from Vorrips.
+#' @param gamma_params Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).
 #' @param burn_in Numeric. The burn in distance in cM.
 #'
 #' @return A list of chiasmata postions.
@@ -133,6 +133,14 @@ sim_haploidFormation <- function(num_chiasmata,
                                  before_center,
                                  allele_IDs) {
 
+  #NOTE: At this point we have not yet simulated recombination,
+  #we only know the total number of chiasmata as well as how many
+  #occur before the centromere.  Their positions are not actually
+  #needed for this step.  In this step we are choosing which of the
+  #sister chromatids will participate in each crossover.
+  #When this function is used by sim_gameteFormation we will re-append
+  #the information regarding the positions of the chiasmata.
+
   #each column in haploid_mat represents the alleles on either side of a chiasmata
   haploid_mat <- matrix(rep(allele_IDs, each = 2*(num_chiasmata + 1)),
                         nrow = 4, byrow = T)
@@ -150,6 +158,8 @@ sim_haploidFormation <- function(num_chiasmata,
 
   #reorder the rows so that sister chromatids are together at the centromeres
   haploid_mat <- as.data.frame(haploid_mat[order(haploid_mat[, (before_center + 1)]), ])
+
+  #assign gamete group (see computational shortcut in notes)
   haploid_mat$gamete_grp <- gam_order()
 
   return(haploid_mat)
@@ -187,18 +197,23 @@ sim_haploidFormation <- function(num_chiasmata,
 sim_gameteFormation <- function(chrom_map, allele_IDs,
                                 burn_in = 1000, gamma_params = c(2.63, 2.63/0.5)) {
 
+  #simulate chiasmata positions
   chrom_chiasmataPos <- lapply(c(1:nrow(chrom_map)),
                                function(x){
                                  sim_chiasmataPositions(chrom_map = chrom_map[x, -1],
                                                         burn_in, gamma_params)
                                  })
 
+  #count the number of chiasmata before the centromere
+  #for each chromosome identified in chrom_map
+  #This will be used to identify sister chromatids.
   BC_count <- lapply(c(1:nrow(chrom_map)),
                      function(x){
                        chias_count_BC(chrom_chiasmataPos[[x]],
                                       center_loc = chrom_map[x, 4])
                      })
 
+  #simulate haploid and gamete formation
   chrom_haps <- lapply(c(1:nrow(chrom_map)),
                        function(x){
                          sim_haploidFormation(num_chiasmata = length(chrom_chiasmataPos[[x]]),

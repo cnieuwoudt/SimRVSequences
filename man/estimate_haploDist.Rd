@@ -35,7 +35,7 @@ mark_map <- mark_map[, c(5, 1:4)]
 mark_map
 
 set.seed(1)
-founder_seq <- as.data.frame(matrix(sample(2*nrow(mark_map)*1000,
+founder_seq <- as.data.frame(matrix(sample(2000*nrow(mark_map),
                                     x = c(0, 1),
                                     replace = T,
                                     prob = c(0.95, 0.05)),
@@ -48,4 +48,3 @@ hdist[[2]]
 
 
 }
-

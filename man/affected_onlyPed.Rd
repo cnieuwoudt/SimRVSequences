@@ -17,33 +17,15 @@ Remove unaffected relatives
 }
 \examples{
 library(SimRVPedigree)
-#Read in example pedigrees
+#Read in example pedigrees and create ped object
 data(EgPeds)
+ex_peds <- new.ped(EgPeds)
 
-library(kinship2)
 #plot full pedigree
-ex_pedigree <- pedigree(id = EgPeds$ID,
-                        dadid = EgPeds$dad_id,
-                        momid = EgPeds$mom_id,
-                        sex = (EgPeds$gender + 1),
-                        affected = EgPeds$affected,
-                        famid = EgPeds$FamID)
-plot(ex_pedigree['1'])
+plot(ex_peds[which(ex_peds$FamID == 1), ])
 
 #reduce to affected only pedigree
-Apeds = affected_onlyPed(EgPeds[which(EgPeds$FamID == 1), ])
-red_ped <- pedigree(id = Apeds$ID,
-                    dadid = Apeds$dad_id,
-                    momid = Apeds$mom_id,
-                    sex = (Apeds$gender + 1),
-                    affected = Apeds$affected,
-                    famid = Apeds$FamID)
-plot(red_ped['1'])
+Apeds = affected_onlyPed(ex_peds[which(ex_peds$FamID == 1), ])
+plot(Apeds)
 
 }
-\references{
-OUR MANUSCRIPT
-
-Thompson, E. (2000). \emph{Statistical Inference from Genetic Data on Pedigrees.} NSF-CBMS Regional Conference Series in Probability and Statistics, 6, I-169. Retrieved from http://www.jstor.org.proxy.lib.sfu.ca/stable/4153187
-}
-

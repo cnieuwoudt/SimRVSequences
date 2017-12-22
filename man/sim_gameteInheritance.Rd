@@ -15,6 +15,12 @@ sim_gameteInheritance(RV_locus, parent_RValleles, offspring_RVstatus, chrom_map,
 \item{offspring_RVstatus}{Numeric. 1 if offspring inherits the RV from parent, 0 otherwise.}
 
 \item{chrom_map}{Data.frame.  A data.frame consisting of three columns: column 1 contains the chromosome numbers, column 2 start postion of chromosome (in cM), column 3 end position of chromosome (in cM).}
+
+\item{allele_IDs}{List of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination. (Can accomodate numeric or string entries)}
+
+\item{burn_in}{Numeric. The burn in distance in cM.}
+
+\item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).}
 }
 \value{
 A list containing (1) a list of inherited haplotype codings (2) the chiasmata locations
@@ -96,8 +102,8 @@ sim_gameteInheritance(RV_locus = c(1, 150),
                       chrom_map = my_chrom_map,
                       allele_IDs = c(2, 3))
 
-dad_combos <- ex_RVped[which(!is.na(ex_RVped$dad_id)), c(2, 4)]
-mom_combos <- ex_RVped[which(!is.na(ex_RVped$mom_id)), c(2, 5)]
+dad_combos <- ex_RVped[which(!is.na(ex_RVped$dadID)), c(2, 4)]
+mom_combos <- ex_RVped[which(!is.na(ex_RVped$momID)), c(2, 5)]
 
 colnames(dad_combos)[2] <- colnames(mom_combos)[2] <- "par_ID"
 po_combos <- rbind(dad_combos, mom_combos)
@@ -111,4 +117,3 @@ system.time( for (i in 1:nrow(po_combos)) {
 })
 
 }
-

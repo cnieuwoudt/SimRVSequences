@@ -12,4 +12,3 @@ condition_haploDist(Chaplo_dist, RV_marker, RV_status)
 \description{
 Condition Haplotype distribution
 }
-

@@ -75,9 +75,9 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #' # Define pedigree object for trimmed pedigree, i.e, pedigree with
 #' #proband selected and relatives trimmed
 #' TrimRVped <- pedigree(id = ex_RVped$ID,
-#'                       dadid = ex_RVped$dad_id,
-#'                       momid = ex_RVped$mom_id,
-#'                       sex = (ex_RVped$gender + 1),
+#'                       dadid = ex_RVped$dadID,
+#'                       momid = ex_RVped$momID,
+#'                       sex = (ex_RVped$sex + 1),
 #'                       affected = cbind(Affected = ex_RVped$affected,
 #'                                        Proband = ex_RVped$proband,
 #'                                        RV_status = ex_RVped$DA1 +
@@ -101,14 +101,14 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #' mark_map
 #'
 #'
-#' founder_seq2 <- matrix(rep(letters[1:(2*nrow(mark_map))], length(which(is.na(ex_RVped$dad_id)))),
-#'                        nrow = 2*length(which(is.na(ex_RVped$dad_id))),
+#' founder_seq2 <- matrix(rep(letters[1:(2*nrow(mark_map))], length(which(is.na(ex_RVped$dadID)))),
+#'                        nrow = 2*length(which(is.na(ex_RVped$dadID))),
 #'                        byrow = T)
 #' colnames(founder_seq2) = as.character(mark_map$marker)
 #'
 #' founder_seq2[1, which(colnames(founder_seq2) == my_RV_marker)] <- 'X'
 #' founder_seq2 <- as.data.frame(founder_seq2)
-#' founder_seq2$ID = rep(ex_RVped$ID[which(is.na(ex_RVped$dad_id))], each = 2)
+#' founder_seq2$ID = rep(ex_RVped$ID[which(is.na(ex_RVped$dadID))], each = 2)
 #' founder_seq2
 #'
 #' set.seed(6)

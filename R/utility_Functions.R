@@ -55,9 +55,9 @@ chias_count_BC <- function(chiasmata_pos, center_loc){
 #'
 get_parOffInfo <- function(ped_file){
 
-  mdata <- melt(ped_file[which(!is.na(ped_file$dad_id)),
+  mdata <- melt(ped_file[which(!is.na(ped_file$dadID)),
                          which(colnames(ped_file) %in%
-                                 c("ID", "dad_id", "mom_id", "Gen"))],
+                                 c("ID", "dadID", "momID", "Gen"))],
                 id = c("ID", "Gen"))
   colnames(mdata) = c("offspring_ID", "Gen", "parent", "parent_ID")
 
@@ -124,7 +124,7 @@ reduce_to_events <- function(gamete_haplo, chias_locations){
   return(cross_loc)
 }
 
-#' Determine if a number os odd
+#' Determine if input is an odd number
 #'
 #' @param x Numeric.
 #'
@@ -142,55 +142,41 @@ is_odd <- function(x) {x %% 2 != 0}
 #' @return \code{retA_ped} A pedigree containing only affected members, obligate carriers, and founders.
 #' @export
 #'
-#' @references OUR MANUSCRIPT
-#' @references Thompson, E. (2000). \emph{Statistical Inference from Genetic Data on Pedigrees.} NSF-CBMS Regional Conference Series in Probability and Statistics, 6, I-169. Retrieved from http://www.jstor.org.proxy.lib.sfu.ca/stable/4153187
-#'
 #' @examples
 #' library(SimRVPedigree)
-#' #Read in example pedigrees
+#' #Read in example pedigrees and create ped object
 #' data(EgPeds)
+#' ex_peds <- new.ped(EgPeds)
 #'
-#' library(kinship2)
 #' #plot full pedigree
-#' ex_pedigree <- pedigree(id = EgPeds$ID,
-#'                         dadid = EgPeds$dad_id,
-#'                         momid = EgPeds$mom_id,
-#'                         sex = (EgPeds$gender + 1),
-#'                         affected = EgPeds$affected,
-#'                         famid = EgPeds$FamID)
-#' plot(ex_pedigree['1'])
+#' plot(ex_peds[which(ex_peds$FamID == 1), ])
 #'
 #' #reduce to affected only pedigree
-#' Apeds = affected_onlyPed(EgPeds[which(EgPeds$FamID == 1), ])
-#' red_ped <- pedigree(id = Apeds$ID,
-#'                     dadid = Apeds$dad_id,
-#'                     momid = Apeds$mom_id,
-#'                     sex = (Apeds$gender + 1),
-#'                     affected = Apeds$affected,
-#'                     famid = Apeds$FamID)
-#' plot(red_ped['1'])
+#' Apeds = affected_onlyPed(ex_peds[which(ex_peds$FamID == 1), ])
+#' plot(Apeds)
 #'
 affected_onlyPed = function(ped_file){
 
   #create new ped file with affecteds only
-  retA_ped <- ped_file[which(ped_file$affected == 1), ]
+  retA_ped <- ped_file[ped_file$affected, ]
 
   if (nrow(retA_ped) == 0) {
-    warning("No affecteds to assign affected generation")
+    warning(paste0("No disease-affected relative present in pedigree with FamID ",
+                   sep = "", ped_file$FamID[1]))
     return(retA_ped)
   } else {
     d <- 0
     while (d == 0) {
       #find the dad IDs that are required but have been removed
-      miss_dad  <- !is.element(retA_ped$dad_id,
-                               retA_ped$ID[which(retA_ped$gender == 0)])
-      readd_dad <- retA_ped$dad_id[miss_dad]
+      miss_dad  <- !is.element(retA_ped$dadID,
+                               retA_ped$ID[which(retA_ped$sex == 0)])
+      readd_dad <- retA_ped$dadID[miss_dad]
       readd_dad <- unique(readd_dad[!is.na(readd_dad)])
 
       #find the mom IDs that are required but have been removed
-      miss_mom  <- !is.element(retA_ped$mom_id,
-                               retA_ped$ID[which(retA_ped$gender == 1)])
-      readd_mom <- retA_ped$mom_id[miss_mom]
+      miss_mom  <- !is.element(retA_ped$momID,
+                               retA_ped$ID[which(retA_ped$sex == 1)])
+      readd_mom <- retA_ped$momID[miss_mom]
       readd_mom <- unique(readd_mom[!is.na(readd_mom)])
 
       #check to see if we need to readd anyone
@@ -294,7 +280,7 @@ convert_CM_to_BP <- function(pos_CM){ pos_CM*1000000 }
 #' mark_map
 #'
 #' set.seed(1)
-#' founder_seq <- as.data.frame(matrix(sample(2*nrow(mark_map)*1000,
+#' founder_seq <- as.data.frame(matrix(sample(2000*nrow(mark_map),
 #'                                     x = c(0, 1),
 #'                                     replace = T,
 #'                                     prob = c(0.95, 0.05)),
@@ -345,7 +331,8 @@ condition_haploDist <- function(Chaplo_dist, RV_marker, RV_status){
 #' @return list of familial founder genotypes
 #' @export
 #'
-sim_FGenos <- function(founder_ids, RV_founder, FamID, haplotype_dist, FamRV, marker_map) {
+sim_FGenos <- function(founder_ids, RV_founder, FamID,
+                       haplotype_dist, FamRV, marker_map) {
 
   #store chromosomal postion (i.e. list position in haplotype_dist) of risk variant
   RV_chrom_pos <- which(unique(marker_map$chrom) == marker_map$chrom[which(marker_map$marker == FamRV)])

@@ -12,7 +12,7 @@ sim_chiasmataPositions(chrom_map, burn_in = 1000, gamma_params = c(2.63,
 
 \item{burn_in}{Numeric. The burn in distance in cM.}
 
-\item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata, default from Vorrips.}
+\item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).}
 }
 \value{
 A list of chiasmata postions.
@@ -63,4 +63,3 @@ sim_chiasmataPositions(chrom_map = data.frame(start = 0,
 \references{
 Roeland E. Voorrips, Chris A Maliepaard. (2012), \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
 }
-

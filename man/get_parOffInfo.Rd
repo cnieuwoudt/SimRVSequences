@@ -19,4 +19,3 @@ A list containing the parent's paternal and maternal alleles at the disease locu
 \description{
 For internal use.
 }
-

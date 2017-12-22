@@ -2,7 +2,7 @@
 % Please edit documentation in R/utility_Functions.R
 \name{is_odd}
 \alias{is_odd}
-\title{Determine if a number os odd}
+\title{Determine if input is an odd number}
 \usage{
 is_odd(x)
 }
@@ -13,6 +13,5 @@ is_odd(x)
 Boolean
 }
 \description{
-Determine if a number os odd
+Determine if input is an odd number
 }
-

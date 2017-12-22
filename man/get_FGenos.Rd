@@ -12,4 +12,3 @@ list of (1) family genotypes and (2) a reduced pool of genos
 \description{
 Set Founder Genotypes and Return Reduced DF of Genotypes
 }
-

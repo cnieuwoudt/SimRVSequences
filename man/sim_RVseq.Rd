@@ -17,6 +17,10 @@ sim_RVseq(ped_file, founder_genos, marker_map, chrom_map, RV_marker,
 \item{chrom_map}{Data.frame.  A data.frame consisting of three columns: column 1 contains the chromosome numbers, column 2 start postion of chromosome (in cM), column 3 end position of chromosome (in cM).}
 
 \item{RV_marker}{character. The marker name of the RV locus.}
+
+\item{burn_in}{Numeric. The burn in distance in cM.}
+
+\item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).}
 }
 \value{
 offspring_sequences
@@ -35,9 +39,9 @@ ex_RVped <- EgPeds[which(EgPeds$FamID == 4), ]
 # Define pedigree object for trimmed pedigree, i.e, pedigree with
 #proband selected and relatives trimmed
 TrimRVped <- pedigree(id = ex_RVped$ID,
-                      dadid = ex_RVped$dad_id,
-                      momid = ex_RVped$mom_id,
-                      sex = (ex_RVped$gender + 1),
+                      dadid = ex_RVped$dadID,
+                      momid = ex_RVped$momID,
+                      sex = (ex_RVped$sex + 1),
                       affected = cbind(Affected = ex_RVped$affected,
                                        Proband = ex_RVped$proband,
                                        RV_status = ex_RVped$DA1 +
@@ -61,14 +65,14 @@ mark_map <- mark_map[, c(3, 1, 2)]
 mark_map
 
 
-founder_seq2 <- matrix(rep(letters[1:(2*nrow(mark_map))], length(which(is.na(ex_RVped$dad_id)))),
-                       nrow = 2*length(which(is.na(ex_RVped$dad_id))),
+founder_seq2 <- matrix(rep(letters[1:(2*nrow(mark_map))], length(which(is.na(ex_RVped$dadID)))),
+                       nrow = 2*length(which(is.na(ex_RVped$dadID))),
                        byrow = T)
 colnames(founder_seq2) = as.character(mark_map$marker)
 
 founder_seq2[1, which(colnames(founder_seq2) == my_RV_marker)] <- 'X'
 founder_seq2 <- as.data.frame(founder_seq2)
-founder_seq2$ID = rep(ex_RVped$ID[which(is.na(ex_RVped$dad_id))], each = 2)
+founder_seq2$ID = rep(ex_RVped$ID[which(is.na(ex_RVped$dadID))], each = 2)
 founder_seq2
 
 set.seed(6)
@@ -87,4 +91,3 @@ system.time(sim_RVseq(ped_file = ex_RVped,
                       RV_marker = my_RV_marker))
 
 }
-

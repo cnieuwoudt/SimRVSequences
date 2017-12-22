@@ -22,4 +22,3 @@ ex_chias <- sim_chiasmataPositions(chrom_map = data.frame(start = 47, stop = 198
 ex_chias
 chias_count_BC(ex_chias, 78)
 }
-

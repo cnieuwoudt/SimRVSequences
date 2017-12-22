@@ -83,8 +83,8 @@
 #'                       chrom_map = my_chrom_map,
 #'                       allele_IDs = c(2, 3))
 #'
-#' dad_combos <- ex_RVped[which(!is.na(ex_RVped$dad_id)), c(2, 4)]
-#' mom_combos <- ex_RVped[which(!is.na(ex_RVped$mom_id)), c(2, 5)]
+#' dad_combos <- ex_RVped[which(!is.na(ex_RVped$dadID)), c(2, 4)]
+#' mom_combos <- ex_RVped[which(!is.na(ex_RVped$momID)), c(2, 5)]
 #'
 #' colnames(dad_combos)[2] <- colnames(mom_combos)[2] <- "par_ID"
 #' po_combos <- rbind(dad_combos, mom_combos)

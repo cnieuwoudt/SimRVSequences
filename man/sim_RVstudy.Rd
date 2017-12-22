@@ -13,6 +13,12 @@ sim_RVstudy(ped_files, marker_map, chrom_map, haplotype_dist,
 
 \item{marker_map}{Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
 
+\item{chrom_map}{Data.frame.  A data.frame consisting of three columns: column 1 contains the chromosome numbers, column 2 start postion of chromosome (in cM), column 3 end position of chromosome (in cM).}
+
+\item{burn_in}{Numeric. The burn in distance in cM.}
+
+\item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).}
+
 \item{haplotype_dist.}{List of dataframes.  Each list entry should contain a dataframe containing the haplotype distribution for that chromosome (in same order as marker_map).}
 
 \item{founder_genotypes}{list of dataframes. Should contain, in the order listed in chrom_map, 1 dataframe for every chromosome contained in chrom_map.  Each data frame should contain two rows for each founder: the first to correspond to the paternally inherited gamete and the second to correspond to the maternally inherited gamete.}
@@ -39,7 +45,7 @@ EgPeds5$FamID <- EgPeds5$FamID + 20
 ex_study_peds <- rbind(EgPeds, EgPeds2, EgPeds3, EgPeds4, EgPeds5)
 ex_study_peds <- EgPeds
 
-nrow(ex_study_peds[which(is.na(ex_study_peds$dad_id)), ])
+nrow(ex_study_peds[which(is.na(ex_study_peds$dadID)), ])
 length(unique(ex_study_peds$FamID))
 
 my_chrom_map = data.frame(chrom     = c(1, 2),
@@ -80,7 +86,7 @@ condition_haploDist(hdist[[1]], "1_5012369", 1)
 
 set.seed(6)
 ped_seq <- sim_RVstudy(ped_files = ex_study_peds,
-                       founder_genotypes = founder_seq,
+                       haplotype_dist = estimate_haploDist(founder_seq, mark_map),
                        marker_map = mark_map,
                        chrom_map = my_chrom_map)
 ped_seq
@@ -92,4 +98,3 @@ system.time(sim_RVstudy(ped_files = ex_study_peds,
                         chrom_map = my_chrom_map))
 
 }
-

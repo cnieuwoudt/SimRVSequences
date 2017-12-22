@@ -16,4 +16,3 @@ For internal use.
 gam_order()
 
 }
-

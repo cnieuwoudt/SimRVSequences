@@ -12,4 +12,3 @@ list of familial founder genotypes
 \description{
 Draw Founder Genotypes from Haplotype Distribution Given Familial Risk Variant
 }
-

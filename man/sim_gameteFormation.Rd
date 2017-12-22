@@ -14,7 +14,7 @@ sim_gameteFormation(chrom_map, allele_IDs, burn_in = 1000,
 
 \item{burn_in}{Numeric. The burn in distance in cM.}
 
-\item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata, default from Vorrips.}
+\item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).}
 }
 \value{
 A list containing the following:
@@ -40,4 +40,3 @@ system.time(for (i in 1:10000) {
   sim_gameteFormation(my_chrom_map, c(0, 1))
 })
 }
-
