@@ -103,19 +103,25 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
     ped_files <- do.call("rbind", Afams)
   }
 
-  # WILL PROBABLY WANT TO CHANGE CODE HERE
+  # WILL PROBABLY WANT TO CHANGE PROCESS HERE
   # TO CHOOSE PATHWAY THEN RARE VARIANT
 
+  #If probCausal is not included in marker_map
+  #then each marker is given equal weight
   if (is.null(marker_map$probCausal)) {
     marker_map$probCausal <- marker_map$possibleRV/sum(marker_map$possibleRV)
   }
 
-  #determine familial RV locus
-  Fam_RVs <- sample(x = marker_map$marker, prob = marker_map$probCausal,
-                    size = length(FamIDs), replace = TRUE)
+  #sampling from RV markers (with probability
+  #probCausal)to determine familial RV locus
+  Fam_RVs <- sample(x = marker_map$marker,
+                    prob = marker_map$probCausal,
+                    size = length(FamIDs),
+                    replace = TRUE)
 
-  #simulate founder haplotypes from haplotype distribution given the location
-  #of the familial risk variant
+  #Given the location of familial risk variants,
+  #sample familial founder haplotypes from
+  #conditional haplotype distribution
   f_genos <- lapply(c(1:length(FamIDs)), function(x){
     sim_FGenos(founder_ids = ped_files$ID[which(ped_files$FamID == FamIDs[x]
                                                 & is.na(ped_files$dadID)
@@ -126,8 +132,8 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
                FamID = FamIDs[x], haplotype_dist, FamRV = Fam_RVs[x], marker_map)
   })
 
-  #simulate non-founder haploypes from haplotype distribution given location
-  #of the familial risk variant
+  #simulate non-founder haploypes from
+  #founder haplotypes
   ped_seqs <- lapply(c(1:length(FamIDs)), function(x){
     sim_RVseq(ped_file = ped_files[which(ped_files$FamID == FamIDs[x]), ],
               founder_genos = f_genos[[x]],
@@ -137,6 +143,7 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
     })
 
   study_sequenceDat <- do.call("rbind", ped_seqs)
+
   if (affected_only) {
     study_sequenceDat <- study_sequenceDat[which(study_sequenceDat$affected == 1), ]
     #study_sequenceDat <- study_sequenceDat[, -which(colnames(study_sequenceDat) == "affected")]

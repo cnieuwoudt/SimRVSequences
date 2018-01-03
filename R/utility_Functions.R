@@ -197,6 +197,8 @@ affected_onlyPed = function(ped_file){
 
 #' Set Founder Genotypes and Return Reduced DF of Genotypes
 #'
+#' NEVER USED??? SHOULD PROBABLY BE REMOVED
+#'
 #'
 #' @return list of (1) family genotypes and (2) a reduced pool of genos
 #' @export
@@ -306,11 +308,11 @@ estimate_haploDist <- function(pop_haplos, marker_map){
 
 #' Condition Haplotype distribution
 #'
-#' @param Chaplo_dist
-#' @param RV_marker
-#' @param RV_status
+#' @param Chaplo_dist haplotype distribution for a single chromosome?
+#' @param RV_marker familial RV marker
+#' @param RV_status 0 or 1, 1 if RV is inherited
 #'
-#' @return
+#' @return The conditioned haplotype distribution.
 #' @export
 #'
 condition_haploDist <- function(Chaplo_dist, RV_marker, RV_status){
@@ -335,31 +337,41 @@ sim_FGenos <- function(founder_ids, RV_founder, FamID,
                        haplotype_dist, FamRV, marker_map) {
 
   #store chromosomal postion (i.e. list position in haplotype_dist) of risk variant
-  RV_chrom_pos <- which(unique(marker_map$chrom) == marker_map$chrom[which(marker_map$marker == FamRV)])
+  RV_chrom_pos <- which(unique(marker_map$chrom) == marker_map$chrom[marker_map$marker == FamRV])
 
   fam_genos <- list()
-  #To change from SNVs to other will need to change RV_status
+  #NOTE: If we want to change from SNVs to another variant
+  #type we will need to change the functionality of RV_status below
+
   for (k in 1:length(unique(marker_map$chrom))) {
     if (k == RV_chrom_pos) {
       #Since the risk variant is located on this chromosome, we must condition the
       #haplotype distribution on RV status before drawing haplotype
       RVdist <- condition_haploDist(haplotype_dist[[k]],
-                                    RV_marker = FamRV, RV_status = 1)
+                                    RV_marker = FamRV,
+                                    RV_status = 1)
+
       RV_founder_dat = RVdist[sample(x = c(1:nrow(RVdist)),
                                      size = 1,
                                      prob = RVdist$prob),
                               -ncol(RVdist)]
 
       NRVdist <- condition_haploDist(haplotype_dist[[k]],
-                                     RV_marker = FamRV, RV_status = 0)
-      NRV_founder_dat = NRVdist[sample(x = c(1:nrow(NRVdist)),
-                                       size = (2*length(founder_ids) + 1),
-                                       replace = TRUE,
-                                       prob = NRVdist$prob),
-                                -ncol(NRVdist)]
+                                     RV_marker = FamRV,
+                                     RV_status = 0)
+
+      NRV_founder_dat <- NRVdist[sample(x = c(1:nrow(NRVdist)),
+                                        size = (2*length(founder_ids) + 1),
+                                        replace = TRUE,
+                                        prob = NRVdist$prob),
+                                 -ncol(NRVdist)]
 
       fam_genos[[k]] <- rbind(RV_founder_dat, NRV_founder_dat)
     } else {
+
+      #since the familial RV does not reside on the kth chromosome we
+      #sample founder haplotypes according to from the haplotype distribution
+
       fam_genos[[k]] = haplotype_dist[[k]][sample(x = c(1:nrow(haplotype_dist[[k]])),
                                                   size = 2*(length(founder_ids) + 1),
                                                   replace = TRUE,
@@ -372,7 +384,7 @@ sim_FGenos <- function(founder_ids, RV_founder, FamID,
   founder_genos$ID <- rep(c(RV_founder, founder_ids), each = 2)
   rownames(founder_genos) <- NULL
 
-  #ramdomly permute RV founders rows so that half of the time the RV is a maternally inherited and the other half of the time it is paternally inherited.
+  #ramdomly permute RV founders rows so that the RV is not always paternally inherited.
   founder_genos[c(1,2), ] <- founder_genos[sample(x = c(1, 2), size = 2, replace = F), ]
 
   return(founder_genos)

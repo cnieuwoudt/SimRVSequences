@@ -7,7 +7,14 @@
 condition_haploDist(Chaplo_dist, RV_marker, RV_status)
 }
 \arguments{
-\item{RV_status}{}
+\item{Chaplo_dist}{haplotype distribution for a single chromosome?}
+
+\item{RV_marker}{familial RV marker}
+
+\item{RV_status}{0 or 1, 1 if RV is inherited}
+}
+\value{
+The conditioned haplotype distribution.
 }
 \description{
 Condition Haplotype distribution
