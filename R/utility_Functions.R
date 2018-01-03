@@ -133,6 +133,16 @@ reduce_to_events <- function(gamete_haplo, chias_locations){
 #'
 is_odd <- function(x) {x %% 2 != 0}
 
+
+#' Determine if input is an integer
+#'
+#' @param x Numeric.
+#'
+#' @return Boolean
+#' @export
+#'
+is_int <- function(x) {x %% 1 == 0}
+
 #' Remove unaffected relatives
 #'
 #' Remove unaffected relatives
