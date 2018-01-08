@@ -18,8 +18,8 @@ Create a markerMap object, required input for \code{\link{sim_RVstudy}} and \cod
 \details{
 The named columns in the data frame, \code{markerDF}, are described as follows:
 \describe{
- \item{marker}{(OPTIONAL) An identifying name/number for the variant. (If missing this field will be automatically generated from the columns named "chrom" and "position" as "chrom_position").}
- \item{chrom}{The number of the chromosome on which the variant resides.}
+ \item{marker}{(OPTIONAL) An identifying name/number for the variant. (If missing this field will be automatically generated from the columns named "chrom" and "position" as "chrom_position"). NOTE: These names must match \emph{exactly} the column names (i.e. the marker names) in the haplotype_dist dataframe.}
+ \item{chrom}{The number of the chromosome on which the marker resides.}
  \item{position}{The location of the variant, in basepairs.}
  \item{pathwayID}{A pathwayID for the variant. (**Should be optional, I don't think we use this yet**)}
  \item{possibleRV}{(OPTIONAL) Logical variable, indicates whether the variant may be chosen as a causal familial variant.  If this field is missing, it is assumed that all variants listed are candidates for selection.}
@@ -32,14 +32,8 @@ data(mark_map)
 head(mark_map)
 class(mark_map)
 
-my_HR
-class(my_HR)
-head(my_HR[[1]])
-my_HR[[2]]
-
-
-my_HR <- hazard(hazardDF = AgeSpecific_Hazards)
-class(my_HR)
-my_HR[[2]]
+markObj <- markerMap(mark_map)
+head(markObj)
+class(markObj)
 
 }

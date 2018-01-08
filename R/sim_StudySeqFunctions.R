@@ -12,8 +12,6 @@
 #'
 #' @examples
 #' library(SimRVPedigree)
-#' library(kinship2)
-#' #Read in age-specific hazards
 #' data(EgPeds)
 #'
 #' EgPeds5 <- EgPeds4 <- EgPeds3 <- EgPeds2 <- EgPeds
@@ -33,47 +31,37 @@
 #'                           center = c(98879888, 97100460))
 #' my_chrom_map
 #'
-#' mark_map <- data.frame(chrom = c(1, 1, 1, 1, 1, 1, 1, 1,
-#'                                       2, 2, 2, 2, 2, 2),
-#'                        position = c(5012368, 5012369, 5012370,
-#'                                     78541008, 78541009, 78541010,
-#'                                     247199219, 247199220,
-#'                                     11330, 11332,
-#'                                     234577, 234578, 234579,
-#'                                     18799180),
-#'                        pathwayID = c(1, 1, 1, 2, 2, 2, 3, 3,
-#'                                      2, 2, 3, 3, 3, 1),
-#'                        possibleRV = c(0, 1, 1, 0, 0, 0, 1, 1,
-#'                                       0, 0, 0, 1, 1, 1))
-#' mark_map$marker <- paste0(mark_map$chrom, sep = "_", mark_map$position)
-#' mark_map <- mark_map[, c(5, 1:4)]
-#' mark_map
+#' data(mark_map)
+#' head(mark_map)
+#'
+#' mm_obj <- markerMap(mark_map)
+#' head(mm_obj)
 #'
 #' set.seed(1)
-#' founder_seq <- as.data.frame(matrix(sample(2*nrow(mark_map)*1000,
+#' founder_seq <- as.data.frame(matrix(sample(2*nrow(mm_obj)*1000,
 #'                                     x = c(0, 1),
 #'                                     replace = T,
 #'                                     prob = c(0.95, 0.05)),
 #'                              nrow = 2*1000))
-#' colnames(founder_seq) = as.character(mark_map$marker)
-#' hdist = estimate_haploDist(founder_seq, mark_map)
+#' colnames(founder_seq) = as.character(mm_obj$marker)
+#' hdist = estimate_haploDist(founder_seq, mm_obj)
 #'
-#' hdist2 = estimate_haploDist(founder_seq[which(founder_seq[, 2] == 1), ], mark_map)
+#' hdist2 = estimate_haploDist(founder_seq[which(founder_seq[, 2] == 1), ], mm_obj)
 #' hdist2[[1]]
 #'
 #' condition_haploDist(hdist[[1]], "1_5012369", 1)
 #'
 #' set.seed(6)
 #' ped_seq <- sim_RVstudy(ped_files = ex_study_peds,
-#'                        haplotype_dist = estimate_haploDist(founder_seq, mark_map),
-#'                        marker_map = mark_map,
+#'                        haplotype_dist = estimate_haploDist(founder_seq, mm_obj),
+#'                        marker_map = mm_obj,
 #'                        chrom_map = my_chrom_map)
 #' ped_seq
 #'
 #' set.seed(6)
 #' system.time(sim_RVstudy(ped_files = ex_study_peds,
-#'                         haplotype_dist = estimate_haploDist(founder_seq, mark_map),
-#'                         marker_map = mark_map,
+#'                         haplotype_dist = estimate_haploDist(founder_seq, mm_obj),
+#'                         marker_map = mm_obj,
 #'                         chrom_map = my_chrom_map))
 #'
 sim_RVstudy <- function(ped_files, marker_map, chrom_map,
@@ -82,6 +70,8 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
                         convert_to_cM = TRUE,
                         burn_in = 1000,
                         gamma_params = c(2.63, 2.63/0.5)){
+
+  if(!is.markerMap(marker_map)) stop("Expecting class(marker_map) to include markerMap")
 
   #convert from base pairs to centiMorgan
   if (convert_to_cM) {
@@ -106,11 +96,6 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
   # WILL PROBABLY WANT TO CHANGE PROCESS HERE
   # TO CHOOSE PATHWAY THEN RARE VARIANT
 
-  #If probCausal is not included in marker_map
-  #then each marker is given equal weight
-  if (is.null(marker_map$probCausal)) {
-    marker_map$probCausal <- marker_map$possibleRV/sum(marker_map$possibleRV)
-  }
 
   #sampling from RV markers (with probability
   #probCausal)to determine familial RV locus

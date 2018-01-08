@@ -140,7 +140,15 @@ sim_RVseq <- function(ped_file, founder_genos,
 
   #for each offspring simulate transmission of parental data
   for (i in 1:nrow(PO_info)) {
-    loop_gams <- sim_gameteInheritance(RV_locus = marker_map[which(marker_map$marker == RV_marker), c(2:3)],
+    #determine the chromosome number and location of the familial RV locus
+    #then store as a dataframe with chrom in the first column
+    RVL <- marker_map[which(marker_map$marker == RV_marker),
+                      which(colnames(marker_map) %in% c("chrom", "position"))]
+    if(colnames(RVL[1]) != "chrom"){
+      RVL <- RVL[, c(2, 1)]
+    }
+
+    loop_gams <- sim_gameteInheritance(RV_locus = RVL,
                                        parent_RValleles = PO_info[i, c(6, 7)],
                                        offspring_RVstatus = PO_info[i, 5],
                                        chrom_map,
