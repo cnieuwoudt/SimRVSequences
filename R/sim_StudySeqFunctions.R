@@ -1,3 +1,92 @@
+#' Condition Haplotype distribution
+#'
+#' @param Chaplo_dist haplotype distribution for a single chromosome
+#' @param RV_marker familial RV marker
+#' @param RV_status 0 or 1, 1 if RV is inherited
+#'
+#' @return The conditioned haplotype distribution.
+#' @export
+#'
+condition_haploDist <- function(Chaplo_dist, RV_marker, RV_status){
+  hap_prob <- rep(1/nrow(Chaplo_dist), nrow(Chaplo_dist))
+
+  #determine which rows of Chaplo_dist are appropriate given rv status
+  keep_rows <- which(Chaplo_dist[, which(colnames(Chaplo_dist) == RV_marker)] == RV_status)
+  if(length(keep_rows) == 1){
+    cond_haploDist <- as.data.frame(t(as.matrix(Chaplo_dist[keep_rows, ])))
+    cond_haploDist$prob <- hap_prob[keep_rows]/sum(hap_prob[keep_rows])
+  } else {
+    cond_haploDist <- as.data.frame(Chaplo_dist[keep_rows, ])
+    cond_haploDist$prob <- hap_prob[keep_rows]/sum(hap_prob[keep_rows])
+  }
+
+  return(cond_haploDist)
+}
+
+
+#' Draw Founder Genotypes from Haplotype Distribution Given Familial Risk Variant
+#'
+#'
+#' @return list of familial founder genotypes
+#' @export
+#'
+sim_FGenos <- function(founder_ids, RV_founder, FamID,
+                       haplotype_dist, FamRV, marker_map) {
+
+  #store chromosomal postion (i.e. list position in haplotype_dist) of risk variant
+  RV_chrom_pos <- which(unique(marker_map$chrom) == marker_map$chrom[marker_map$marker == FamRV])
+
+  fam_genos <- list()
+  #NOTE: If we want to change from SNVs to another variant
+  #type we will need to change the functionality of RV_status below
+
+  for (k in 1:length(unique(marker_map$chrom))) {
+    if (k == RV_chrom_pos) {
+      #Since the risk variant is located on this chromosome, we must condition the
+      #haplotype distribution on RV status before drawing haplotype
+      RVdist <- condition_haploDist(haplotype_dist[[k]],
+                                    RV_marker = FamRV,
+                                    RV_status = 1)
+
+      RV_founder_dat = RVdist[sample(x = c(1:nrow(RVdist)),
+                                     size = 1,
+                                     prob = RVdist$prob),
+                              -ncol(RVdist)]
+
+      NRVdist <- condition_haploDist(haplotype_dist[[k]],
+                                     RV_marker = FamRV,
+                                     RV_status = 0)
+
+      NRV_founder_dat <- NRVdist[sample(x = c(1:nrow(NRVdist)),
+                                        size = (2*length(founder_ids) + 1),
+                                        replace = TRUE,
+                                        prob = NRVdist$prob),
+                                 -ncol(NRVdist)]
+
+      fam_genos[[k]] <- rbind(RV_founder_dat, NRV_founder_dat)
+    } else {
+
+      #since the familial RV does not reside on the kth chromosome we
+      #sample founder haplotypes according to from the haplotype distribution
+
+      fam_genos[[k]] = haplotype_dist[[k]][sample(x = c(1:nrow(haplotype_dist[[k]])),
+                                                  size = 2*(length(founder_ids) + 1),
+                                                  replace = TRUE,
+                                                  prob = haplotype_dist[[k]]$prob),
+                                           -ncol(haplotype_dist[[k]])]
+    }
+  }
+
+  founder_genos <- do.call("cbind", fam_genos)
+  founder_genos$ID <- rep(c(RV_founder, founder_ids), each = 2)
+  rownames(founder_genos) <- NULL
+
+  #ramdomly permute RV founders rows so that the RV is not always paternally inherited.
+  founder_genos[c(1,2), ] <- founder_genos[sample(x = c(1, 2), size = 2, replace = F), ]
+
+  return(founder_genos)
+}
+
 #' Simulate sequence data for a study
 #'
 #' @inheritParams sim_RVseq
@@ -11,58 +100,31 @@
 #' @export
 #'
 #' @examples
+#' data(hg_chrom)
+#' data(mark_map)
+#' data(SNP_dat)
+#'
 #' library(SimRVPedigree)
 #' data(EgPeds)
 #'
-#' EgPeds5 <- EgPeds4 <- EgPeds3 <- EgPeds2 <- EgPeds
-#' EgPeds2$FamID <- EgPeds2$FamID + 5
-#' EgPeds3$FamID <- EgPeds3$FamID + 10
-#' EgPeds4$FamID <- EgPeds4$FamID + 15
-#' EgPeds5$FamID <- EgPeds5$FamID + 20
-#' ex_study_peds <- rbind(EgPeds, EgPeds2, EgPeds3, EgPeds4, EgPeds5)
 #' ex_study_peds <- EgPeds
 #'
-#' nrow(ex_study_peds[which(is.na(ex_study_peds$dadID)), ])
-#' length(unique(ex_study_peds$FamID))
-#'
-#' my_chrom_map = data.frame(chrom     = c(1, 2),
-#'                           start_pos = c(0, 0),
-#'                           end_pos   = c(247199719, 242751149),
-#'                           center = c(98879888, 97100460))
+#' my_chrom_map = hg_chrom[17, ]
 #' my_chrom_map
 #'
-#' data(mark_map)
 #' head(mark_map)
-#'
 #' mm_obj <- markerMap(mark_map)
 #' head(mm_obj)
 #'
-#' set.seed(1)
-#' founder_seq <- as.data.frame(matrix(sample(2*nrow(mm_obj)*1000,
-#'                                     x = c(0, 1),
-#'                                     replace = T,
-#'                                     prob = c(0.95, 0.05)),
-#'                              nrow = 2*1000))
-#' colnames(founder_seq) = as.character(mm_obj$marker)
-#' hdist = estimate_haploDist(founder_seq, mm_obj)
-#'
-#' hdist2 = estimate_haploDist(founder_seq[which(founder_seq[, 2] == 1), ], mm_obj)
-#' hdist2[[1]]
-#'
-#' condition_haploDist(hdist[[1]], "1_5012369", 1)
+#' h_dist <- list()
+#' h_dist[[1]]<- SNP_dat
 #'
 #' set.seed(6)
 #' ped_seq <- sim_RVstudy(ped_files = ex_study_peds,
-#'                        haplotype_dist = estimate_haploDist(founder_seq, mm_obj),
+#'                        haplotype_dist = h_dist,
 #'                        marker_map = mm_obj,
 #'                        chrom_map = my_chrom_map)
 #' ped_seq
-#'
-#' set.seed(6)
-#' system.time(sim_RVstudy(ped_files = ex_study_peds,
-#'                         haplotype_dist = estimate_haploDist(founder_seq, mm_obj),
-#'                         marker_map = mm_obj,
-#'                         chrom_map = my_chrom_map))
 #'
 sim_RVstudy <- function(ped_files, marker_map, chrom_map,
                         haplotype_dist,

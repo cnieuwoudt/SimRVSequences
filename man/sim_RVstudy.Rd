@@ -32,57 +32,30 @@ study_sequences
 Simulate sequence data for a study
 }
 \examples{
+data(hg_chrom)
+data(mark_map)
+data(SNP_dat)
+
 library(SimRVPedigree)
 data(EgPeds)
 
-EgPeds5 <- EgPeds4 <- EgPeds3 <- EgPeds2 <- EgPeds
-EgPeds2$FamID <- EgPeds2$FamID + 5
-EgPeds3$FamID <- EgPeds3$FamID + 10
-EgPeds4$FamID <- EgPeds4$FamID + 15
-EgPeds5$FamID <- EgPeds5$FamID + 20
-ex_study_peds <- rbind(EgPeds, EgPeds2, EgPeds3, EgPeds4, EgPeds5)
 ex_study_peds <- EgPeds
 
-nrow(ex_study_peds[which(is.na(ex_study_peds$dadID)), ])
-length(unique(ex_study_peds$FamID))
-
-my_chrom_map = data.frame(chrom     = c(1, 2),
-                          start_pos = c(0, 0),
-                          end_pos   = c(247199719, 242751149),
-                          center = c(98879888, 97100460))
+my_chrom_map = hg_chrom[17, ]
 my_chrom_map
 
-data(mark_map)
 head(mark_map)
-
 mm_obj <- markerMap(mark_map)
 head(mm_obj)
 
-set.seed(1)
-founder_seq <- as.data.frame(matrix(sample(2*nrow(mm_obj)*1000,
-                                    x = c(0, 1),
-                                    replace = T,
-                                    prob = c(0.95, 0.05)),
-                             nrow = 2*1000))
-colnames(founder_seq) = as.character(mm_obj$marker)
-hdist = estimate_haploDist(founder_seq, mm_obj)
-
-hdist2 = estimate_haploDist(founder_seq[which(founder_seq[, 2] == 1), ], mm_obj)
-hdist2[[1]]
-
-condition_haploDist(hdist[[1]], "1_5012369", 1)
+h_dist <- list()
+h_dist[[1]]<- SNP_dat
 
 set.seed(6)
 ped_seq <- sim_RVstudy(ped_files = ex_study_peds,
-                       haplotype_dist = estimate_haploDist(founder_seq, mm_obj),
+                       haplotype_dist = h_dist,
                        marker_map = mm_obj,
                        chrom_map = my_chrom_map)
 ped_seq
-
-set.seed(6)
-system.time(sim_RVstudy(ped_files = ex_study_peds,
-                        haplotype_dist = estimate_haploDist(founder_seq, mm_obj),
-                        marker_map = mm_obj,
-                        chrom_map = my_chrom_map))
 
 }

@@ -34,13 +34,14 @@ sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
                      before_center = chias_count_BC(sim_chias_pos, my_chrom_map[1,3]),
                      allele_IDs = c(2, 3))
 
+\dontrun{
 system.time(for (i in 1:10000) {
 sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
 sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
                      before_center = chias_count_BC(sim_chias_pos, my_chrom_map[1,3]),
                      allele_IDs = c(2, 3))
 })
-
+}
 }
 \references{
 Thompson, E. (2000). \emph{Statistical Inference from Genetic Data on Pedigrees.} NSF-CBMS Regional Conference Series in Probability and Statistics, 6, I-169. Retrieved from http://www.jstor.org.proxy.lib.sfu.ca/stable/4153187

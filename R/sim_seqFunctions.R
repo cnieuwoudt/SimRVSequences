@@ -2,9 +2,6 @@
 #'
 #' For internal use.
 #'
-#' May need to reasses this code, particularly at line 27.
-#' COMMENT THIS CODE ASAP
-#'
 #' @param parental_genotypes The parental genotype sequence information.
 #' @param Cmarker_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
 #' @param inherited_haplotype The inherited haplotype sequence.
@@ -25,7 +22,7 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 
   if (length(chiasmata_locations) > 0){
 
-    #determine which chiasmata inherited haplotype participated in
+    #determine which inherited haplotype participated in chiasmata
     switch_alleles_loc <- c(REDchrom_map$start_pos,
                             reduce_to_events(as.numeric(inherited_haplotype), chiasmata_locations),
                             REDchrom_map$end_pos + 1) #1 added here in case of marker at end of chromosome
@@ -66,40 +63,18 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #'
 #' @examples
 #' library(SimRVPedigree)
-#' library(kinship2)
-#' #Read in age-specific hazards
 #' data(EgPeds)
-#'
 #' ex_RVped <- EgPeds[which(EgPeds$FamID == 4), ]
+#' plot(new.ped(ex_RVped))
 #'
-#' # Define pedigree object for trimmed pedigree, i.e, pedigree with
-#' #proband selected and relatives trimmed
-#' TrimRVped <- pedigree(id = ex_RVped$ID,
-#'                       dadid = ex_RVped$dadID,
-#'                       momid = ex_RVped$momID,
-#'                       sex = (ex_RVped$sex + 1),
-#'                       affected = cbind(Affected = ex_RVped$affected,
-#'                                        Proband = ex_RVped$proband,
-#'                                        RV_status = ex_RVped$DA1 +
-#'                                                    ex_RVped$DA2),
-#'                       famid = ex_RVped$FamID)['4']
-#'
-#'  plot(TrimRVped)
-#'  pedigree.legend(TrimRVped, location = "topleft",  radius = 0.25)
-#'
-#' my_chrom_map = data.frame(chrom     = c(1),
-#'                           start_pos = c(0),
-#'                           end_pos   = c(250),
-#'                           center = c(50))
+#' data(hg_autosomes)
+#' my_chrom_map = hg_autosomes[1:2, ]
 #' my_chrom_map
-#' my_RV_marker <- "1_50"
-#'
-#' mark_map <- data.frame(chrom = c(1, 1, 1, 1, 1, 1, 1),
-#'                        position = c(20, 50, 100, 125, 175, 200, 250))
-#' mark_map$marker <- paste0(mark_map$chrom, sep = "_", mark_map$position)
-#' mark_map <- mark_map[, c(3, 1, 2)]
-#' mark_map
-#'
+
+#' data(mark_map)
+#' head(mark_map)
+#' my_marker_map = markerMap(mark_map)
+#' my_RV_marker = my_marker_map$marker[1]
 #'
 #' founder_seq2 <- matrix(rep(letters[1:(2*nrow(mark_map))], length(which(is.na(ex_RVped$dadID)))),
 #'                        nrow = 2*length(which(is.na(ex_RVped$dadID))),

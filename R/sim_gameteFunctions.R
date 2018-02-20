@@ -26,32 +26,25 @@
 #' @importFrom stats rgamma
 #'
 #' @examples
+#' data(hg_chrom)
+#' my_chrom_map = hg_chrom
+#' my_chrom_map$start_pos = convert_BP_to_cM(my_chrom_map$start_pos)
+#' my_chrom_map$end_pos = convert_BP_to_cM(my_chrom_map$end_pos)
+#' my_chrom_map$center = convert_BP_to_cM(my_chrom_map$center)
 #'
-#' set.seed(1)
-#' sim_chiasmataPositions(chrom_map = data.frame(start = 70,
-#'                                          stop = 250,
-#'                                          center = 120))
-#'
-#' set.seed(1)
-#' sim_chiasmataPositions(chrom_map = data.frame(start = 0,
-#'                                          stop = 250,
-#'                                          center = 50))
+#' sim_chiasmataPositions(my_chrom_map[1, 2:4])
 #'
 #' #to simulate chiasmata according to Haldane's Model
-#' set.seed(1)
-#' sim_chiasmataPositions(chrom_map = data.frame(start = 0,
-#'                                          stop = 250,
-#'                                          center = 50),
+#' sim_chiasmataPositions(my_chrom_map[1, 2:4],
 #'                        burn_in = 0,
 #'                        gamma_params = c(1, 2))
 #'
+#' \dontrun{
 #' set.seed(1)
 #' system.time(for(i in 1:10000){
-#' sim_chiasmataPositions(chrom_map = data.frame(start = 0,
-#'                                          stop = 200,
-#'                                          center = 50))
+#' sim_chiasmataPositions(my_chrom_map[1, 2:4])
 #' })
-#'
+#' }
 #'
 sim_chiasmataPositions <- function(chrom_map,
                                    burn_in = 1000,
@@ -122,13 +115,14 @@ sim_chiasmataPositions <- function(chrom_map,
 #'                      before_center = chias_count_BC(sim_chias_pos, my_chrom_map[1,3]),
 #'                      allele_IDs = c(2, 3))
 #'
+#' \dontrun{
 #' system.time(for (i in 1:10000) {
 #' sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
 #' sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
 #'                      before_center = chias_count_BC(sim_chias_pos, my_chrom_map[1,3]),
 #'                      allele_IDs = c(2, 3))
 #' })
-#'
+#' }
 sim_haploidFormation <- function(num_chiasmata,
                                  before_center,
                                  allele_IDs) {
@@ -182,18 +176,20 @@ sim_haploidFormation <- function(num_chiasmata,
 #' @export
 #'
 #' @examples
-#' my_chrom_map = data.frame(chrom = c(1, 2),
-#'                           start_pos = c(0, 0),
-#'                           end_pos = c(250, 120),
-#'                           center = c(50, 24))
+#' data(hg_chrom)
+#' my_chrom_map = hg_chrom
+#' my_chrom_map$start_pos = convert_BP_to_cM(my_chrom_map$start_pos)
+#' my_chrom_map$end_pos = convert_BP_to_cM(my_chrom_map$end_pos)
+#' my_chrom_map$center = convert_BP_to_cM(my_chrom_map$center)
 #'
-#' sim_gameteFormation(my_chrom_map, allele_IDs = c(0, 1))
-#' sim_gameteFormation(my_chrom_map, allele_IDs = c("a", "b"))
-#' sim_gameteFormation(my_chrom_map, allele_IDs = c(34, "gb"))
+#' sim_gameteFormation(hg_autosomes, allele_IDs = c(0, 1))
+#' sim_gameteFormation(hg_autosomes, allele_IDs = c("a", "b"))
 #'
+#' \dontrun{
 #' system.time(for (i in 1:10000) {
-#'   sim_gameteFormation(my_chrom_map, c(0, 1))
-#' })
+#'  sim_gameteFormation(my_chrom_map, c(0, 1))
+#'  })
+#' }
 sim_gameteFormation <- function(chrom_map, allele_IDs,
                                 burn_in = 1000, gamma_params = c(2.63, 2.63/0.5)) {
 
