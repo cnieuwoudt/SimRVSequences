@@ -4,7 +4,7 @@
 #'
 #' @docType data
 #'
-#' @format A data set with 14 rows and 4 variables:
+#' @format A data set with 366 rows and 4 variables:
 #' \describe{
 #'   \item{chrom}{Numeric. The chromosome on which the marker resides.}
 #'   \item{position}{The location of the marker, in basepairs.}
