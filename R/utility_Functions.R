@@ -205,42 +205,6 @@ affected_onlyPed = function(ped_file){
   return(retA_ped)
 }
 
-#' Set Founder Genotypes and Return Reduced DF of Genotypes
-#'
-#' NEVER USED??? SHOULD PROBABLY BE REMOVED
-#'
-#'
-#' @return list of (1) family genotypes and (2) a reduced pool of genos
-#' @export
-#'
-get_FGenos <- function(founder_ids, RV_founder, FamID, founder_genotypes, FamRV) {
-  #choose row corresponding to seq_data for RV founder
-  RV_founder_row <- sample(size = 1,
-                           x = which(founder_genotypes[ , which(colnames(founder_genotypes) == FamRV)] == 1))
-
-  #choose row corresponding to seq_data for other founders
-  NOTRV_founder_row <- sample(size = 2*length(founder_ids) + 1,
-                           x = which(founder_genotypes[ , which(colnames(founder_genotypes) == FamRV)] == 0),
-                           replace = FALSE)
-
-  #combine into 1 DF
-  fam_genos <- rbind(founder_genotypes[RV_founder_row, ],
-                     founder_genotypes[NOTRV_founder_row, ])
-
-  #update ID variable
-  fam_genos$ID <- c(rep(RV_founder, 2), rep(founder_ids, each = 2))
-
-  #ramdomly permute RV founders rows so that half of the time the RV is a maternally inherited and the other half of the time it is paternally inherited.
-  fam_genos[c(1,2), ] <- fam_genos[sample(x = c(1, 2), size = 2, replace = F), ]
-
-  #reduce genotypes DF so that these rows cannot be chosen again
-  red_genotypes <- founder_genotypes[-c(RV_founder_row, NOTRV_founder_row), ]
-
-  my_return <- list(fam_genos, red_genotypes)
-  return(my_return)
-}
-
-
 #' Convert from basepairs to centimorgan
 #'
 #' Convert from basepairs to centimorgan
@@ -262,55 +226,3 @@ convert_BP_to_cM <- function(pos_BP){ pos_BP/1000000 }
 #' @export
 #'
 convert_CM_to_BP <- function(pos_CM){ pos_CM*1000000 }
-
-#' Estimate haplotype distribution
-#'
-#' Estimate haplotype distribution
-#'
-#' @inheritParams sim_RVstudy
-#' @param pop_haplos Data.frame.  A data frame containing the population haplotypes
-#'
-#' @return haplo_dist The haplotype distribution
-#' @export
-#' @importFrom plyr count
-#'
-#' @examples
-#' mark_map <- data.frame(chrom = c(1, 1, 1, 1, 1, 1, 1, 1,
-#'                                       2, 2, 2, 2, 2, 2),
-#'                        position = c(5012368, 5012369, 5012370,
-#'                                     78541008, 78541009, 78541010,
-#'                                     247199219, 247199220,
-#'                                     11330, 11332,
-#'                                     234577, 234578, 234579,
-#'                                     18799180),
-#'                        pathwayID = c(1, 1, 1, 2, 2, 2, 3, 3,
-#'                                      2, 2, 3, 3, 3, 1),
-#'                        possibleRV = c(0, 1, 1, 0, 0, 0, 1, 1,
-#'                                       0, 0, 0, 1, 1, 1))
-#' mark_map$marker <- paste0(mark_map$chrom, sep = "_", mark_map$position)
-#' mark_map <- mark_map[, c(5, 1:4)]
-#' mark_map
-#'
-#' set.seed(1)
-#' founder_seq <- as.data.frame(matrix(sample(2000*nrow(mark_map),
-#'                                     x = c(0, 1),
-#'                                     replace = T,
-#'                                     prob = c(0.95, 0.05)),
-#'                              nrow = 2*1000))
-#' colnames(founder_seq) = as.character(mark_map$marker)
-#'
-#' hdist = estimate_haploDist(founder_seq, mark_map)
-#' hdist[[1]]
-#' hdist[[2]]
-#'
-#'
-estimate_haploDist <- function(pop_haplos, marker_map){
-  haplo_dist <- list()
-  for (i in 1:length(unique(marker_map$chrom))) {
-    haplo_dist[[i]] <- count(pop_haplos[, c(which(marker_map$chrom == unique(marker_map$chrom)[i]))])
-    haplo_dist[[i]]$freq <- haplo_dist[[i]]$freq/nrow(pop_haplos)
-    colnames(haplo_dist[[i]]) <- c(marker_map$marker[marker_map$chrom == unique(marker_map$chrom)[i]], "prob")
-  }
-
-  return(haplo_dist)
-}
