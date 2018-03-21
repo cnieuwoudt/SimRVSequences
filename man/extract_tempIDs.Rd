@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_slimOut.R
 \name{extract_tempIDs}
 \alias{extract_tempIDs}
-\title{Compile x,y pos of mutations in sparse matrix}
+\title{Compile x,y position of mutations in sparse matrix}
 \usage{
 extract_tempIDs(mutString, rarePos)
 }
@@ -17,6 +17,6 @@ extract_tempIDs(mutString, rarePos)
 data.frame with x and y positions of mutations
 }
 \description{
-Compile x,y pos of mutations in sparse matrix
+Compile x,y position of mutations in sparse matrix
 }
 \keyword{internal}
