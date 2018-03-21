@@ -32,16 +32,13 @@ study_sequences
 Simulate sequence data for a study
 }
 \examples{
-data(hg_chrom)
-data(mark_map)
-data(SNP_dat)
-
 library(SimRVPedigree)
 data(EgPeds)
 
-ex_study_peds <- EgPeds
+ex_study_peds <- EgPeds[EgPeds$FamID == 1, ]
 
-my_chrom_map = hg_chrom[17, ]
+data(hg_chrom)
+my_chrom_map = hg_chrom
 my_chrom_map
 
 head(mark_map)

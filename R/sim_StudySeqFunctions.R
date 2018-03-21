@@ -1,29 +1,3 @@
-#' Condition Haplotype distribution
-#'
-#' @param Chaplo_dist haplotype distribution for a single chromosome
-#' @param RV_marker familial RV marker
-#' @param RV_status 0 or 1, 1 if RV is inherited
-#'
-#' @return The conditioned haplotype distribution.
-#' @export
-#'
-condition_haploDist <- function(Chaplo_dist, RV_marker, RV_status){
-  hap_prob <- rep(1/nrow(Chaplo_dist), nrow(Chaplo_dist))
-
-  #determine which rows of Chaplo_dist are appropriate given rv status
-  keep_rows <- which(Chaplo_dist[, which(colnames(Chaplo_dist) == RV_marker)] == RV_status)
-  if(length(keep_rows) == 1){
-    cond_haploDist <- as.data.frame(t(as.matrix(Chaplo_dist[keep_rows, ])))
-    cond_haploDist$prob <- hap_prob[keep_rows]/sum(hap_prob[keep_rows])
-  } else {
-    cond_haploDist <- as.data.frame(Chaplo_dist[keep_rows, ])
-    cond_haploDist$prob <- hap_prob[keep_rows]/sum(hap_prob[keep_rows])
-  }
-
-  return(cond_haploDist)
-}
-
-
 #' Draw Founder Genotypes from Haplotype Distribution Given Familial Risk Variant
 #'
 #'
@@ -42,26 +16,20 @@ sim_FGenos <- function(founder_ids, RV_founder, FamID,
 
   for (k in 1:length(unique(marker_map$chrom))) {
     if (k == RV_chrom_pos) {
-      #Since the risk variant is located on this chromosome, we must condition the
-      #haplotype distribution on RV status before drawing haplotype
-      RVdist <- condition_haploDist(haplotype_dist[[k]],
-                                    RV_marker = FamRV,
-                                    RV_status = 1)
+      #Determine which haplotypes carry the familial rare variant and which so not
+      RV_haps <- which(haplotype_dist[[k]][, marker_map$colID[marker_map$marker == FamRV]] == 1)
+      noRV_haps <- which(haplotype_dist[[k]][, marker_map$colID[marker_map$marker == FamRV]] == 0)
 
-      RV_founder_dat = RVdist[sample(x = c(1:nrow(RVdist)),
-                                     size = 1,
-                                     prob = RVdist$prob),
-                              -ncol(RVdist)]
+      #for the seed founder sample one haplotype from those that carry the RV
+      # and one haplotype from those that DO NOT carry the RV
+      RV_founder_dat = haplotype_dist[[k]][c(sample(x = RV_haps, size = 1),
+                                             sample(x = noRV_haps, size = 1)), ]
 
-      NRVdist <- condition_haploDist(haplotype_dist[[k]],
-                                     RV_marker = FamRV,
-                                     RV_status = 0)
-
-      NRV_founder_dat <- NRVdist[sample(x = c(1:nrow(NRVdist)),
-                                        size = (2*length(founder_ids) + 1),
-                                        replace = TRUE,
-                                        prob = NRVdist$prob),
-                                 -ncol(NRVdist)]
+      #sample 1 haplotype that does not carry the RV for the seed founder and
+      #2 haplotypes that do not carry the RV for all other founders
+      NRV_founder_dat <- haplotype_dist[[k]][sample(x = noRV_haps,
+                                                    size = 2*length(founder_ids),
+                                                    replace = TRUE), ]
 
       fam_genos[[k]] <- rbind(RV_founder_dat, NRV_founder_dat)
     } else {
@@ -71,20 +39,17 @@ sim_FGenos <- function(founder_ids, RV_founder, FamID,
 
       fam_genos[[k]] = haplotype_dist[[k]][sample(x = c(1:nrow(haplotype_dist[[k]])),
                                                   size = 2*(length(founder_ids) + 1),
-                                                  replace = TRUE,
-                                                  prob = haplotype_dist[[k]]$prob),
-                                           -ncol(haplotype_dist[[k]])]
+                                                  replace = TRUE), ]
     }
   }
 
   founder_genos <- do.call("cbind", fam_genos)
-  founder_genos$ID <- rep(c(RV_founder, founder_ids), each = 2)
-  rownames(founder_genos) <- NULL
-
   #ramdomly permute RV founders rows so that the RV is not always paternally inherited.
   founder_genos[c(1,2), ] <- founder_genos[sample(x = c(1, 2), size = 2, replace = F), ]
 
-  return(founder_genos)
+  founder_genos_ID <- rep(c(RV_founder, founder_ids), each = 2)
+
+  return(list(founder_genos, founder_genos_ID))
 }
 
 #' Simulate sequence data for a study
@@ -100,16 +65,13 @@ sim_FGenos <- function(founder_ids, RV_founder, FamID,
 #' @export
 #'
 #' @examples
-#' data(hg_chrom)
-#' data(mark_map)
-#' data(SNP_dat)
-#'
 #' library(SimRVPedigree)
 #' data(EgPeds)
 #'
-#' ex_study_peds <- EgPeds
+#' ex_study_peds <- EgPeds[EgPeds$FamID == 1, ]
 #'
-#' my_chrom_map = hg_chrom[17, ]
+#' data(hg_chrom)
+#' my_chrom_map = hg_chrom
 #' my_chrom_map
 #'
 #' head(mark_map)
@@ -179,8 +141,7 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
                FamID = FamIDs[x], haplotype_dist, FamRV = Fam_RVs[x], marker_map)
   })
 
-  #simulate non-founder haploypes from
-  #founder haplotypes
+  #simulate non-founder haploypes via conditional gene drop
   ped_seqs <- lapply(c(1:length(FamIDs)), function(x){
     sim_RVseq(ped_file = ped_files[which(ped_files$FamID == FamIDs[x]), ],
               founder_genos = f_genos[[x]],
@@ -189,13 +150,15 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
               burn_in, gamma_params)
     })
 
-  study_sequenceDat <- do.call("rbind", ped_seqs)
+  ped_genos <- do.call("rbind", lapply(ped_seqs, function(x){x$ped_genos}))
+  geno_map <- do.call("rbind", lapply(ped_seqs, function(x){x$geno_map}))
 
-  if (affected_only) {
-    study_sequenceDat <- study_sequenceDat[which(study_sequenceDat$affected == 1), ]
-    #study_sequenceDat <- study_sequenceDat[, -which(colnames(study_sequenceDat) == "affected")]
-  }
-  rownames(study_sequenceDat) = NULL
 
-  return(study_sequenceDat)
+  # #return data for affecteds only
+  # if (affected_only) {
+  #   study_sequenceDat <- study_sequenceDat[which(study_sequenceDat$affected == 1), ]
+  #   #study_sequenceDat <- study_sequenceDat[, -which(colnames(study_sequenceDat) == "affected")]
+  # }
+
+  return(list(ped_genos = ped_genos, geno_map = geno_map))
 }
