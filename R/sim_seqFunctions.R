@@ -40,7 +40,7 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
       end_switch <- switch_alleles_loc[2*i]
 
       #switch alleles between chiasmata
-      offspring_seq[, which(Cmarker_map$position >= start_switch & Cmarker_map$position < end_switch)] <-
+      offspring_seq[which(Cmarker_map$position >= start_switch & Cmarker_map$position < end_switch)] <-
         parental_genotypes[switch_alle, which(Cmarker_map$position >= start_switch & Cmarker_map$position < end_switch)]
     }
   } else {
@@ -111,7 +111,9 @@ sim_RVseq <- function(ped_file, founder_genos,
   PO_info <- get_parOffInfo(ped_file)
   PO_info <- PO_info[order(PO_info$Gen, PO_info$offspring_ID),]
 
-  ped_genos <- founder_genos
+  ped_genos <- founder_genos[[1]]
+  ped_geno_IDs <- founder_genos[[2]]
+
 
   #for each offspring simulate transmission of parental data
   for (i in 1:nrow(PO_info)) {
@@ -119,10 +121,12 @@ sim_RVseq <- function(ped_file, founder_genos,
     #then store as a dataframe with chrom in the first column
     RVL <- marker_map[which(marker_map$marker == RV_marker),
                       which(colnames(marker_map) %in% c("chrom", "position"))]
+
     if(colnames(RVL[1]) != "chrom"){
       RVL <- RVL[, c(2, 1)]
     }
 
+    #simulate recombination events for this parent offspring pair
     loop_gams <- sim_gameteInheritance(RV_locus = RVL,
                                        parent_RValleles = PO_info[i, c(6, 7)],
                                        offspring_RVstatus = PO_info[i, 5],
@@ -130,25 +134,34 @@ sim_RVseq <- function(ped_file, founder_genos,
                                        allele_IDs = c(1, 2),
                                        burn_in, gamma_params)
 
+    #construct offspring's inherited material from this parent
     loop_seq <- lapply(c(1:nrow(chrom_map)),
                        function(x){
                          reconstruct_fromHaplotype(parental_genotypes =
-                                                     ped_genos[which(ped_genos$ID == PO_info[i, 4]),
+                                                     ped_genos[which(ped_geno_IDs == PO_info[i, 4]),
                                                                         which(marker_map$chrom == chrom_map$chrom[x])],
                                                    Cmarker_map = marker_map[which(marker_map$chrom == chrom_map$chrom[x]),],
                                                    inherited_haplotype = loop_gams$haplotypes[[x]],
                                                    chiasmata_locations = loop_gams$cross_locations[[x]],
                                                    REDchrom_map = chrom_map[x, ])
                        })
-    loop_seq[[nrow(chrom_map) + 1]] = data.frame(ID = PO_info[i, 1])
 
-    ped_genos <- rbind(ped_genos, do.call("cbind", loop_seq))
+    #append ID for this haplotype to the list of IDs
+    ped_geno_IDs <- c(ped_geno_IDs, PO_info[i, 1])
+
+    #append this haplotype to the other familial haplotypes
+    ped_genos <- rbind(ped_genos, unlist(loop_seq))
   }
 
-  ped_genos$FamID <- ped_file$FamID[1]
-  ped_genos$FamRV <- RV_marker
-  ped_genos$affected <- 0
-  ped_genos$affected[which(ped_genos$ID %in% ped_file$ID[which(ped_file$affected == 1)])] <- 1
+  #create a data.frame to store identifying info
+  geno_map <- data.frame(FamID = rep(ped_file$FamID[1], length(ped_geno_IDs)),
+                         ID = ped_geno_IDs,
+                         affected =  rep(FALSE, length(ped_geno_IDs)))
+  #identify affected individuals
+  geno_map$affected[geno_map$ID %in% ped_file$ID[ped_file$affected]] <- TRUE
 
-  return(ped_genos)
+  #Return the genomes matrix and a data.frame continating identifying
+  #information for the of IDs to identify the
+  #family member to whom
+  return(list(ped_genos = ped_genos, geno_map = geno_map))
 }
