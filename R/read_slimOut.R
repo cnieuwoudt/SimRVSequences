@@ -4,7 +4,7 @@
 #'
 #' The \code{read_slim} function is used to extract single nucleotide polymorphism, or SNP, data from SLiM model output text file.
 #'
-#' The first item returned by \code{read_slim} is a data frame named \code{Mutations}, which contains information regarding SNP IDs, postions, and allele frequency.  The variable \code{colID} references the the column position (in the sparse genotype matrix) of the SNP, \code{pos} is the genomic position of the SNP (in bp), and \code{afreq} is the allele frequency of the SNP.
+#' The first item returned by \code{read_slim} is a data frame named \code{Mutations}, which contains information regarding SNP IDs, postions, and allele frequency.  The variable \code{colID} references the the column position (in the sparse genotype matrix) of the SNP, \code{position} is the genomic position of the SNP (in bp), and \code{afreq} is the allele frequency of the SNP.
 #'
 #' The second item returned is a sparse matrix named \code{Genomes}.  This matrix is the collection of haplotypes for each individual in the population.  Each row represents one of the haplotypes for a single individual in the population.  For example, the first individual's maternally and paternally inherited haplotypes are stored in rows one and two, respectively.  In general, the \eqn{i^{th}} individual's maternally inherited haplotype is stored in row \eqn{2i-1} and the paternally inherited haplotype is stored in row \eqn{2i}. (ALTERNATIVE DESC: The third and fourth rows contain haplotypes for the second individual, fifth and sixth rows contain haplotypes for the second individual, and so on. )
 #'
@@ -76,11 +76,13 @@ read_slim <- function(file_path, keep_maf = 0.01){
   )
 
   MutData <- as.data.frame(MutData)
-  colnames(MutData) <- c("tempID", "pos", "prevalence")
+  colnames(MutData) <- c("tempID", "position", "prevalence")
 
   #add 1 to temp ID so that we can easily associate mutations
   #to columns by default slim's first tempID is 0, not 1.
   MutData$tempID <- MutData$tempID + 1
+  #First position in slim is 0, not 1
+  MutData$position <- MutData$position + 1
 
   #calculate the minor allele frequency
   MutData$afreq <- MutData$prevalence/(2*popCount)
@@ -116,8 +118,8 @@ read_slim <- function(file_path, keep_maf = 0.01){
                            dims = c(2*popCount, nrow(RareMutData)))
 
   #order by genomic postion of rare mutation
-  GenoData <- GenoData[, order(RareMutData$pos)]
-  RareMutData <- RareMutData[order(RareMutData$pos),]
+  GenoData <- GenoData[, order(RareMutData$position)]
+  RareMutData <- RareMutData[order(RareMutData$position),]
 
   #Re-format tempID so that it corresponds to the column
   # (in GenoData) that the mutation is stored in
@@ -129,7 +131,7 @@ read_slim <- function(file_path, keep_maf = 0.01){
 
 
 
-#' Compile x,y pos of mutations in sparse matrix
+#' Compile x,y position of mutations in sparse matrix
 #'
 #' @param mutString character. String containing mutations
 #' @param indPos numeric. row number of individual
