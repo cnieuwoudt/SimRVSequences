@@ -4,7 +4,7 @@
 \alias{markerMap}
 \title{Create an object of class markerMap.}
 \usage{
-markerMap(markerDF)
+markerMap(markerDF, pathwayDF = NULL)
 }
 \arguments{
 \item{markerDF}{A data frame containing pertinent information on markers.   See details.}
@@ -25,6 +25,8 @@ The named columns in the data frame, \code{markerDF}, are described as follows:
  \item{possibleRV}{(OPTIONAL) Logical variable, indicates whether the variant may be chosen as a causal familial variant.  If this field is missing, it is assumed that all variants listed are candidates for selection.}
  \item{probCausal}{(OPTIONAL) The probability that the variant is selected as a familial RV.  If this field is missing, it will be assumed that all variants for which possibleRV is TRUE are equally likely.}
 }
+
+TO FIX: CURRENTLY NOT ACCOUNTING FOR CARRIER PROB WHEN CHOOSING VARIANTS
 }
 \examples{
 data(mark_map)

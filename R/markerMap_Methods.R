@@ -12,6 +12,8 @@
 #'  \item{probCausal}{(OPTIONAL) The probability that the variant is selected as a familial RV.  If this field is missing, it will be assumed that all variants for which possibleRV is TRUE are equally likely.}
 #' }
 #'
+#' TO FIX: CURRENTLY NOT ACCOUNTING FOR CARRIER PROB WHEN CHOOSING VARIANTS
+#'
 #'
 #' @param markerDF A data frame containing pertinent information on markers.   See details.
 #'
@@ -28,13 +30,12 @@
 #' head(markObj)
 #' class(markObj)
 #'
-markerMap <- function(markerDF) {
+markerMap <- function(markerDF, pathwayDF = NULL) {
   # Set up a new object of class markerMap
 
   if (!"chrom" %in% colnames(markerDF) |
-      !"position" %in% colnames(markerDF) |
-      !"pathwayID" %in% colnames(markerDF)) {
-    stop('please provide a data.frame with the following variables: chrom, position, and pathwayID')
+      !"position" %in% colnames(markerDF)) {
+    stop('please provide a data.frame with named variables: chrom and position')
   }
 
   #add marker name, if not provided
@@ -42,8 +43,18 @@ markerMap <- function(markerDF) {
     markerDF$marker <- paste0(markerDF$chrom, sep = "_", markerDF$position)
   }
 
-  #add possibleRV, if not provided
-  if (is.null(markerDF$possibleRV)) markerDF$possibleRV <- TRUE
+  if (is.null(pathwayDF) & is.null(markerDF$possibleRV)) {
+    markerDF$possibleRV <- TRUE
+  } else if (!is.null(pathwayDF)) {
+    if (!is.null(pathwayDF) & !is.null(markerDF$possibleRV)){
+      warning('Redefining possibleRV variable based on the data provided in pathwayDF')
+    }
+
+    markerDF <- do.call(rbind, lapply(unique(markerDF$chrom), function(x){
+      identify_possibleRVs(pathwayDF[pathwayDF$chrom == x, ],
+                           markerDF[markerDF$chrom == x, ])
+    }))
+  }
 
   #add probCausal, if not provided
   if (is.null(markerDF$probCausal)) {
@@ -76,3 +87,43 @@ is.markerMap <- function(x) {
   return(inherits(x, "markerMap"))
 }
 
+#' Identify possible variants based on defined pathway
+#'
+#' @param path_by_chrom The pathway data for the chromosome under consideration
+#' @param marker_map_by_chrom The marker_map for the chromosome under consideration
+#'
+#' @return marker_map_by_chrom with possibleRV identified
+#' @keywords internal
+identify_possibleRVs <- function(path_by_chrom, marker_map_by_chrom){
+  if(nrow(path_by_chrom) == 0){
+    marker_map_by_chrom$possibleRV <- FALSE
+  } else {
+    #since we will want to include variants that occur at the first base pair
+    #location, subtracting 1 from start positions
+    #Similarly, since we want the first mutation in marker_map_by_chrom
+    #to have a bin, subtracting 1 from this position
+    if(min(marker_map_by_chrom$position) != min(path_by_chrom$exonStart)){
+      cbreaks <- sort(c((min(marker_map_by_chrom$position) - 1),
+                        (path_by_chrom$exonStart - 1),
+                        unique(c(path_by_chrom$exonEnd,
+                                 max(marker_map_by_chrom$position)))))
+
+      keep_bins <- seq(2, length(cbreaks) - 1, by = 2)
+    } else {
+      cbreaks = sort(c((path_by_chrom$exonStart - 1),
+                       unique(c(path_by_chrom$exonEnd,
+                                max(marker_map_by_chrom$position)))))
+      keep_bins <- seq(1, length(cbreaks) - 1, by = 2)
+    }
+
+    if(any(duplicated(cbreaks))){
+      stop("Expecting non-overlapping exonStart and ExonEnd positions. \n Please combine overlapping segments into a single entry.")}
+
+    marker_map_by_chrom$possibleRV <- cut(marker_map_by_chrom$position,
+                                          breaks = cbreaks,
+                                          labels = FALSE)
+    marker_map_by_chrom$possibleRV <- marker_map_by_chrom$possibleRV %in% keep_bins
+  }
+
+  return(marker_map_by_chrom)
+}
