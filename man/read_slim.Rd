@@ -11,7 +11,7 @@ read_slim(file_path, keep_maf = 0.01, recomb_map = NULL)
 
 \item{keep_maf}{numeric. The largest allele frequency for retained SNPs.  All variants with allele frequency greater than \code{keep_maf} will be removed.  Please note, removing common variants is recommended for large datasets due to the limitations of data allocation in \code{R}.}
 
-\item{recomb_map}{data frame. The recombination map provided to SLiM 2.0, typically created by}
+\item{recomb_map}{data frame. The recombination map provided to SLiM 2.0, see details.}
 }
 \value{
 A list containing:
@@ -30,6 +30,8 @@ The first item returned by \code{read_slim} is a data frame named \code{Mutation
 
 The second item returned is a sparse matrix named \code{Genomes}.  This matrix is the collection of haplotypes for each individual in the population.  Each row represents one of the haplotypes for a single individual in the population.  For example, the first individual's maternally and paternally inherited haplotypes are stored in rows one and two, respectively.  In general, the \eqn{i^{th}} individual's maternally inherited haplotype is stored in row \eqn{2i-1} and the paternally inherited haplotype is stored in row \eqn{2i}. (ALTERNATIVE DESC: The third and fourth rows contain haplotypes for the second individual, fifth and sixth rows contain haplotypes for the second individual, and so on. )
 
+In addition to allowing users to specify recombinaiton hotspots, the recombination map provided to SLiM can be used to simulate data over unlinked regions (i.e. different chomosomes) or in linked but noncontiguous regions (i.e exon-only data).  The \code{\link{create_slimMap}} function may be used to create map for the latter puposes.  When a \code{recomb_map} is provided as an argument to \code{read_slim} the mutations are mapped to their actual locations and/or their appropriate chromosomes.
+
 NOTE TO SELF:
 \itemize{
  \item For file extension internal check use: importFrom tools file_ext
@@ -37,6 +39,6 @@ NOTE TO SELF:
 }
 }
 \examples{
-sout = read_slim(file_path = "C:/Data/Slim/SlimFull_output.txt", keep_maf = 0.01)
+sout = read_slim(file_path = "C:/Data/Slim/SlimFullFix_out.txt", keep_maf = 0.01, recomb_map = create_slimMap(hg_exons))
 sout = read_slim(file_path = "C:/Data/Slim/SLiMtest_output.txt", keep_maf = 0.01)
 }

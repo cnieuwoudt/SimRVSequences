@@ -15,6 +15,15 @@ rc_map A recombination map that may be used in conjunction with SLiM 2.0 (cite M
 \description{
 Create a recombination map for use with SLiM 2.0 (Messer)
 }
+\details{
+Why would we do this? what is it used for?
+
+#' NOTE TO SELF:
+\itemize{
+ \item Add muation_rate and recombination_rate parameters
+ \item change exon_df to more general description
+}
+}
 \examples{
 data(hg_exons)
 smap <- create_slimMap(hg_exons)

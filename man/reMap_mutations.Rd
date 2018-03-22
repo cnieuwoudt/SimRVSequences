@@ -4,14 +4,12 @@
 \alias{reMap_mutations}
 \title{Re-map slim mutations}
 \usage{
-reMap_mutations(mutationDF, genoMat, recombMap)
+reMap_mutations(mutationDF, recomb_map)
 }
 \arguments{
 \item{mutationDF}{The Mutation data frame returned by reMap_mutations}
 
-\item{genoMat}{The sparse genotypes matrix returned by reMap_mutations}
-
-\item{recombMap}{The recombination map provided to slim}
+\item{recomb_map}{The recombination map provided to slim}
 }
 \value{
 A re-mapped mutation data frame
