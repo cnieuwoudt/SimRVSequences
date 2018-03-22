@@ -35,7 +35,6 @@ Simulate sequence data for a study
 library(SimRVPedigree)
 data(EgPeds)
 
-ex_study_peds <- EgPeds[EgPeds$FamID == 1, ]
 
 data(hg_chrom)
 my_chrom_map = hg_chrom
@@ -49,10 +48,10 @@ h_dist <- list()
 h_dist[[1]]<- SNP_dat
 
 set.seed(6)
-ped_seq <- sim_RVstudy(ped_files = ex_study_peds,
+ped_seq <- sim_RVstudy(ped_files = EgPeds,
                        haplotype_dist = h_dist,
                        marker_map = mm_obj,
-                       chrom_map = my_chrom_map)
+                       chrom_map = hg_chrom)
 ped_seq
 
 }

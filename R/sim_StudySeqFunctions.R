@@ -7,46 +7,25 @@
 sim_FGenos <- function(founder_ids, RV_founder, FamID,
                        haplotype_dist, FamRV, marker_map) {
 
-  #store chromosomal postion (i.e. list position in haplotype_dist) of risk variant
-  RV_chrom_pos <- which(unique(marker_map$chrom) == marker_map$chrom[marker_map$marker == FamRV])
+  #store column location (in haplotype_dist) of the familial RV
+  RV_col_loc <- which(marker_map$marker == FamRV)
 
-  fam_genos <- list()
-  #NOTE: If we want to change from SNVs to another variant
-  #type we will need to change the functionality of RV_status below
+  #Determine which haplotypes carry the familial rare variant and which so not
+  RV_haps <- which(haplotype_dist[, RV_col_loc] == 1)
+  noRV_haps <- which(haplotype_dist[, RV_col_loc] == 0)
 
-  for (k in 1:length(unique(marker_map$chrom))) {
-    if (k == RV_chrom_pos) {
-      #Determine which haplotypes carry the familial rare variant and which so not
-      RV_haps <- which(haplotype_dist[[k]][, marker_map$colID[marker_map$marker == FamRV]] == 1)
-      noRV_haps <- which(haplotype_dist[[k]][, marker_map$colID[marker_map$marker == FamRV]] == 0)
+  #for the seed founder: sample one haplotype from those that carry the RV
+  # and one haplotype from those that DO NOT carry the RV
+  #for all other founders: sample 2 haplotypes that do not carry the RV
+  founder_genos = haplotype_dist[c(sample(x = RV_haps, size = 1),
+                                   sample(x = noRV_haps,
+                                          size = (2*length(founder_ids) + 1),
+                                          replace = TRUE)), ]
 
-      #for the seed founder sample one haplotype from those that carry the RV
-      # and one haplotype from those that DO NOT carry the RV
-      RV_founder_dat = haplotype_dist[[k]][c(sample(x = RV_haps, size = 1),
-                                             sample(x = noRV_haps, size = 1)), ]
-
-      #sample 1 haplotype that does not carry the RV for the seed founder and
-      #2 haplotypes that do not carry the RV for all other founders
-      NRV_founder_dat <- haplotype_dist[[k]][sample(x = noRV_haps,
-                                                    size = 2*length(founder_ids),
-                                                    replace = TRUE), ]
-
-      fam_genos[[k]] <- rbind(RV_founder_dat, NRV_founder_dat)
-    } else {
-
-      #since the familial RV does not reside on the kth chromosome we
-      #sample founder haplotypes according to from the haplotype distribution
-
-      fam_genos[[k]] = haplotype_dist[[k]][sample(x = c(1:nrow(haplotype_dist[[k]])),
-                                                  size = 2*(length(founder_ids) + 1),
-                                                  replace = TRUE), ]
-    }
-  }
-
-  founder_genos <- do.call("cbind", fam_genos)
   #ramdomly permute RV founders rows so that the RV is not always paternally inherited.
   founder_genos[c(1,2), ] <- founder_genos[sample(x = c(1, 2), size = 2, replace = F), ]
 
+  #create IDs to associate founders to rows in founder_genos
   founder_genos_ID <- rep(c(RV_founder, founder_ids), each = 2)
 
   return(list(founder_genos, founder_genos_ID))
@@ -68,7 +47,6 @@ sim_FGenos <- function(founder_ids, RV_founder, FamID,
 #' library(SimRVPedigree)
 #' data(EgPeds)
 #'
-#' ex_study_peds <- EgPeds[EgPeds$FamID == 1, ]
 #'
 #' data(hg_chrom)
 #' my_chrom_map = hg_chrom
@@ -82,10 +60,10 @@ sim_FGenos <- function(founder_ids, RV_founder, FamID,
 #' h_dist[[1]]<- SNP_dat
 #'
 #' set.seed(6)
-#' ped_seq <- sim_RVstudy(ped_files = ex_study_peds,
+#' ped_seq <- sim_RVstudy(ped_files = EgPeds,
 #'                        haplotype_dist = h_dist,
 #'                        marker_map = mm_obj,
-#'                        chrom_map = my_chrom_map)
+#'                        chrom_map = hg_chrom)
 #' ped_seq
 #'
 sim_RVstudy <- function(ped_files, marker_map, chrom_map,
@@ -110,8 +88,8 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
   FamIDs <- unique(ped_files$FamID)
   #reduce to affected only pedigrees unless otherwise specified
   if (affected_only) {
-    Afams <- lapply(c(1:length(FamIDs)), function(x){
-      affected_onlyPed(ped_file = ped_files[which(ped_files$FamID == FamIDs[x]),])
+    Afams <- lapply(FamIDs, function(x){
+      affected_onlyPed(ped_file = ped_files[which(ped_files$FamID == x),])
       })
 
     ped_files <- do.call("rbind", Afams)

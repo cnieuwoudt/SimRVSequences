@@ -39,6 +39,8 @@ NOTE TO SELF:
 }
 }
 \examples{
+\dontrun{
 sout = read_slim(file_path = "C:/Data/Slim/SlimFullFix_out.txt", keep_maf = 0.01, recomb_map = create_slimMap(hg_exons))
 sout = read_slim(file_path = "C:/Data/Slim/SLiMtest_output.txt", keep_maf = 0.01)
+}
 }
