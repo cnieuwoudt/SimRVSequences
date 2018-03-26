@@ -15,5 +15,5 @@ reMap_mutations(mutationDF, recomb_map)
 A re-mapped mutation data frame
 }
 \description{
-Re-map slim mutations
+Intended for internal use
 }

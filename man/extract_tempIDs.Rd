@@ -2,7 +2,7 @@
 % Please edit documentation in R/SlimFunctions.R
 \name{extract_tempIDs}
 \alias{extract_tempIDs}
-\title{Compile x,y position of mutations in sparse matrix}
+\title{Determine i and j positions of mutations for sparse matrix}
 \usage{
 extract_tempIDs(mutString, rarePos)
 }
@@ -17,6 +17,6 @@ extract_tempIDs(mutString, rarePos)
 data.frame with x and y positions of mutations
 }
 \description{
-Compile x,y position of mutations in sparse matrix
+Determine i and j positions of mutations for sparse matrix
 }
 \keyword{internal}

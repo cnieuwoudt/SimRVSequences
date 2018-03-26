@@ -4,33 +4,42 @@
 \alias{create_slimMap}
 \title{Create recombination map}
 \usage{
-create_slimMap(exon_df)
+create_slimMap(exon_df, mutation_rate = 1e-08, recomb_rate = 1e-08)
 }
 \arguments{
-\item{exon_df}{}
+\item{exon_df}{Data frame. A data frame cataloguing exon data. See details.}
+
+\item{mutation_rate}{Numeric.  The per site per generation mutation rate, by default \code{mutation_rate} = 1E-8.}
+
+\item{recomb_rate}{Numeric.  The per site per generation mutation rate, by default \code{recomb_rate} = 1E-8.}
 }
 \value{
-rc_map A recombination map that may be used in conjunction with SLiM 2.0 (cite Messer), provided that the end position is shifted forward by one position.  See example.
+rc_map A recombination map that may be used in conjunction with SLiM 2.0 (cite Messer), provided that the end position is shifted forward by one position.  See details and example.
 }
 \description{
 Create a recombination map for use with SLiM 2.0 (Messer)
 }
 \details{
-Why would we do this? what is it used for?
+In addition to allowing users to specify recombination hotspots, the recombination map provided to SLiM can be used to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  The \code{\link{create_slimMap}} function may be used to create a recombination map to exon-only data with SLiM.
 
-#' NOTE TO SELF:
-\itemize{
- \item Add muation_rate and recombination_rate parameters
- \item change exon_df to more general description
+The argument \code{exon_df} must contain the following variables:
+\tabular{lll}{
+\strong{name} \tab \strong{type} \tab \strong{description} \cr
+\code{chrom} \tab numeric \tab chromosome identification number\cr
+\code{exonStart} \tab numeric \tab the exon's starting position, in bp\cr
+\code{exonStop} \tab numeric \tab the exon's ending position, in bp\cr
 }
+
+The returned data frame, \code{rc_map}, contains the information required by slim as well as information that is used to remap mutations to their correct positions after simulation.  The variables \code{recRate}, \code{mutRate}, and \code{endPos} are the only variables that are required by SLiM.
 }
 \examples{
 data(hg_exons)
 smap <- create_slimMap(hg_exons)
 head(smap)
 
-NOTE: The first posistion in an eidos array begins at zero,
-hence, to use with Slim, users must make the following change
+# NOTE: The first position in an eidos array begins at zero, not one.
+# Therefore, users must shift endPos up one unit before supplying to Slim
+
 smap$endPos <- smap$endPos - 1
 head(smap)
 
