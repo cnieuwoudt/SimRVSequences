@@ -160,7 +160,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
   }
 
   mut_dat <- do.call(rbind, mut_by_chrom)
-  return(mut_dat[, 1:4])
+  return(mut_dat[, c(1:4)])
 }
 
 #' Read SLiM 2.0 Output
@@ -305,7 +305,9 @@ read_slim <- function(file_path, keep_maf = 0.01, recomb_map = NULL){
     RareMutData$chrom <- 1
   }
 
-  return(list(Mutations = RareMutData, Genomes = GenoData))
+  row.names(RareMutData) = NULL
+
+  return(list(Mutations = RareMutData[, c(1, 4, 2, 3)], Genomes = GenoData))
 }
 
 
