@@ -4,11 +4,20 @@
 \alias{sim_FGenos}
 \title{Draw Founder Genotypes from Haplotype Distribution Given Familial Risk Variant}
 \usage{
-sim_FGenos(founder_ids, RV_founder, FamID, haplotype_dist, FamRV, marker_map)
+sim_FGenos(founder_ids, RV_founder, haplotype_dist, RV_col_loc)
+}
+\arguments{
+\item{founder_ids}{Numeric list. The ID numbers of all non-seed founders.}
+
+\item{RV_founder}{Numeric. The ID number of the seed founder.}
+
+\item{haplotype_dist}{sparseMatrix.  The sparseMatrix of genomes returned by \code{read_slimOut}.}
+
+\item{RV_col_loc}{Nueric. The column location of the familial RV in haplotype_dist.}
 }
 \value{
 list of familial founder genotypes
 }
 \description{
-Draw Founder Genotypes from Haplotype Distribution Given Familial Risk Variant
+\strong{For internal use.}
 }

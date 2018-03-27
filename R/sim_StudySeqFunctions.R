@@ -1,14 +1,17 @@
 #' Draw Founder Genotypes from Haplotype Distribution Given Familial Risk Variant
 #'
+#' \strong{For internal use.}
+#'
+#' @param founder_ids Numeric list. The ID numbers of all non-seed founders.
+#' @param RV_founder Numeric. The ID number of the seed founder.
+#' @param haplotype_dist sparseMatrix.  The sparseMatrix of genomes returned by \code{read_slimOut}.
+#' @param RV_col_loc Nueric. The column location of the familial RV in haplotype_dist.
 #'
 #' @return list of familial founder genotypes
 #' @export
 #'
-sim_FGenos <- function(founder_ids, RV_founder, FamID,
-                       haplotype_dist, FamRV, marker_map) {
-
-  #store column location (in haplotype_dist) of the familial RV
-  RV_col_loc <- which(marker_map$marker == FamRV)
+sim_FGenos <- function(founder_ids, RV_founder,
+                       haplotype_dist, RV_col_loc) {
 
   #Determine which haplotypes carry the familial rare variant and which so not
   RV_haps <- which(haplotype_dist[, RV_col_loc] == 1)
@@ -113,7 +116,7 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
                RV_founder = ped_files$ID[which(ped_files$FamID == FamIDs[x]
                                                & is.na(ped_files$dadID)
                                                & (ped_files$DA1 + ped_files$DA2) == 1)],
-               FamID = FamIDs[x], haplotype_dist, FamRV = Fam_RVs[x], marker_map)
+               haplotype_dist, RV_col_loc = which(marker_map$marker == Fam_RVs[x]))
   })
 
   #simulate non-founder haploypes via conditional gene drop
