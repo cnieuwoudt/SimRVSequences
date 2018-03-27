@@ -8,14 +8,10 @@ get_parOffInfo(ped_file)
 }
 \arguments{
 \item{ped_file}{Data.frame. The pedigree file, must have same format as pedigree simulated with \code{sim_RVped}}
-
-\item{offspring_ID}{Numeric. The ID of the offspring.}
-
-\item{parent_ID}{Numeric. The ID of the parent.}
 }
 \value{
 A list containing the parent's paternal and maternal alleles at the disease locus, and the RV status of the offspring
 }
 \description{
-For internal use.
+\strong{For internal use.}
 }

@@ -42,12 +42,9 @@ chias_count_BC <- function(chiasmata_pos, center_loc){
 
 #' Get parent and offspring information from a pedigree
 #'
-#' For internal use.
+#' \strong{For internal use.}
 #'
 #' @param ped_file Data.frame. The pedigree file, must have same format as pedigree simulated with \code{sim_RVped}
-#' @param offspring_ID Numeric. The ID of the offspring.
-#' @param parent_ID Numeric. The ID of the parent.
-#'
 #'
 #' @return A list containing the parent's paternal and maternal alleles at the disease locus, and the RV status of the offspring
 #' @export
