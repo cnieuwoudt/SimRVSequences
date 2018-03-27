@@ -12,6 +12,7 @@ Imports:
     stats (>= 3.3.0),
     Matrix (>= 1.2-12)
 Suggests:
+    SimRVPedigree (>= 0.1.0),
     knitr (>= 1.13),
     rmarkdown (>= 0.9.6),
     testthat
