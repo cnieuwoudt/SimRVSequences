@@ -2,6 +2,8 @@
 #'
 #' Create a markerMap object, required input for \code{\link{sim_RVstudy}} and \code{\link{sim_RVseq}} functions.
 #'
+#' The argument \code{markerDF} is a data frame consisting of SNP data.  If \code{\link{read_slimOut}} was used to read a slim output file, users may supply the first item returned by \code{read_slimOut} as \code{markerDF}.
+#'
 #' The named columns in the data frame, \code{markerDF}, are described as follows:
 #' \describe{
 #'  \item{marker}{(OPTIONAL) An identifying name/number for the variant. (If missing this field will be automatically generated from the columns named "chrom" and "position" as "chrom_position"). NOTE: These names must match \emph{exactly} the column names (i.e. the marker names) in the haplotype_dist dataframe.}
@@ -13,8 +15,10 @@
 #'
 #' TO FIX: CURRENTLY NOT ACCOUNTING FOR CARRIER PROB WHEN CHOOSING VARIANTS
 #'
+#' Describe rare variant selection and pathwayDF.
 #'
 #' @param markerDF A data frame containing pertinent information on markers.   See details.
+#' @param pathwayDF A data frame containing pathway data.  See details.
 #'
 #' @return An object of class markerMap.
 #' @export
