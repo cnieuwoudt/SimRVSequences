@@ -62,44 +62,7 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #' @export
 #'
 #' @examples
-#' library(SimRVPedigree)
-#' data(EgPeds)
-#' ex_RVped <- EgPeds[which(EgPeds$FamID == 4), ]
-#' plot(new.ped(ex_RVped))
-#'
-#' data(hg_autosomes)
-#' my_chrom_map = hg_autosomes[1:2, ]
-#' my_chrom_map
-
-#' data(mark_map)
-#' head(mark_map)
-#' my_marker_map = markerMap(mark_map)
-#' my_RV_marker = my_marker_map$marker[1]
-#'
-#' founder_seq2 <- matrix(rep(letters[1:(2*nrow(mark_map))], length(which(is.na(ex_RVped$dadID)))),
-#'                        nrow = 2*length(which(is.na(ex_RVped$dadID))),
-#'                        byrow = T)
-#' colnames(founder_seq2) = as.character(mark_map$marker)
-#'
-#' founder_seq2[1, which(colnames(founder_seq2) == my_RV_marker)] <- 'X'
-#' founder_seq2 <- as.data.frame(founder_seq2)
-#' founder_seq2$ID = rep(ex_RVped$ID[which(is.na(ex_RVped$dadID))], each = 2)
-#' founder_seq2
-#'
-#' set.seed(6)
-#' ped_seq <- sim_RVseq(ped_file = ex_RVped,
-#'                      founder_genos = founder_seq2,
-#'                      marker_map = mark_map,
-#'                      chrom_map = my_chrom_map,
-#'                      RV_marker = my_RV_marker)
-#' ped_seq
-#'
-#' set.seed(6)
-#' system.time(sim_RVseq(ped_file = ex_RVped,
-#'                       founder_genos = founder_seq2,
-#'                       marker_map = mark_map,
-#'                       chrom_map = my_chrom_map,
-#'                       RV_marker = my_RV_marker))
+#' #FIND SHORT WORKING EXAMPLE
 #'
 sim_RVseq <- function(ped_file, founder_genos,
                       marker_map, chrom_map, RV_marker,
