@@ -18,7 +18,7 @@ sim_gameteInheritance(RV_locus, parent_RValleles, offspring_RVstatus, chrom_map,
 
 \item{allele_IDs}{List of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination. (Can accomodate numeric or string entries)}
 
-\item{burn_in}{Numeric. The burn in distance in cM.}
+\item{burn_in}{Numeric. The burn in distance in cM. By default, \code{burn_in = 1000}.}
 
 \item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).}
 }

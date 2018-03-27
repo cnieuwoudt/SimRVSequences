@@ -18,7 +18,7 @@ sim_RVseq(ped_file, founder_genos, marker_map, chrom_map, RV_marker,
 
 \item{RV_marker}{character. The marker name of the RV locus.}
 
-\item{burn_in}{Numeric. The burn in distance in cM.}
+\item{burn_in}{Numeric. The burn in distance in cM. By default, \code{burn_in = 1000}.}
 
 \item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).}
 }

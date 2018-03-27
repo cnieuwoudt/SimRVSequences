@@ -17,7 +17,7 @@
 #'
 #' @param chrom_map Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.
 #' @param gamma_params Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).
-#' @param burn_in Numeric. The burn in distance in cM.
+#' @param burn_in Numeric. The burn in distance in cM. By default, \code{burn_in = 1000}.
 #'
 #' @return A list of chiasmata postions.
 #' @export
@@ -98,6 +98,7 @@ sim_chiasmataPositions <- function(chrom_map,
 #' }
 #'
 #' @param num_chiasmata Numeric. The number of chiasmata to simulate among the chromatid bundle.
+#' @param before_center Numeric. The number of chiasmata before the centomere.
 #' @param allele_IDs List of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination. (Can accomodate numeric or string entries)
 #'
 #' @return haploid_mat. A matrix with rows representing recombined haplotypes along with an identifier that defines which group each haploid will be associated with after meiosis II.
