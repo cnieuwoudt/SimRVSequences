@@ -9,6 +9,8 @@ sim_haploidFormation(num_chiasmata, before_center, allele_IDs)
 \arguments{
 \item{num_chiasmata}{Numeric. The number of chiasmata to simulate among the chromatid bundle.}
 
+\item{before_center}{Numeric. The number of chiasmata before the centomere.}
+
 \item{allele_IDs}{List of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination. (Can accomodate numeric or string entries)}
 }
 \value{
