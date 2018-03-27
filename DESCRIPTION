@@ -9,7 +9,8 @@ Depends:
     R (>= 3.2.5)
 Imports: 
     reshape2 (>= 1.4.1),
-    stats (>= 3.3.0)
+    stats (>= 3.3.0),
+    Matrix (>= 1.2-12)
 Suggests:
     knitr (>= 1.13),
     rmarkdown (>= 0.9.6),
