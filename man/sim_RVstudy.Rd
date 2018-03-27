@@ -32,6 +32,7 @@ study_sequences
 Simulate sequence data for a study
 }
 \examples{
+\dontrun{
 library(SimRVPedigree)
 data(EgPeds)
 
@@ -53,5 +54,5 @@ ped_seq <- sim_RVstudy(ped_files = EgPeds,
                        marker_map = mm_obj,
                        chrom_map = hg_chrom)
 ped_seq
-
+}
 }

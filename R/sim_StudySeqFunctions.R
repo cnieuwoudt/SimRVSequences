@@ -44,6 +44,7 @@ sim_FGenos <- function(founder_ids, RV_founder, FamID,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' library(SimRVPedigree)
 #' data(EgPeds)
 #'
@@ -65,7 +66,7 @@ sim_FGenos <- function(founder_ids, RV_founder, FamID,
 #'                        marker_map = mm_obj,
 #'                        chrom_map = hg_chrom)
 #' ped_seq
-#'
+#'}
 sim_RVstudy <- function(ped_files, marker_map, chrom_map,
                         haplotype_dist,
                         affected_only = TRUE,
@@ -94,10 +95,6 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
 
     ped_files <- do.call("rbind", Afams)
   }
-
-  # WILL PROBABLY WANT TO CHANGE PROCESS HERE
-  # TO CHOOSE PATHWAY THEN RARE VARIANT
-
 
   #sampling from RV markers (with probability
   #probCausal)to determine familial RV locus
