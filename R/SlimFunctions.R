@@ -118,7 +118,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 
   #create separate data frames for each chromosome
   mut_by_chrom <- lapply(sort(unique(mutationDF$chrom)), function(x){
-    subset(mutationDF, chrom == x)
+    mutationDF[mutationDF$chrom == x, ]
   })
 
 
@@ -255,7 +255,7 @@ read_slim <- function(file_path, keep_maf = 0.01, recomb_map = NULL){
   MutData$colID <- cumsum(MutData$afreq <= keep_maf)*(MutData$afreq <= keep_maf)
 
   #create dataframe of rare mutations only
-  RareMutData <- subset(MutData, colID > 0)
+  RareMutData <- MutData[MutData$colID > 0, ]
 
   #-----------#
   # Genotypes #
