@@ -36,7 +36,7 @@
 create_slimMap <- function(exon_df, mutation_rate = 1E-8, recomb_rate = 1E-8){
   #split into dataset for each chromosome
   bychr <- lapply(sort(unique(exon_df$chrom)), function(x){
-    subset(exon_df, chrom == x)
+    exon_df[exon_df$chrom == x, ]
   })
 
   #compile data on introns
@@ -82,21 +82,6 @@ create_slimMap <- function(exon_df, mutation_rate = 1E-8, recomb_rate = 1E-8){
   return(rc_map)
 }
 
-
-#' Create list of haplotype matrices
-#'
-#' @param markermap The marker map returned by remao
-#' @param genomat The full sparse matrix of genotypes
-#'
-#' @return A list of haplotype matrices
-#' @export
-create_haplotypeSet <- function(markMap, genoMat){
-  lapply(sort(unique(markMap$chrom)), function(x){
-    genoMat[, which(markMap$chrom == x)]
-  })
-}
-
-
 #' Re-map slim mutations
 #'
 #' Intended for internal use
@@ -110,12 +95,12 @@ reMap_mutations <- function(mutationDF, recomb_map){
   #split into data for different chromosomes, because it
   #makes myhead hurt to think this as 1 chomosome
   bychr <- lapply(sort(unique(recomb_map$chrom)), function(x){
-    subset(recomb_map, chrom == x)
+    recomb_map[recomb_map$chrom == x, ]
   })
 
   #subset by introns for each chromosome
   bychr_int <- lapply(bychr, function(x){
-    subset(x, type == "intron")
+    x[x$type == "intron", ]
   })
 
   #get chrom starts and stops
@@ -193,9 +178,15 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' @export
 #'
 #' @examples
+#' #FIND WORKING EXAMPLE
+#'
 #' \dontrun{
-#' sout = read_slim(file_path = "C:/Data/Slim/SlimFullFix_out.txt", keep_maf = 0.01, recomb_map = create_slimMap(hg_exons))
-#' sout = read_slim(file_path = "C:/Data/Slim/SLiMtest_output.txt", keep_maf = 0.01)
+#' sout = read_slim(file_path = "C:/Data/Slim/SlimFullFix_out.txt",
+#'                  keep_maf = 0.01,
+#'                  recomb_map = create_slimMap(hg_exons))
+#'
+#' sout = read_slim(file_path = "C:/Data/Slim/SLiMtest_output.txt",
+#'                  keep_maf = 0.01)
 #' }
 read_slim <- function(file_path, keep_maf = 0.01, recomb_map = NULL){
   print("Reading Slim File")
