@@ -2,7 +2,7 @@
 #'
 #' Create a markerMap object, required input for \code{\link{sim_RVstudy}} and \code{\link{sim_RVseq}} functions.
 #'
-#' The argument \code{markerDF} is a data frame consisting of SNP data.  If \code{\link{read_slimOut}} was used to read a slim output file, users may supply the first item returned by \code{read_slimOut} as \code{markerDF}.
+#' The argument \code{markerDF} is a data frame consisting of SNP data.  If \code{\link{read_slim}} was used to read a slim output file, users may supply the first item returned by \code{read_slim} as \code{markerDF}.
 #'
 #' The named columns in the data frame, \code{markerDF}, are described as follows:
 #' \describe{
