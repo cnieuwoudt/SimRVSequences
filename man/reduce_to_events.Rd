@@ -18,7 +18,7 @@ The locations of crossovers
 For internal use.
 }
 \examples{
-haplo_vec <- sample(x = c(2, 3), size = 10, replace = T)
+haplo_vec <- sample(x = c(2, 3), size = 10, replace = TRUE)
 chias_vec <- cumsum(rgamma(9, shape = 2.63, rate = 2*2.63))
 reduce_to_events(gamete_haplo = haplo_vec,
                  chias_locations = chias_vec)
