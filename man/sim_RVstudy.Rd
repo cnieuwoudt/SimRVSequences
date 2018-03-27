@@ -15,15 +15,15 @@ sim_RVstudy(ped_files, marker_map, chrom_map, haplotype_dist,
 
 \item{chrom_map}{Data.frame.  A data.frame consisting of three columns: column 1 contains the chromosome numbers, column 2 start postion of chromosome (in cM), column 3 end position of chromosome (in cM).}
 
-\item{burn_in}{Numeric. The burn in distance in cM.}
+\item{haplotype_dist}{sparseMatrix. The genomes matrix returned by \code{read_slim}.  Mutations in haplotype_dist are described in \code{marker_map}.}
+
+\item{affected_only}{Logical. When \code{affected_only = TRUE} pedigrees are reduced contain only diesease-affected relatives, their parents, and any obligate carriers or founders; sequence data is simulated only for retained family memebres. When \code{affected_only = FALSE} sequence data is simulated for all.  By default, \code{affected_only = TRUE}.}
+
+\item{convert_to_cM}{Logical. The setting \code{convert_to_cM = TRUE} must be used if genomic positions are given in base pairs.  If the genomic postions in \code{marker_map} are listed in centiMorgan, please set \code{convert_to_cM = FALSE}.  By default, \code{convert_to_cM = TRUE}.}
+
+\item{burn_in}{Numeric. The burn in distance in cM. By default, \code{burn_in = 1000}.}
 
 \item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).}
-
-\item{haplotype_dist.}{List of dataframes.  Each list entry should contain a dataframe containing the haplotype distribution for that chromosome (in same order as marker_map).}
-
-\item{founder_genotypes}{list of dataframes. Should contain, in the order listed in chrom_map, 1 dataframe for every chromosome contained in chrom_map.  Each data frame should contain two rows for each founder: the first to correspond to the paternally inherited gamete and the second to correspond to the maternally inherited gamete.}
-
-\item{RV_markers}{character. A list of possible RV markers. If missing all markers in \code{marker_map} are assumed to be possible RV markers.}
 }
 \value{
 study_sequences
