@@ -183,8 +183,8 @@ sim_haploidFormation <- function(num_chiasmata,
 #' my_chrom_map$end_pos = convert_BP_to_cM(my_chrom_map$end_pos)
 #' my_chrom_map$center = convert_BP_to_cM(my_chrom_map$center)
 #'
-#' sim_gameteFormation(hg_autosomes, allele_IDs = c(0, 1))
-#' sim_gameteFormation(hg_autosomes, allele_IDs = c("a", "b"))
+#' sim_gameteFormation(my_chrom_map, allele_IDs = c(0, 1))
+#' sim_gameteFormation(my_chrom_map, allele_IDs = c("a", "b"))
 #'
 #' \dontrun{
 #' system.time(for (i in 1:10000) {
