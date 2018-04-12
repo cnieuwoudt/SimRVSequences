@@ -4,7 +4,7 @@ Title: Simulate Sequence Data for Pedigrees Simulated by SimRVPedigree
 Version: 0.1.0
 Author: Christina Nieuwoudt, Jinko Graham
 Maintainer: Christina Nieuwoudt <cnieuwou@sfu.ca>
-Description: Simulate Sequence Data for Pedigrees Simulated by SimRVPedigree.
+Description: SimRVSequences provides methods to simulate sequence data for ascertained pedigrees.
 Depends:
     R (>= 3.2.5)
 Imports:
