@@ -1,7 +1,7 @@
 ---
 title: "SimRVSequences"
 author: "Christina Nieuwoudt and Jinko Graham"
-date: "`r Sys.Date()`"
+date: "2018-04-11"
 output: rmarkdown::pdf_document
 setspace: doublespacing
 vignette: >
@@ -41,7 +41,8 @@ Family-based studies are attractive because they have more power to detect rare 
 
 With SLiM 2.0 users may specify a recombination map to simulate recombination hotspots.  Additionally, the recombination map can be used to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  The `create_slimMap` function may be used to create a recombination map to simulate exon-only data with SLiM.  We now illustrate this process using the `hg_exons` dataset.
 
-```{r}
+
+```r
 # load the SimRVSequences library
 library(SimRVSequences)
 
@@ -50,6 +51,14 @@ data("hg_exons")
 
 # print the first three rows of hg_exons
 head(hg_exons, n = 4)
+```
+
+```
+##   chrom exonStart exonEnd                 geneName
+## 2     1     11873   12227              NR_046018.2
+## 3     1     12612   12721              NR_046018.2
+## 4     1     13220   14829 NR_046018.2, NR_024540.1
+## 5     1     14969   15038              NR_024540.1
 ```
 
 As seen in the output above, the `hg_exons` dataset catalogues the position of each exon in the 22 human autosomes.  The variable `chrom` is the chomosome on which the exon resides, `exonStart` is the position of the first base pair in the exon, and `exonStop` is the position of the last base pair in the exon.  The variable `geneName` is the NCBI reference sequence identifier for the gene that the exon resides on.  In `hg_exons` overlapping exons are combined into a single exon; when this occurs variable `geneName` will contain a list of NCBI reference sequence identifiers.
@@ -61,12 +70,21 @@ The `create_slimMap` function has three arguments:
 2. `mutation_rate`: the per site per generation mutation rate. By default, `mutation_rate= 1E-8`, as in [2].
 3. `recomb_rate`: the per site per generation recombination rate.  By default, `recomb_rate= 1E-8`, as in [2]   
  
-```{r}
+
+```r
 # create recombination map for exon-only data using the hg_exons dataset 
 s_map <- create_slimMap(exon_df = hg_exons)
 
 # print first four rows of s_map 
 head(s_map, n = 4)
+```
+
+```
+##   chrom  dist no  recRate mutRate   type simDist endPos
+## 1     1 11872  1 0.00e+00   0e+00 intron       1      1
+## 2     1   355  1 1.00e-08   1e-08   exon     355    356
+## 3     1   384  2 3.84e-06   0e+00 intron       1    357
+## 4     1   110  2 1.00e-08   1e-08   exon     110    467
 ```
 
 
@@ -80,7 +98,8 @@ The other variables seen in the output above are used to remap mutations to thei
 
 SLiM 2.0 is written in a scripting language called Eidos. Unlike an `R` array, the first position in an Eidos array is 0.  Therefore, we must shift the variable `endPos` forward 1 unit before suppying this data to SLiM 2.0.
 
-```{r}
+
+```r
 # restrict output to the variables required by SLiM
 slimMap <- s_map[, c(4, 5, 8)]
 
@@ -89,6 +108,16 @@ slimMap$endPos <- slimMap$endPos - 1
 
 # print first four rows of slimMap 
 head(slimMap)
+```
+
+```
+##    recRate mutRate endPos
+## 1 0.00e+00   0e+00      0
+## 2 1.00e-08   1e-08    355
+## 3 3.84e-06   0e+00    356
+## 4 1.00e-08   1e-08    466
+## 5 4.98e-06   0e+00    467
+## 6 1.00e-08   1e-08   2077
 ```
 
 The creators of SLiM provide excellent resources and documentation to slimulate forwards-in-time evoulutionary data, which can be found at the SLiM website: https://messerlab.org/slim/ .
@@ -107,7 +136,8 @@ To clarify, the argument `recomb_map` is used to remap mutations to their actual
 
 In addition to reducing the size of the data, the argument `keep_maf` has a practible applicability as well.  In family-based studies, common SNVs are generally filtered out prior to analysis.  Users who intend to study common variants in addition to rare variants may need to run analyses separately for different chromosomes to allow for allocation of large data sets.
 
-```{r, eval =  FALSE, echo = TRUE}
+
+```r
 # Let's suppose the output is named slimOut.txt and is saved in the 
 # current working directory.  We import the data using the read_slim function.
 s_out <- read_slim(file_path  = slimOut.txt, 
@@ -118,14 +148,16 @@ summary(s_out)
 
 As shown above, `s_out` is a list containing two items: a data frame named `Mutations` and a dgCMatrix named `Genomes`.
 
-```{r, eval =  FALSE, echo = TRUE}
+
+```r
 # view the first 4 observations of the Mutations dataset
 head(s_out$Mutations, n = 4)
 ```
 
 The `Mutations` dataframe is used to catalogue the SNVs in `Genomes`.  The variable `colID` associates the rows of `Mutations` to the columns of `Genomes`, `chrom` identifies the chromosome number, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of each SNV, and `marker` is a unique identified for each SNV.
 
-```{r, eval =  FALSE, echo = TRUE}
+
+```r
 # view the first 5 rows and columns of Genomes
 s_out$Genomes[1:5, 1:5]
 ```
@@ -140,12 +172,31 @@ Now that we have simulated a wide array of mutations over the exons, we must dec
 
 When cells become damaged it is biologically advantageous for these cells to be eliminated.  Apoptosis, also known as programmed cell death, is a biological process that destroys damaged or unnecessary cells (cite ThomThom).  Since cancer involves the uncontrolled replication of a damaged cell, it is possible that deleterious mutations in the apoptosis pathway may increase the risk of developing cancer.  We will demonstrate an approach to select variants from an apoptosis-like pathway.  The TNFSF10 gene is a member of the human apoptosis pathway (cite KEGG).  We defined a pseudo-apoptosis sub-pathway centered about TNFSF10 using the 25 genes that had the highest interaction with this gene (citeUCSCGeneInteraction).  The data for this pseudo-pathway is contained in the `hg_apopPath` data set.
 
-```{r}
+
+```r
 # load the hg_apopPath data
 data("hg_apopPath")
 
 #View the first 4 observations of hg_apopPath
 head(hg_apopPath, n = 4)
+```
+
+```
+##   chrom exonStart   exonEnd
+## 2     1 155689090 155689243
+## 3     1 155709032 155709125
+## 4     1 155709772 155709824
+## 5     1 155717005 155717128
+##                                                                   geneName
+## 2 NM_001199851.1, NM_001199850.1, NM_001199849.1, NM_004632.3, NM_033657.2
+## 3                                                           NM_001199849.1
+## 4 NM_001199851.1, NM_001199850.1, NM_001199849.1, NM_004632.3, NM_033657.2
+## 5                 NM_001199850.1, NM_001199849.1, NM_004632.3, NM_033657.2
+##   gene
+## 2 DAP3
+## 3 DAP3
+## 4 DAP3
+## 5 DAP3
 ```
 
 The `hg_apopPath` dataset is similar the `hg_exons` dataset dicussed in section 2.  However, `hg_apopPath` only catalogues the postions of exons contained in our pseudo-pathway.  
@@ -159,7 +210,8 @@ for the mutations in the
 
 Before we simulate sequence data we create an object of class
 
-```{r, eval = FALSE}
+
+```r
 # identify variants located in exons contained in our pathway
 mutDF <- identify_pathwaySNVs(markerDF  = s_out$Mutations,
                               pathwayDF = hg_apopPath)
@@ -181,7 +233,8 @@ We randomly sample 20 variants with minor allele frequency 0.0001 from the genes
 The R package `SimRVPedigree` [3] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  For the purpose of illustration we will use the dataset `EgPeds`, which is included with `SimRVPedigree`.  To learn more about simulating pedigrees with `SimRVPedigree` please refer to the vignette included with the `SimRVPedigree` package. 
 
 
-```{r}
+
+```r
 # load the SimRVPedigree library
 library(SimRVPedigree)
 
@@ -190,6 +243,19 @@ data(EgPeds)
 
 # view first 4 obsetvations of EgPeds
 head(EgPeds, n = 4)
+```
+
+```
+##   FamID ID sex dadID momID affected DA1 DA2 birthYr onsetYr deathYr RR
+## 1     1  1   0    NA    NA    FALSE   1   0    1910      NA    1948 15
+## 2     1  2   1    NA    NA    FALSE   0   0      NA      NA      NA  1
+## 3     1  3   0     1     2    FALSE   1   0    1930      NA    1942 15
+## 4     1  4   0     1     2    FALSE   1   0    1938      NA    1987 15
+##   available Gen proband
+## 1      TRUE   1   FALSE
+## 2     FALSE   1   FALSE
+## 3      TRUE   2   FALSE
+## 4      TRUE   2   FALSE
 ```
 
 *Maybe Perhaps we should note which variables are required to simulate sequence data*
