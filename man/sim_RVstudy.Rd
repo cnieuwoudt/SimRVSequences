@@ -32,27 +32,7 @@ study_sequences
 Simulate sequence data for a study
 }
 \examples{
-\dontrun{
-library(SimRVPedigree)
-data(EgPeds)
 
+#FIND SHORT WORKING EXAMPLE
 
-data(hg_chrom)
-my_chrom_map = hg_chrom
-my_chrom_map
-
-head(mark_map)
-mm_obj <- markerMap(mark_map)
-head(mm_obj)
-
-h_dist <- list()
-h_dist[[1]]<- SNP_dat
-
-set.seed(6)
-ped_seq <- sim_RVstudy(ped_files = EgPeds,
-                       haplotype_dist = h_dist,
-                       marker_map = mm_obj,
-                       chrom_map = hg_chrom)
-ped_seq
-}
 }
