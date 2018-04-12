@@ -1,6 +1,6 @@
 #' Human Exon Data
 #'
-#' This data set catalouges the positions, in base pairs, of the exons residing on chromosomes 1-22.  The positions of the exons were obtained from the UCSC Genome Broswer, using the NCBI RefSeq curated exons.  In this dataset we have combined overlapping exons into a single entry.
+#' This data set catalouges the positions, in base pairs, of the exons residing on human chromosomes 1-22.  The positions of the exons were obtained from the UCSC Genome Broswer, using the NCBI RefSeq curated exons.  In this dataset we have combined overlapping exons into a single entry.
 #'
 #' NOTE: (REMOVE BEFORE RELEASE) CombineExons_NCBI.R contains details
 #'
