@@ -13,12 +13,19 @@
 #'  \item{probCausal}{(OPTIONAL) The probability that the variant is selected as a familial RV.  If this field is missing, it will be assumed that all variants for which possibleRV is TRUE are equally likely.}
 #' }
 #'
-#' TO FIX: CURRENTLY NOT ACCOUNTING FOR CARRIER PROB WHEN CHOOSING VARIANTS
+#' If pathwayDF is not provided and the variable possibleRV is not specifed, we assume that any rare variant in markerDF is availble for selection.
+#'
+#' NEED BETTER TERMINOLOGY TO DESCRIBE SAMPLING OF RVs - multiple pools are confusing
+#'
+#' CARRIER_PROB - figure out connection to SimRVPedigree carrier prob
+#'
+#' TO FIX: CANNOT CHOOSE VARIANTS, leave for user
 #'
 #' Describe rare variant selection and pathwayDF.
 #'
 #' @param markerDF A data frame containing pertinent information on markers.   See details.
 #' @param pathwayDF A data frame containing pathway data.  See details.
+#' @param carrier_prob Numeric. The carrier probability for all causal variants with relative-risk of disease GRR. By default, carrier_prob = 0.002
 #'
 #' @return An object of class markerMap.
 #' @export
@@ -33,7 +40,7 @@
 #' head(markObj)
 #' class(markObj)
 #'
-markerMap <- function(markerDF, pathwayDF = NULL) {
+markerMap <- function(markerDF, pathwayDF = NULL, carrier_prob = 0.002) {
   # Set up a new object of class markerMap
 
   if (!"chrom" %in% colnames(markerDF) |
@@ -63,15 +70,21 @@ markerMap <- function(markerDF, pathwayDF = NULL) {
     }
 
     markerDF <- do.call(rbind, lapply(unique(markerDF$chrom), function(x){
-      identify_possibleRVs(pathwayDF[pathwayDF$chrom == x, ],
+      identify_pathwayRVs(pathwayDF[pathwayDF$chrom == x, ],
                            markerDF[markerDF$chrom == x, ])
     }))
   }
 
-  #add probCausal, if not provided
-  if (is.null(markerDF$probCausal)) {
-    markerDF$probCausal <- markerDF$possibleRV/sum(markerDF$possibleRV)
-  }
+  #mark FALSE any RV's that have greater derived allele frequency than
+  #the carrier prob of all causal RV's
+  markerDF$possibleRV[markerDF$afreq > carrier_prob] = FALSE
+
+
+  # #add probCausal, if not provided
+  # if (is.null(markerDF$probCausal)) {
+  #   markerDF$probCausal <- markerDF$possibleRV/sum(markerDF$possibleRV)
+  # }
+  #
 
   obj <- markerDF
   class(obj) <- c("markerMap", class(markerDF))
@@ -90,14 +103,14 @@ is.markerMap <- function(x) {
   return(inherits(x, "markerMap"))
 }
 
-#' Identify possible variants based on defined pathway
+#' Identify variants located in a defined pathway
 #'
 #' @param path_by_chrom The pathway data for the chromosome under consideration
 #' @param marker_map_by_chrom The marker_map for the chromosome under consideration
 #'
 #' @return marker_map_by_chrom with possibleRV identified
 #' @keywords internal
-identify_possibleRVs <- function(path_by_chrom, marker_map_by_chrom){
+identify_pathwayRVs <- function(path_by_chrom, marker_map_by_chrom){
   if(nrow(path_by_chrom) == 0){
     marker_map_by_chrom$possibleRV <- FALSE
   } else {
@@ -120,7 +133,7 @@ identify_possibleRVs <- function(path_by_chrom, marker_map_by_chrom){
     }
 
     if(any(duplicated(cbreaks))){
-      stop("Expecting non-overlapping exonStart and ExonEnd positions. \n Please combine overlapping segments into a single entry.")}
+      stop("Expecting non-overlapping exonStart and exonEnd positions. \n Please combine overlapping segments into a single entry.")}
 
     marker_map_by_chrom$possibleRV <- cut(marker_map_by_chrom$position,
                                           breaks = cbreaks,

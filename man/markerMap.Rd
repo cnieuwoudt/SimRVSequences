@@ -4,12 +4,14 @@
 \alias{markerMap}
 \title{Create an object of class markerMap.}
 \usage{
-markerMap(markerDF, pathwayDF = NULL)
+markerMap(markerDF, pathwayDF = NULL, carrier_prob = 0.002)
 }
 \arguments{
 \item{markerDF}{A data frame containing pertinent information on markers.   See details.}
 
 \item{pathwayDF}{A data frame containing pathway data.  See details.}
+
+\item{carrier_prob}{Numeric. The carrier probability for all causal variants with relative-risk of disease GRR. By default, carrier_prob = 0.002}
 }
 \value{
 An object of class markerMap.
@@ -29,7 +31,13 @@ The named columns in the data frame, \code{markerDF}, are described as follows:
  \item{probCausal}{(OPTIONAL) The probability that the variant is selected as a familial RV.  If this field is missing, it will be assumed that all variants for which possibleRV is TRUE are equally likely.}
 }
 
-TO FIX: CURRENTLY NOT ACCOUNTING FOR CARRIER PROB WHEN CHOOSING VARIANTS
+If pathwayDF is not provided and the variable possibleRV is not specifed, we assume that any rare variant in markerDF is availble for selection.
+
+NEED BETTER TERMINOLOGY TO DESCRIBE SAMPLING OF RVs - multiple pools are confusing
+
+CARRIER_PROB - figure out connection to SimRVPedigree carrier prob
+
+TO FIX: CANNOT CHOOSE VARIANTS, leave for user
 
 Describe rare variant selection and pathwayDF.
 }
