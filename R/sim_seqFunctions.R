@@ -9,10 +9,7 @@
 #' @param REDchrom_map Data.frame.  The chromosome map, reduced to the chromosome in question.
 #'
 #' @return offspring_seq
-#' @export
-#'
-#'
-#'
+#' @keywords internal
 #'
 reconstruct_fromHaplotype <- function(parental_genotypes,
                                       Cmarker_map,

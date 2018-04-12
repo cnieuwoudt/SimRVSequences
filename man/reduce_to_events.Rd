@@ -24,3 +24,4 @@ reduce_to_events(gamete_haplo = haplo_vec,
                  chias_locations = chias_vec)
 
 }
+\keyword{internal}

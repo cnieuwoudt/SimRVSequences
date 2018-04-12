@@ -15,3 +15,4 @@ Boolean
 \description{
 Determine if input is an odd number
 }
+\keyword{internal}

@@ -8,7 +8,7 @@
 #' @param RV_col_loc Nueric. The column location of the familial RV in haplotype_dist.
 #'
 #' @return list of familial founder genotypes
-#' @export
+#' @keywords internal
 #'
 sim_FGenos <- function(founder_ids, RV_founder,
                        haplotype_dist, RV_col_loc) {
@@ -47,29 +47,9 @@ sim_FGenos <- function(founder_ids, RV_founder,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' library(SimRVPedigree)
-#' data(EgPeds)
 #'
+#' #FIND SHORT WORKING EXAMPLE
 #'
-#' data(hg_chrom)
-#' my_chrom_map = hg_chrom
-#' my_chrom_map
-#'
-#' head(mark_map)
-#' mm_obj <- markerMap(mark_map)
-#' head(mm_obj)
-#'
-#' h_dist <- list()
-#' h_dist[[1]]<- SNP_dat
-#'
-#' set.seed(6)
-#' ped_seq <- sim_RVstudy(ped_files = EgPeds,
-#'                        haplotype_dist = h_dist,
-#'                        marker_map = mm_obj,
-#'                        chrom_map = hg_chrom)
-#' ped_seq
-#'}
 sim_RVstudy <- function(ped_files, marker_map, chrom_map,
                         haplotype_dist,
                         affected_only = TRUE,
@@ -77,7 +57,7 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
                         burn_in = 1000,
                         gamma_params = c(2.63, 2.63/0.5)){
 
-  if(!is.markerMap(marker_map)) stop("Expecting class(marker_map) to include markerMap")
+  #if(!is.markerMap(marker_map)) stop("Expecting class(marker_map) to include markerMap")
 
   #convert from base pairs to centiMorgan
   if (convert_to_cM) {

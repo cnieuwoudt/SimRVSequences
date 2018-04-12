@@ -90,7 +90,7 @@ create_slimMap <- function(exon_df, mutation_rate = 1E-8, recomb_rate = 1E-8){
 #' @param recomb_map The recombination map provided to slim
 #'
 #' @return A re-mapped mutation data frame
-#' @export
+#' @keywords internal
 reMap_mutations <- function(mutationDF, recomb_map){
   #split into data for different chromosomes, because it
   #makes myhead hurt to think this as 1 chomosome
@@ -150,15 +150,15 @@ reMap_mutations <- function(mutationDF, recomb_map){
 
 #' Read SLiM 2.0 Output
 #'
-#' Extract SNP data from SLiM output.
+#' Extract SNV data from SLiM output.
 #'
-#' The \code{read_slim} function is used to extract SNP (single nucleotide polymorphism) data from the text file produced by SLiM's outputFull() method. Currently, we do not support output in MS or VCF format (i.e. output produced by SLiM's outputMSSample() or outputVCFSample() methods).
+#' The \code{read_slim} function is used to extract SNV (single nucleotide variant) data from the text file produced by SLiM's outputFull() method. Currently, we do not support output in MS or VCF format (i.e. output produced by SLiM's outputMSSample() or outputVCFSample() methods).
 #'
-#' In addition to allowing users to specify recombination hotspots, the recombination map provided to SLiM can be used to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  The \code{\link{create_slimMap}} function may be used to create a recombination map to exon-only data with SLiM.  In this case, simply supply the data frame returned by \code{create_slimMap} to the \code{recomb_map} argument of \code{read_slim} to map mutations to their actual locations and/or their appropriate chromosomes.  If \code{create_slimMap} was not used to create the recombination map used with SLiM 2.0, users must take care to ensure that \code{recomb_map} is of the same form as the output produced by \code{\link{create_slimMap}}.
+#' In addition to allowing users to specify recombination hotspots, the recombination map provided to SLiM can be used to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  The \code{\link{create_slimMap}} function may be used to create a recombination map to simulate exon-only data with SLiM.  In this case, simply supply the data frame returned by \code{create_slimMap} to the \code{recomb_map} argument of \code{read_slim} to map mutations to their actual locations and/or their appropriate chromosomes.  If \code{create_slimMap} was not used to create the recombination map used with SLiM 2.0, users must take care to ensure that \code{recomb_map} is of the same form as the output produced by \code{\link{create_slimMap}}.
 #'
-#' The first item returned by \code{read_slim} is a data frame named \code{Mutations}, which catalouges the SNP IDs, genomic positions, chromosomal positions, and allele frequency.  The variable \code{colID} references the SNP's ID which is also its column position in the sparse genotype matrix. The variable \code{position} is the genomic position of the SNP (in bp), and \code{afreq} is the allele frequency of the SNP.  If \code{recomb_map} is provided and contains multiple chromosomes, \code{chrom} identifies the chromosome that the mutation resides on.  When \code{recomb_map} is not provided, we assume that all mutations reside on the first chromosome so that \code{chrom} is 1 for every mutation.
+#' The first item returned by \code{read_slim} is a data frame named \code{Mutations}, which catalouges SNV ID, genomic position, chromosome, and derived allele frequency.  The variable \code{colID} references the SNV's ID which is also its column position in the sparse genotype matrix. The variable \code{position} is the genomic position of the SNV (in bp), and \code{afreq} is the derived allele frequency of the SNV, \code{chrom} identifies the chromosome, and \code{marker} is a unique character identifier.  When \code{recomb_map} is not provided, we assume that all mutations reside on the first chromosome so that \code{chrom} is 1 for every mutation.
 #'
-#' The second item returned is a sparse matrix named \code{Genomes}.  This matrix contains two rows for each individual in the (haploid) population. That is, each row is one of the haplotypes for a single individual in the population.  For example, the first individual's maternally and paternally inherited haplotypes are stored in rows one and two, respectively.  In general, the \eqn{i^{th}} individual's maternally inherited haplotype is stored in row \eqn{2i-1} and the paternally inherited haplotype is stored in row \eqn{2i}. (ALTERNATIVE DESC: The third and fourth rows contain haplotypes for the second individual, fifth and sixth rows contain haplotypes for the second individual, and so on. )
+#' The second item returned is a sparse matrix named \code{Genomes}.  This matrix contains two rows for each diploid individual in the population. That is, each row is one of the haplotypes for a single individual in the population.  For example, the first individual's inherited haplotypes are stored in rows one and two, respectively. The third and fourth rows contain haplotypes for the second individual, fifth and sixth rows contain haplotypes for the third individual, and so on.
 #'
 #'
 #' NOTE TO SELF:
@@ -168,11 +168,11 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' }
 #'
 #' @param file_path character.  The file path of the SLiM 2.0 output file.
-#' @param keep_maf numeric. The largest allele frequency for retained SNPs.  All variants with allele frequency greater than \code{keep_maf} will be removed.  Please note, removing common variants is recommended for large datasets due to the limitations of data allocation in \code{R}.
+#' @param keep_maf numeric. The largest allele frequency for retained SNVs.  All variants with allele frequency greater than \code{keep_maf} will be removed.  Please note, removing common variants is recommended for large datasets due to the limitations of data allocation in \code{R}.
 #' @param recomb_map data frame. The recombination map provided to SLiM 2.0, see details.
 #'
 #' @return  A list containing:
-#' @return \item{\code{Mutations} }{A dataframe containing SNP information, see details..}
+#' @return \item{\code{Mutations} }{A dataframe containing SNV information, see details..}
 #' @return \item{\code{Genomes} }{A sparse matrix of haplotypes, see details.}
 #' @importFrom Matrix sparseMatrix
 #' @export
@@ -298,7 +298,10 @@ read_slim <- function(file_path, keep_maf = 0.01, recomb_map = NULL){
 
   row.names(RareMutData) = NULL
 
-  return(list(Mutations = RareMutData[, c(1, 4, 2, 3)], Genomes = GenoData))
+  RareMutData$marker <- paste0(RareMutData$chrom, sep = "_", RareMutData$position)
+  #RareMutData$possibleRV <- TRUE
+
+  return(list(Mutations = RareMutData[, c(1, 4, 2, 3, 5)], Genomes = GenoData))
 }
 
 

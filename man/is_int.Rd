@@ -15,3 +15,4 @@ Boolean
 \description{
 Determine if input is an integer
 }
+\keyword{internal}

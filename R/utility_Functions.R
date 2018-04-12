@@ -3,7 +3,7 @@
 #' For internal use.
 #'
 #' @return A list corresponding to assigned gamete order.
-#' @export
+#' @keywords internal
 #'
 #' @examples
 #' gam_order()
@@ -28,7 +28,7 @@ gam_order <- function(){
 #' @param center_loc The centromere locations
 #'
 #' @return The number of chiasmata before the centromere
-#' @export
+#' @keywords internal
 #'
 #' @examples
 #' ex_chias <- sim_chiasmataPositions(chrom_map = data.frame(start = 47, stop = 198))
@@ -47,7 +47,7 @@ chias_count_BC <- function(chiasmata_pos, center_loc){
 #' @param ped_file Data.frame. The pedigree file, must have same format as pedigree simulated with \code{sim_RVped}
 #'
 #' @return A list containing the parent's paternal and maternal alleles at the disease locus, and the RV status of the offspring
-#' @export
+#' @keywords internal
 #' @importFrom reshape2 melt
 #'
 get_parOffInfo <- function(ped_file){
@@ -83,7 +83,7 @@ get_parOffInfo <- function(ped_file){
 #' @param chias_locations  Numeric vector.  Chiasmata locations.
 #'
 #' @return The locations of crossovers
-#' @export
+#' @keywords internal
 #'
 #' @examples
 #' haplo_vec <- sample(x = c(2, 3), size = 10, replace = TRUE)
@@ -126,7 +126,7 @@ reduce_to_events <- function(gamete_haplo, chias_locations){
 #' @param x Numeric.
 #'
 #' @return Boolean
-#' @export
+#' @keywords internal
 #'
 is_odd <- function(x) {x %% 2 != 0}
 
@@ -136,7 +136,7 @@ is_odd <- function(x) {x %% 2 != 0}
 #' @param x Numeric.
 #'
 #' @return Boolean
-#' @export
+#' @keywords internal
 #'
 is_int <- function(x) {x %% 1 == 0}
 
