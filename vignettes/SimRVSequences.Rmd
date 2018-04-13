@@ -2,7 +2,7 @@
 title: "SimRVSequences"
 author: "Christina Nieuwoudt and Jinko Graham"
 date: "`r Sys.Date()`"
-output: rmarkdown::pdf_document
+output: rmarkdown::html_document
 setspace: doublespacing
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
@@ -13,12 +13,12 @@ vignette: >
 <style type="text/css">
 
 body{ /* Normal  */
-   font-size: 16px;
+   font-size: 12px;
 }
 </style>
 
 <style>
-    p {line-height: 2em;}
+    p {line-height: 3em;}
 </style>
 
 # Table of contents
@@ -105,32 +105,47 @@ The `read_slim` function has three arguements:
 
 To clarify, the argument `recomb_map` is used to remap mutations to their actual locations and chromosomes.  This is necessary when data has been simulated over non-contiguous regions such as exon-only data.
 
-In addition to reducing the size of the data, the argument `keep_maf` has a practible applicability as well.  In family-based studies, common SNVs are generally filtered out prior to analysis.  Users who intend to study common variants in addition to rare variants may need to run analyses separately for different chromosomes to allow for allocation of large data sets.
+In addition to reducing the size of the data, the argument `keep_maf` has practible applicability as well.  In family-based studies, common SNVs are generally filtered out prior to analysis.  Users who intend to study common variants in addition to rare variants may need to run analyses separately for different chromosomes to allow for allocation of large data sets.
 
 ```{r, eval =  FALSE, echo = TRUE}
-# Let's suppose the output is named slimOut.txt and is saved in the 
-# current working directory.  We import the data using the read_slim function.
+# Let's suppose the output is saved in the 
+# current working directory and is named "slimOut.txt".  
+# We import the data using the read_slim function.
 s_out <- read_slim(file_path  = slimOut.txt, 
                    recomb_map = create_slimMap(hg_exons))
 
-summary(s_out)
+
 ```
 
-As shown above, `s_out` is a list containing two items: a data frame named `Mutations` and a dgCMatrix named `Genomes`.
+The datasets `EXmut` and `EXgen` represent data returned by the `read_slim` function, which returns a list contianing twp items.  The first item returned by `read_slim` is called `Mutations` and is of the same format as the `EXmut` dataset. The second item is called `Genomes` and is of the same format as the `EXgen` dataset.
 
-```{r, eval =  FALSE, echo = TRUE}
-# view the first 4 observations of the Mutations dataset
-head(s_out$Mutations, n = 4)
+```{r}
+#import the EXmut dataset
+data(EXmut)
+
+#view the first 4 observations
+head(EXmut, n = 4)
 ```
 
-The `Mutations` dataframe is used to catalogue the SNVs in `Genomes`.  The variable `colID` associates the rows of `Mutations` to the columns of `Genomes`, `chrom` identifies the chromosome number, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of each SNV, and `marker` is a unique identified for each SNV.
+The `EXmut` dataframe is used to catalogue the SNVs in `EXgen`.  The variable `colID` associates the rows of `Mutations` to the columns of `Genomes`, `chrom` identifies the chromosome number, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of each SNV, and `marker` is a unique identified for each SNV.
 
-```{r, eval =  FALSE, echo = TRUE}
-# view the first 5 rows and columns of Genomes
-s_out$Genomes[1:5, 1:5]
+
+```{r}
+#import the EXgen dataset
+data(EXgen)
+
+#determine class of EXgen
+class(EXgen)
+
+#dimensions of EXgen
+dim(EXgen)
+
+#View EXgen
+EXgen[1:15, 1:30]
 ```
 
-As expected, `Genomes` is a sparse matrix of class dgCMatrix.  Entries of `1` represent a mutated allele, while the wild type is represented as `.`.  Recall that we retain SNVs with derived allele frequency less than or equal to `keep_maf`; hence, the majority of entries represent the wild type allele.  
+`EXgen` is a sparse matrix of class dgCMatrix.  Entries of `1` represent a mutated allele, while the wild type is represented as `.`.  Recall that we retain SNVs with derived allele frequency less than or equal to `keep_maf`; hence, the majority of entries represent the wild type allele.  
+
 
 # 4. Select Pool of Causal Variants <a name="CausalVars"></a>
 
@@ -150,35 +165,49 @@ head(hg_apopPath, n = 4)
 
 The `hg_apopPath` dataset is similar the `hg_exons` dataset dicussed in section 2.  However, `hg_apopPath` only catalogues the postions of exons contained in our pseudo-pathway.  
 
-The `identify_pathwayRVs` function is used to further refine the `Mutations` data set returned by `read_slim`.  The `identify_pathwayRVs` function has three arguments:
+The `identify_pathwayRVs` function is used to further refine the `Mutations` data set returned by `read_slim`.  The `identify_pathwayRVs` function has two arguments:
 
-1. `markerDF` a dataframe containing SNV data, which must be of the same format as the `Mutations` dataframe returned by `read_slim`. 2. `pathwayDF` A dataframe that contains the positions for each exon in the pathway of interest.  This dataframe must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.*
-3. `carrier_prob`  The carrier probability for all causal variants with relative-risk of disease GRR. By default, `carrier_prob = 0.002`.  
+ 1. `markerDF` a dataframe containing SNV data, which must be of the same format as the `Mutations` dataframe returned by `read_slim`.  
+ 2. `pathwayDF` A dataframe that contains the positions for each exon in the pathway of interest.  This dataframe must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.*
 
-for the mutations in the 
-
-Before we simulate sequence data we create an object of class
-
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 # identify variants located in exons contained in our pathway
-mutDF <- identify_pathwaySNVs(markerDF  = s_out$Mutations,
+mutDF <- identify_pathwaySNVs(markerDF  = EXmut,
                               pathwayDF = hg_apopPath)
 
 #View the first 4 observations of mutDF
 head(mutDF, n = 4)
 ```
 
-Upon supplying the `Mutations` dataset and a pathway dataset, such as `hg_apopPath`, to `identify_pathwayRVs`, the variable `possibleRV` is marked FALSE for all SNVs not located in the pathway of interest.  Additionally, `possibleRV` is marked FALSE for any SNVs within our pathway with derived allele frequency greater than `carrier_prob`.
+Upon supplying the `EXmut` dataset and a pathway dataset, such as `hg_apopPath`, to `identify_pathwayRVs`, the variable `pathwayRV` is added and marked TRUE for SNVs located in the pathway of interest.
 
-For `SimRVpedigree`'s ascertainment process to be valid we require the cumulative allele frequency of all causal rare variants to be small, i.e $\le$ 0.002 (cite Nieuwoudt 2017).  Hence, for a pool of approximately 20 causal rare variants, each could have derived allele frequency 0.0001. 
+For `SimRVpedigree`'s ascertainment process to be valid we require the cumulative allele frequency of all causal rare variants to be small, i.e $\le$ 0.002 (cite Nieuwoudt 2017).  To accomodate this assumption we must manually identify the pool of causal variants from which each familial rare variant will be selected. 
+
+```{r, eval = TRUE}
+# tabulate the derived allele frequency of the SNVs located in our pathway
+table(mutDF$afreq[mutDF$pathwayRV])
+```
+
+From the output above, we can see that there are a variety of SNVs in our pathway to choose from.  To obtain a pool of variants with cumulative allele frequency 0.002, we could take the following approach.
+
+```{r}
+# Select possible causal SNVs from the SNV's in our pathway with 
+# derived allele frequency 5e-05, 1e-04, or 5e-04.
+mutDF$possibleRV = mutDF$afreq %in% c(5e-05, 1e-04, 5e-04) & mutDF$pathwayRV
+
+# verify that cumulative allele frequency of causal variants is 0.002
+sum(mutDF$afreq[mutDF$possibleRV])
+
+#determine the number of variants in our pool of causal variants
+length(mutDF$afreq[mutDF$possibleRV])
+```
+
+From the output above we see that we have selected a pool of 22 causal variants with cumulative allele frequency 0.002. 
  
- 
-We randomly sample 20 variants with minor allele frequency 0.0001 from the genes contained in our pathway and define these variants to be our pool of candidate disease variants.  We then sample familial causal rare variants from this pool so that different families segregate different rare variants. Upon identifying the familial rare variant we then sample haplotypes for each founder from the distribution of haplotypes conditioned on the founder's rare variant status at the familial disease locus.  This ensures that the causal rare variant is introduced by the correct founder.  With this simulation tool in hand, researchers can investigate a wide variety of methods to identify causal rare variants in ascertained pedigrees. 
 
+# 5. Import/Simulate Pedigrees Simulated for Multiple Disease-Affected Relatives <a name="PedSample"></a>
 
-# 5. Import Pedigrees Simulated for Multiple Disease-Affected Relatives <a name="PedSample"></a>
-
-The R package `SimRVPedigree` [3] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  For the purpose of illustration we will use the dataset `EgPeds`, which is included with `SimRVPedigree`.  To learn more about simulating pedigrees with `SimRVPedigree` please refer to the vignette included with the `SimRVPedigree` package. 
+The R package `SimRVPedigree` [3] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  For the purpose of illustration we will use the dataset `EgPeds`, which is included with `SimRVPedigree`.  To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette. 
 
 
 ```{r}
@@ -192,9 +221,19 @@ data(EgPeds)
 head(EgPeds, n = 4)
 ```
 
-*Maybe Perhaps we should note which variables are required to simulate sequence data*
+*Perhaps we should note which variables are required to simulate sequence data*
 
 # 6. Simulate Sequence Data <a name="SimSeq"></a>
+
+We then sample familial causal rare variants from this pool so that different families segregate different rare variants. Upon identifying the familial rare variant we then sample haplotypes for each founder from the distribution of haplotypes conditioned on the founder's rare variant status at the familial disease locus.  This ensures that the causal rare variant is introduced by the correct founder.  With this simulation tool in hand, researchers can investigate a wide variety of methods to identify causal rare variants in ascertained pedigrees. 
+
+
+```{r}
+study_seq <- sim_RVstudy(ped_files = EgPeds, 
+                         marker_map = mutDF,
+                         chrom_map = hg_chrom,
+                         haplotype_dist = EXgen)
+```
 
 # 7. References <a name="Ref"></a>
 
