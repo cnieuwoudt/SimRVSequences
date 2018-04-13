@@ -2,30 +2,25 @@
 #'
 #' @param markerDF A data frame containing SNV data.   See details.
 #' @param pathwayDF A data frame containing pathway data.  See details.
-#' @param carrier_prob Numeric. The carrier probability for all causal variants with relative-risk of disease GRR. By default, carrier_prob = 0.002
 #'
-#' @return A dataframe with the same format as \code{markerDF}, but with a variable \code{possibleRV} marked FALSE for all variants located outside exons in \code{pathwayDF}, or with derived allele frequency greater than \code{carrier_prob}.
+#' @return A dataframe with the same format as \code{markerDF}, but with a variable \code{pathwayRV} marked FALSE for all variants located outside exons in \code{pathwayDF}, or with derived allele frequency greater than \code{carrier_prob}.
 #' @export
 #'
 #' @examples
-#' FIND SHORT WORKING EXAMPLE
+#' #FIND SHORT WORKING EXAMPLE
 #'
-identify_pathwaySNVs <- function(markerDF, pathwayDF, carrier_prob = 0.002){
+identify_pathwaySNVs <- function(markerDF, pathwayDF){
 
-  if (is.null(markerDF$possibleRV)) {
-    markerDF$possibleRV <- TRUE
+  if (is.null(markerDF$pathwayRV)) {
+    markerDF$pathwayRV <- TRUE
   }
 
-  #Mark possibleRV FALSE for any variants that do not fall
+  #Mark pathwayRV FALSE for any variants that do not fall
   #within the exons catalouged in pathwayDF
   markerDF <- do.call(rbind, lapply(unique(markerDF$chrom), function(x){
     identify_pathwayRVs_byChrom(pathwayDF[pathwayDF$chrom == x, ],
                         markerDF[markerDF$chrom == x, ])
   }))
-
-  #mark FALSE any RV's that have greater derived allele frequency than
-  #the carrier prob of all causal RV's
-  markerDF$possibleRV[markerDF$afreq > carrier_prob] = FALSE
 
   return(markerDF)
 
@@ -37,11 +32,11 @@ identify_pathwaySNVs <- function(markerDF, pathwayDF, carrier_prob = 0.002){
 #' @param path_by_chrom The pathway data for the chromosome under consideration
 #' @param marker_map_by_chrom The marker_map for the chromosome under consideration
 #'
-#' @return marker_map_by_chrom with possibleRV identified
+#' @return marker_map_by_chrom with pathwayRV identified
 #' @keywords internal
 identify_pathwayRVs_byChrom <- function(path_by_chrom, marker_map_by_chrom){
   if(nrow(path_by_chrom) == 0){
-    marker_map_by_chrom$possibleRV <- FALSE
+    marker_map_by_chrom$pathwayRV <- FALSE
   } else {
     #since we will want to include variants that occur at the first base pair
     #location, subtracting 1 from start positions
@@ -64,10 +59,10 @@ identify_pathwayRVs_byChrom <- function(path_by_chrom, marker_map_by_chrom){
     if(any(duplicated(cbreaks))){
       stop("Expecting non-overlapping exonStart and exonEnd positions. \n Please combine overlapping segments into a single entry.")}
 
-    marker_map_by_chrom$possibleRV <- cut(marker_map_by_chrom$position,
-                                          breaks = cbreaks,
-                                          labels = FALSE)
-    marker_map_by_chrom$possibleRV <- marker_map_by_chrom$possibleRV %in% keep_bins
+    marker_map_by_chrom$pathwayRV <- cut(marker_map_by_chrom$position,
+                                         breaks = cbreaks,
+                                         labels = FALSE)
+    marker_map_by_chrom$pathwayRV <- marker_map_by_chrom$pathwayRV %in% keep_bins
   }
 
   return(marker_map_by_chrom)

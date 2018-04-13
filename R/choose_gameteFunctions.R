@@ -19,42 +19,6 @@
 #'
 #' @return A list containing (1) a list of inherited haplotype codings (2) the chiasmata locations
 #' @export
-#'
-#' @examples
-#' library(SimRVPedigree)
-#' #Read in age-specific hazards
-#' data(AgeSpecific_Hazards)
-#'
-#' # Simulate pedigree ascertained for multiple affected individuals
-#' set.seed(1960)
-#' ex_RVped <- sim_RVped(hazard_rates = hazard(hazardDF = AgeSpecific_Hazards),
-#'                       GRR = 10, RVfounder = TRUE, FamID = 1,
-#'                       founder_byears = c(1900, 1920),
-#'                       ascertain_span = c(1995, 2015),
-#'                       num_affected = 2, stop_year = 2017,
-#'                       recall_probs = c(1, 1, 0))[[2]]
-#' plot(ex_RVped)
-#'
-#' # say we are simulating gamete inheritance from the parent
-#' # with ID 1 to the offspring with ID 4
-#'
-#' data(mark_map)
-#' data(hg_chrom)
-#' head(mark_map)
-#' head(hg_chrom)
-#'
-#' my_chrom_map = hg_chrom[17, ]
-#' my_chrom_map$start_pos = convert_BP_to_cM(my_chrom_map$start_pos)
-#' my_chrom_map$end_pos = convert_BP_to_cM(my_chrom_map$end_pos)
-#' my_chrom_map$center = convert_BP_to_cM(my_chrom_map$center)
-#'
-#' sim_gameteInheritance(RV_locus = mark_map[1, 1:2],
-#'                       parent_RValleles = c(0, 1),
-#'                       offspring_RVstatus = c(0),
-#'                       chrom_map = my_chrom_map,
-#'                       allele_IDs = c(2, 3))
-#'
-#'
 sim_gameteInheritance <- function(RV_locus, parent_RValleles,
                                   offspring_RVstatus,
                                   chrom_map, allele_IDs,

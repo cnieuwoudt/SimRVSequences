@@ -24,28 +24,6 @@
 #'
 #' @importFrom stats rexp
 #' @importFrom stats rgamma
-#'
-#' @examples
-#' data(hg_chrom)
-#' my_chrom_map = hg_chrom
-#' my_chrom_map$start_pos = convert_BP_to_cM(my_chrom_map$start_pos)
-#' my_chrom_map$end_pos = convert_BP_to_cM(my_chrom_map$end_pos)
-#' my_chrom_map$center = convert_BP_to_cM(my_chrom_map$center)
-#'
-#' sim_chiasmataPositions(my_chrom_map[1, 2:4])
-#'
-#' #to simulate chiasmata according to Haldane's Model
-#' sim_chiasmataPositions(my_chrom_map[1, 2:4],
-#'                        burn_in = 0,
-#'                        gamma_params = c(1, 2))
-#'
-#' \dontrun{
-#' set.seed(1)
-#' system.time(for(i in 1:10000){
-#' sim_chiasmataPositions(my_chrom_map[1, 2:4])
-#' })
-#' }
-#'
 sim_chiasmataPositions <- function(chrom_map,
                                    burn_in = 1000,
                                    gamma_params = c(2.63, 2.63/0.5)){
@@ -109,6 +87,7 @@ sim_chiasmataPositions <- function(chrom_map,
 #' @seealso \code{\link{sim_chiasmataPositions}}
 #'
 #' @examples
+#' \dontrun{
 #' my_chrom_map <- data.frame(start = 0, stop = 200, center = 40)
 #' sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
 #' chias_count_BC(sim_chias_pos, 40)
@@ -116,7 +95,7 @@ sim_chiasmataPositions <- function(chrom_map,
 #'                      before_center = chias_count_BC(sim_chias_pos, my_chrom_map[1,3]),
 #'                      allele_IDs = c(2, 3))
 #'
-#' \dontrun{
+#'
 #' system.time(for (i in 1:10000) {
 #' sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
 #' sim_haploidFormation(num_chiasmata = length(sim_chias_pos),

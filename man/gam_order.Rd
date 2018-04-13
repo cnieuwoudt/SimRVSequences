@@ -12,8 +12,4 @@ A list corresponding to assigned gamete order.
 \description{
 For internal use.
 }
-\examples{
-gam_order()
-
-}
 \keyword{internal}

@@ -12,7 +12,7 @@ identify_pathwayRVs_byChrom(path_by_chrom, marker_map_by_chrom)
 \item{marker_map_by_chrom}{The marker_map for the chromosome under consideration}
 }
 \value{
-marker_map_by_chrom with possibleRV identified
+marker_map_by_chrom with pathwayRV identified
 }
 \description{
 Identify variants located in a defined pathway

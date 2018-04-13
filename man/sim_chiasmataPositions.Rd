@@ -31,28 +31,6 @@ After we simulate the position of the first chiasmata, successive chiasmata are 
 
 NOTE: To simulate chiasmata formation \strong{without chiasmata interference} (i.e. Haldane's model) we assume that the distance between successive chiasmata is distributed as an exponential distribution with mean 50 cM.  This can be accomplished by setting \code{burn_in = 0} and \code{gamma_params = c(1, 2)}.
 }
-\examples{
-data(hg_chrom)
-my_chrom_map = hg_chrom
-my_chrom_map$start_pos = convert_BP_to_cM(my_chrom_map$start_pos)
-my_chrom_map$end_pos = convert_BP_to_cM(my_chrom_map$end_pos)
-my_chrom_map$center = convert_BP_to_cM(my_chrom_map$center)
-
-sim_chiasmataPositions(my_chrom_map[1, 2:4])
-
-#to simulate chiasmata according to Haldane's Model
-sim_chiasmataPositions(my_chrom_map[1, 2:4],
-                       burn_in = 0,
-                       gamma_params = c(1, 2))
-
-\dontrun{
-set.seed(1)
-system.time(for(i in 1:10000){
-sim_chiasmataPositions(my_chrom_map[1, 2:4])
-})
-}
-
-}
 \references{
 Roeland E. Voorrips, Chris A Maliepaard. (2012), \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
 }

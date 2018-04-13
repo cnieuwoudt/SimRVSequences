@@ -4,10 +4,6 @@
 #'
 #' @return A list corresponding to assigned gamete order.
 #' @keywords internal
-#'
-#' @examples
-#' gam_order()
-#'
 gam_order <- function(){
 
   combos <- matrix(c(rep(c("A", "B"), each = 2), rep(c("C", "D"), 2),
@@ -29,11 +25,6 @@ gam_order <- function(){
 #'
 #' @return The number of chiasmata before the centromere
 #' @keywords internal
-#'
-#' @examples
-#' ex_chias <- sim_chiasmataPositions(chrom_map = data.frame(start = 47, stop = 198))
-#' ex_chias
-#' chias_count_BC(ex_chias, 78)
 chias_count_BC <- function(chiasmata_pos, center_loc){
   ifelse(length(which(chiasmata_pos < center_loc)) > 0,
          max(which(chiasmata_pos < center_loc)),
@@ -49,7 +40,6 @@ chias_count_BC <- function(chiasmata_pos, center_loc){
 #' @return A list containing the parent's paternal and maternal alleles at the disease locus, and the RV status of the offspring
 #' @keywords internal
 #' @importFrom reshape2 melt
-#'
 get_parOffInfo <- function(ped_file){
 
   mdata <- melt(ped_file[which(!is.na(ped_file$dadID)),
@@ -86,11 +76,12 @@ get_parOffInfo <- function(ped_file){
 #' @keywords internal
 #'
 #' @examples
+#' \dontrun{
 #' haplo_vec <- sample(x = c(2, 3), size = 10, replace = TRUE)
 #' chias_vec <- cumsum(rgamma(9, shape = 2.63, rate = 2*2.63))
 #' reduce_to_events(gamete_haplo = haplo_vec,
 #'                  chias_locations = chias_vec)
-#'
+#'}
 reduce_to_events <- function(gamete_haplo, chias_locations){
   if(sum(gamete_haplo == gamete_haplo[1]) == length(gamete_haplo)){
     cross_loc = numeric(0)
