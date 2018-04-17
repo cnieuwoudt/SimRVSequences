@@ -38,7 +38,7 @@ chias_count_BC <- function(chiasmata_pos, center_loc){
 #' @param ped_file Data.frame. The pedigree file, must have same format as pedigree simulated with \code{sim_RVped}
 #'
 #' @return A list containing the parent's paternal and maternal alleles at the disease locus, and the RV status of the offspring
-#' @keywords internal
+#' @export
 #' @importFrom reshape2 melt
 get_parOffInfo <- function(ped_file){
 

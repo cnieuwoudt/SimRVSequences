@@ -4,12 +4,14 @@
 \alias{sim_FGenos}
 \title{Draw Founder Genotypes from Haplotype Distribution Given Familial Risk Variant}
 \usage{
-sim_FGenos(founder_ids, RV_founder, haplotype_dist, RV_col_loc)
+sim_FGenos(founder_ids, RV_founder, RV_founder_pat, haplotype_dist, RV_col_loc)
 }
 \arguments{
 \item{founder_ids}{Numeric list. The ID numbers of all non-seed founders.}
 
 \item{RV_founder}{Numeric. The ID number of the seed founder.}
+
+\item{RV_founder_pat}{Numeric. RV_founder_pat == 1 if RV founder inherited the RV from dad, and 0 if inherited RV from mom.}
 
 \item{haplotype_dist}{sparseMatrix.  The sparseMatrix of genomes returned by \code{read_slimOut}.}
 
@@ -21,4 +23,3 @@ list of familial founder genotypes
 \description{
 \strong{For internal use.}
 }
-\keyword{internal}

@@ -9,7 +9,7 @@
 #' @param REDchrom_map Data.frame.  The chromosome map, reduced to the chromosome in question.
 #'
 #' @return offspring_seq
-#' @keywords internal
+#' @export
 #'
 reconstruct_fromHaplotype <- function(parental_genotypes,
                                       Cmarker_map,
@@ -116,7 +116,8 @@ sim_RVseq <- function(ped_file, founder_genos,
   #create a data.frame to store identifying info
   geno_map <- data.frame(FamID = rep(ped_file$FamID[1], length(ped_geno_IDs)),
                          ID = ped_geno_IDs,
-                         affected =  rep(FALSE, length(ped_geno_IDs)))
+                         affected =  rep(FALSE, length(ped_geno_IDs)),
+                         FamRV = rep(RV_marker, length(ped_geno_IDs)))
   #identify affected individuals
   geno_map$affected[geno_map$ID %in% ped_file$ID[ped_file$affected]] <- TRUE
 

@@ -4,13 +4,14 @@
 #'
 #' @param founder_ids Numeric list. The ID numbers of all non-seed founders.
 #' @param RV_founder Numeric. The ID number of the seed founder.
+#' @param RV_founder_pat Numeric. RV_founder_pat == 1 if RV founder inherited the RV from dad, and 0 if inherited RV from mom.
 #' @param haplotype_dist sparseMatrix.  The sparseMatrix of genomes returned by \code{read_slimOut}.
 #' @param RV_col_loc Nueric. The column location of the familial RV in haplotype_dist.
 #'
 #' @return list of familial founder genotypes
-#' @keywords internal
+#' @export
 #'
-sim_FGenos <- function(founder_ids, RV_founder,
+sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
                        haplotype_dist, RV_col_loc) {
 
   #Determine which haplotypes carry the familial rare variant and which so not
@@ -25,8 +26,12 @@ sim_FGenos <- function(founder_ids, RV_founder,
                                           size = (2*length(founder_ids) + 1),
                                           replace = TRUE)), ]
 
-  #ramdomly permute RV founders rows so that the RV is not always paternally inherited.
-  founder_genos[c(1,2), ] <- founder_genos[sample(x = c(1, 2), size = 2, replace = F), ]
+
+  #Asscociate RV to row 1, if paternally inherited OR row 2 if maternally inherited.
+  if(RV_founder_pat == 0){
+    founder_genos[c(1,2), ] <- founder_genos[c(2, 1), ]
+  }
+
 
   #create IDs to associate founders to rows in founder_genos
   founder_genos_ID <- rep(c(RV_founder, founder_ids), each = 2)
@@ -79,10 +84,10 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
     ped_files <- do.call("rbind", Afams)
   }
 
-  #sampling from RV markers (with probability
-  #probCausal)to determine familial RV locus
-  Fam_RVs <- sample(x = marker_map$marker,
-                    prob = marker_map$probCausal,
+  #sampling from RV markers
+  #to determine familial RV locus
+  Fam_RVs <- sample(x = marker_map$marker[marker_map$possibleRV],
+                    #prob = marker_map$probCausal,
                     size = length(FamIDs),
                     replace = TRUE)
 
@@ -96,12 +101,15 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
                RV_founder = ped_files$ID[which(ped_files$FamID == FamIDs[x]
                                                & is.na(ped_files$dadID)
                                                & (ped_files$DA1 + ped_files$DA2) == 1)],
+               RV_founder_pat = ped_files$DA1[which(ped_files$FamID == FamIDs[x]
+                                                   & is.na(ped_files$dadID)
+                                                   & (ped_files$DA1 + ped_files$DA2) == 1)],
                haplotype_dist, RV_col_loc = which(marker_map$marker == Fam_RVs[x]))
   })
 
   #simulate non-founder haploypes via conditional gene drop
   ped_seqs <- lapply(c(1:length(FamIDs)), function(x){
-    sim_RVseq(ped_file = ped_files[which(ped_files$FamID == FamIDs[x]), ],
+    sim_RVseq(ped_file = ped_files[ped_files$FamID == FamIDs[x], ],
               founder_genos = f_genos[[x]],
               marker_map, chrom_map,
               RV_marker = Fam_RVs[x],
