@@ -75,8 +75,7 @@ sim_chiasmataPositions <- function(chrom_map,
 #' \item (Meiosis II: Each cell from meiosis I splits into two gametes) Each pair of homologous chromosomes are separated into two gametes with equal probability and independently from the assortment of non-homologous chromosome.
 #' }
 #'
-#' @param num_chiasmata Numeric. The number of chiasmata to simulate among the chromatid bundle.
-#' @param before_center Numeric. The number of chiasmata before the centomere.
+#' @param num_chiasmata Numeric. The number of chiasmata simulated among the chromatid bundle.
 #' @param allele_IDs List of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination. (Can accomodate numeric or string entries)
 #'
 #' @return haploid_mat. A matrix with rows representing recombined haplotypes along with an identifier that defines which group each haploid will be associated with after meiosis II.
@@ -92,19 +91,16 @@ sim_chiasmataPositions <- function(chrom_map,
 #' sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
 #' chias_count_BC(sim_chias_pos, 40)
 #' sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
-#'                      before_center = chias_count_BC(sim_chias_pos, my_chrom_map[1,3]),
 #'                      allele_IDs = c(2, 3))
 #'
 #'
 #' system.time(for (i in 1:10000) {
 #' sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
 #' sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
-#'                      before_center = chias_count_BC(sim_chias_pos, my_chrom_map[1,3]),
 #'                      allele_IDs = c(2, 3))
 #' })
 #' }
 sim_haploidFormation <- function(num_chiasmata,
-                                 before_center,
                                  allele_IDs) {
 
   #NOTE: At this point we have not yet simulated recombination,
@@ -130,16 +126,16 @@ sim_haploidFormation <- function(num_chiasmata,
     }
   }
 
-  #reorder the rows so that sister chromatids are together at the centromeres
-  haploid_mat <- as.data.frame(haploid_mat[order(haploid_mat[, (before_center + 1)]), ])
+  #store as dataframe
+  haploid_mat <- as.data.frame(haploid_mat)
 
-  #assign gamete group (see computational shortcut in notes)
-  haploid_mat$gamete_grp <- gam_order()
+  #assign gamete group (this process is equivalent to meiosis I and II
+  #after we select a single gamete for inheritance, see notes.)
+  haploid_mat$gamete_grp <- sample(c("A", "B", "C", "D"), size = 4, replace = FALSE)
 
   return(haploid_mat)
 
 }
-
 
 #' Simulate formation of gametes.
 #'
@@ -180,20 +176,10 @@ sim_gameteFormation <- function(chrom_map, allele_IDs,
                                                         burn_in, gamma_params)
                                  })
 
-  #count the number of chiasmata before the centromere
-  #for each chromosome identified in chrom_map
-  #This will be used to identify sister chromatids.
-  BC_count <- lapply(c(1:nrow(chrom_map)),
-                     function(x){
-                       chias_count_BC(chrom_chiasmataPos[[x]],
-                                      center_loc = chrom_map[x, 4])
-                     })
-
   #simulate haploid and gamete formation
   chrom_haps <- lapply(c(1:nrow(chrom_map)),
                        function(x){
                          sim_haploidFormation(num_chiasmata = length(chrom_chiasmataPos[[x]]),
-                                              before_center = BC_count[[x]],
                                               allele_IDs)
                          })
 

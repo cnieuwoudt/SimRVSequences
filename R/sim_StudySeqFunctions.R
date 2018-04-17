@@ -52,10 +52,24 @@ sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
 #' @export
 #'
 #' @examples
+#' library(SimRVPedigree)
+#' data(EgPeds)
 #'
-#' #FIND SHORT WORKING EXAMPLE
+#' library(SimRVSequences)
+#' data(EXmut)
+#' data(EXgen)
 #'
-sim_RVstudy <- function(ped_files, marker_map, chrom_map,
+#' markers = EXmut
+#' markers$possibleRV = FALSE
+#' markers$possibleRV[1] = TRUE
+#'
+#' seqDat = sim_RVstudy(ped_files = EgPeds,
+#'                      marker_map = markers,
+#'                      haplotype_dist = EXgen)
+#'
+#' summary(seqDat)
+#'
+sim_RVstudy <- function(ped_files, marker_map,
                         haplotype_dist,
                         affected_only = TRUE,
                         convert_to_cM = TRUE,
@@ -64,12 +78,13 @@ sim_RVstudy <- function(ped_files, marker_map, chrom_map,
 
   #if(!is.markerMap(marker_map)) stop("Expecting class(marker_map) to include markerMap")
 
+  chrom_map <- create_chrom_map(marker_map)
+
   #convert from base pairs to centiMorgan
   if (convert_to_cM) {
     options(digits = 9)
     chrom_map$start_pos <- convert_BP_to_cM(chrom_map$start_pos)
     chrom_map$end_pos <- convert_BP_to_cM(chrom_map$end_pos)
-    chrom_map$center <- convert_BP_to_cM(chrom_map$center)
 
     marker_map$position <- convert_BP_to_cM(marker_map$position)
   }

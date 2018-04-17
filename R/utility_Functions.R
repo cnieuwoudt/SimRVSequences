@@ -1,36 +1,3 @@
-#' Assign gamete order
-#'
-#' For internal use.
-#'
-#' @return A list corresponding to assigned gamete order.
-#' @keywords internal
-gam_order <- function(){
-
-  combos <- matrix(c(rep(c("A", "B"), each = 2), rep(c("C", "D"), 2),
-                     rep(c("B", "A"), each = 2), rep(c("D", "C"), 2),
-                     rep(c("C", "D"), 2), rep(c("A", "B"), each = 2),
-                     rep(c("D", "C"), 2), rep(c("B", "A"), each = 2)),
-                   nrow = 8)
-
-  return(combos[sample(1, x = c(1:8)), ])
-}
-
-
-#' Determine number of chiasmata before centromere
-#'
-#' For internal use.
-#'
-#' @param chiasmata_pos The simulated chiasmata postions
-#' @param center_loc The centromere locations
-#'
-#' @return The number of chiasmata before the centromere
-#' @keywords internal
-chias_count_BC <- function(chiasmata_pos, center_loc){
-  ifelse(length(which(chiasmata_pos < center_loc)) > 0,
-         max(which(chiasmata_pos < center_loc)),
-         0)
-}
-
 #' Get parent and offspring information from a pedigree
 #'
 #' \strong{For internal use.}

@@ -4,12 +4,10 @@
 \alias{sim_haploidFormation}
 \title{Simulate recombination among chromatids.}
 \usage{
-sim_haploidFormation(num_chiasmata, before_center, allele_IDs)
+sim_haploidFormation(num_chiasmata, allele_IDs)
 }
 \arguments{
-\item{num_chiasmata}{Numeric. The number of chiasmata to simulate among the chromatid bundle.}
-
-\item{before_center}{Numeric. The number of chiasmata before the centomere.}
+\item{num_chiasmata}{Numeric. The number of chiasmata simulated among the chromatid bundle.}
 
 \item{allele_IDs}{List of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination. (Can accomodate numeric or string entries)}
 }
@@ -34,14 +32,12 @@ my_chrom_map <- data.frame(start = 0, stop = 200, center = 40)
 sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
 chias_count_BC(sim_chias_pos, 40)
 sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
-                     before_center = chias_count_BC(sim_chias_pos, my_chrom_map[1,3]),
                      allele_IDs = c(2, 3))
 
 
 system.time(for (i in 1:10000) {
 sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
 sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
-                     before_center = chias_count_BC(sim_chias_pos, my_chrom_map[1,3]),
                      allele_IDs = c(2, 3))
 })
 }

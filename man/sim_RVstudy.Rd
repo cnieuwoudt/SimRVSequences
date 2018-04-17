@@ -4,16 +4,13 @@
 \alias{sim_RVstudy}
 \title{Simulate sequence data for a study}
 \usage{
-sim_RVstudy(ped_files, marker_map, chrom_map, haplotype_dist,
-  affected_only = TRUE, convert_to_cM = TRUE, burn_in = 1000,
-  gamma_params = c(2.63, 2.63/0.5))
+sim_RVstudy(ped_files, marker_map, haplotype_dist, affected_only = TRUE,
+  convert_to_cM = TRUE, burn_in = 1000, gamma_params = c(2.63, 2.63/0.5))
 }
 \arguments{
 \item{ped_files}{Data frame. Must match format of pedigree simulated by sim_RVped}
 
 \item{marker_map}{Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
-
-\item{chrom_map}{Data.frame.  A data.frame consisting of three columns: column 1 contains the chromosome numbers, column 2 start postion of chromosome (in cM), column 3 end position of chromosome (in cM).}
 
 \item{haplotype_dist}{sparseMatrix. The genomes matrix returned by \code{read_slim}.  Mutations in haplotype_dist are described in \code{marker_map}.}
 
@@ -32,7 +29,21 @@ study_sequences
 Simulate sequence data for a study
 }
 \examples{
+library(SimRVPedigree)
+data(EgPeds)
 
-#FIND SHORT WORKING EXAMPLE
+library(SimRVSequences)
+data(EXmut)
+data(EXgen)
+
+markers = EXmut
+markers$possibleRV = FALSE
+markers$possibleRV[1] = TRUE
+
+seqDat = sim_RVstudy(ped_files = EgPeds,
+                     marker_map = markers,
+                     haplotype_dist = EXgen)
+
+summary(seqDat)
 
 }

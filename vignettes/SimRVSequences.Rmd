@@ -237,8 +237,7 @@ Simulating sequence data for ascertained pedigree is acheived with `sim_RVstudy`
 1. `ped_files` A dataframe containing study pedigrees.
 2. `marker_map` A dataframe of SNV data.
 3. `haplotype_dist` Genotype data
-4. `chrom_map` soon to disappear
-5. `affected_only` a logical variable.  When `affected_only = TRUE`, data is only simulated for affected individuals and the family members that connect them.  When `affected_only = FALSE` sequence data is simulated for the entire pedigree. By default, `affected_only = TRUE`.
+4. `affected_only` a logical variable.  When `affected_only = TRUE`, data is only simulated for affected individuals and the family members that connect them.  When `affected_only = FALSE` sequence data is simulated for the entire pedigree. By default, `affected_only = TRUE`.
 5. `gamma_params` describe.... By default, `gamma_params = c(4/7, 2)`.
 6. `burn-in` describe...  By default, `burn_in = 1000`.
 
@@ -248,7 +247,6 @@ Assuming users have followed the steps outlined in the previous sections, we may
 # simualte sequence using sim_RVstudy
 study_seq <- sim_RVstudy(ped_files = EgPeds, 
                          marker_map = mutDF,
-                         chrom_map = hg_chrom,
                          haplotype_dist = EXgen)
 
 # view summary of output
