@@ -76,8 +76,11 @@ sim_RVstudy <- function(ped_files, marker_map,
                         burn_in = 1000,
                         gamma_params = c(2.63, 2.63/0.5)){
 
-  #if(!is.markerMap(marker_map)) stop("Expecting class(marker_map) to include markerMap")
+  #check marker_map for possible issues
+  check_marker_map(marker_map)
 
+  #create chrom_map, this is used to determine where we need to
+  #simulate recombination
   chrom_map <- create_chrom_map(marker_map)
 
   #convert from base pairs to centiMorgan
