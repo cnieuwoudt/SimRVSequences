@@ -9,13 +9,13 @@
   \item{chrom}{Numeric. The chromosome number.}
   \item{exonStart}{Numeric. The exon's starting position, in base pairs.}
   \item{exonStop}{Numeric. The exon's ending position, in base pairs.}
-  \item{geneName}{Character. The names of the genes contained in the combined exon.}
+  \item{NCBIref}{Character. A list of NCBI reference sequence accession numbers.  Overlapping exons that have been combined into a single observation will  for associated with the exons in the observation.}
 }}
 \usage{
 hg_exons
 }
 \description{
-This data set catalouges the positions, in base pairs, of the exons residing on human chromosomes 1-22.  The positions of the exons were obtained from the UCSC Genome Broswer, using the NCBI RefSeq curated exons.  In this dataset we have combined overlapping exons into a single entry.
+This data set catalouges the positions, in base pairs, of the exons residing on human chromosomes 1-22.  The positions of the exons were obtained from the UCSC Genome Broswer, from the  using the NCBI RefSeq curated exons.  In this dataset we have combined overlapping exons into a single entry.
 }
 \details{
 NOTE: (REMOVE BEFORE RELEASE) CombineExons_NCBI.R contains details
