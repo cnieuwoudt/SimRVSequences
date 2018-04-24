@@ -3,22 +3,31 @@
 \docType{data}
 \name{hg_apopPath}
 \alias{hg_apopPath}
-\title{Apoptosis Pathway Data}
+\title{Pseudo-Apoptosis Pathway Data}
 \format{A data set with 253 rows and 5 variables:
 \describe{
   \item{chrom}{Numeric. The chromosome number.}
   \item{exonStart}{Numeric. The exon's starting position, in base pairs.}
   \item{exonStop}{Numeric. The exon's ending position, in base pairs.}
-  \item{geneName}{Character. The NCBI name of the gene(s) contained in the combined exon.}
+  \item{NCBIref}{Character. The NCBI reference seqence accession number of the gene(s) in which the exon(s) reside.}
   \item{gene}{Character. The names of the gene.}
 }}
 \usage{
 hg_apopPath
 }
 \description{
-This data set catalouges the positions, in base pairs, of the exons residing in the to 25 interacting genes with TNFSF10.  This is intended to mimic a pathway containing 25 genes.  The positions of the exons in these genes were obtained from the UCSC Genome Broswer, using the NCBI RefSeq curated exons track.  In this dataset we have combined overlapping exons into a single entry.
+This data set cataloges the positions of the exons residing in the 25 genes that have the highest interaction with the TNFSF10 gene USCS Genome Browser's Gene Interaction Tool.  We use this data set to model a pseudo-apoptosis sub-pathway in our examples and vignette.
 }
 \details{
+We note that all overlapping exons in this database have been combined into a single observation.  When exons have been combined from genes with different NCBI  reference sequence accession numbers, each accession number is listed in the variable \code{NCBIref}.
+
 NOTE: (REMOVE BEFORE RELEASE) Combine Pathway Exons.R contains details
+}
+\references{
+Karolchik, D., Hinrichs, A. S., Furey, T. S., Roskin, K. M., Sugnet, C. W., Haussler, D., and Ken, W. J. (2004). The UCSC Table Browser data retrieval tool. \emph{Nucleic Acids Res}.
+
+Kent, W. J., Sugnet, C. W., Furey, T. S., Roskin, K. M., Pringle, T. H., Zahler, A. M., and Haussler, D. (2002). The human genome browser at UCSC. \emph{Genome Res}, 12(6):996-1006.
+
+Poon, H., Quirk, C., DeZiel, C., and Heckerman, D. (2014). Literome: Pubmed-scale genomic knowledge base in the cloud. \emph{Bioinformatics}, 30:2840-2842.
 }
 \keyword{datasets}

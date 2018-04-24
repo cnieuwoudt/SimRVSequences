@@ -9,15 +9,20 @@
   \item{chrom}{Numeric. The chromosome number.}
   \item{exonStart}{Numeric. The exon's starting position, in base pairs.}
   \item{exonStop}{Numeric. The exon's ending position, in base pairs.}
-  \item{NCBIref}{Character. A list of NCBI reference sequence accession numbers.  Overlapping exons that have been combined into a single observation will  for associated with the exons in the observation.}
+  \item{NCBIref}{Character. The NCBI reference seqence accession number of the gene(s) in which the exon(s) reside.}
 }}
 \usage{
 hg_exons
 }
 \description{
-This data set catalouges the positions, in base pairs, of the exons residing on human chromosomes 1-22.  The positions of the exons were obtained from the UCSC Genome Broswer, from the  using the NCBI RefSeq curated exons.  In this dataset we have combined overlapping exons into a single entry.
+This data set catalouges the positions, in base pairs, of the exons residing on human chromosomes 1-22.  The positions of the exons were obtained from the UCSC Genome Broswer, using the hg38 database and ncbiRefSeqCurated table.  In this dataset we have combined overlapping exons into a single entry.
 }
 \details{
 NOTE: (REMOVE BEFORE RELEASE) CombineExons_NCBI.R contains details
+}
+\references{
+Karolchik, D., Hinrichs, A. S., Furey, T. S., Roskin, K. M., Sugnet, C. W., Haussler, D., and Ken, W. J. (2004). The UCSC Table Browser data retrieval tool. \emph{Nucleic Acids Res}.
+
+Kent, W. J., Sugnet, C. W., Furey, T. S., Roskin, K. M., Pringle, T. H., Zahler, A. M., and Haussler, D. (2002). The human genome browser at UCSC. \emph{Genome Res}, 12(6):996-1006.
 }
 \keyword{datasets}
