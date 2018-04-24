@@ -42,11 +42,12 @@ create_slimMap <- function(exon_df, mutation_rate = 1E-8, recomb_rate = 1E-8){
   #compile data on introns
   int_dist <- lapply(bychr, function(x){
     data.frame(chrom = x$chrom,
-               dist = c((x$exonStart[1] - 1), (x$exonStart[-1] - x$exonEnd[-nrow(x)] - 1)),
+               segLength = c((x$exonStart[1] - 1), (x$exonStart[-1] - x$exonEnd[-nrow(x)] - 1)),
                no = c(1:nrow(x)),
                recRate = recomb_rate*c(0.5/recomb_rate, (x$exonStart[-1] - x$exonEnd[-nrow(x)] - 1)),
                mutRate = rep(0, nrow(x)),
                type = rep("intron", nrow(x)),
+               exon = rep(FALSE, nrow(x)),
                simDist = rep(1, nrow(x)))
   })
   #set the recombination rate to zero for the first chromosome
@@ -57,11 +58,12 @@ create_slimMap <- function(exon_df, mutation_rate = 1E-8, recomb_rate = 1E-8){
   #compile data on exons
   ex_dist <- lapply(bychr, function(x){
     data.frame(chrom = x$chrom,
-               dist = c(x$exonEnd - x$exonStart + 1),
+               segLength = c(x$exonEnd - x$exonStart + 1),
                no = c(1:nrow(x)),
                recRate = rep(recomb_rate, nrow(x)),
                mutRate = rep(mutation_rate, nrow(x)),
                type = rep("exon", nrow(x)),
+               exon = rep(TRUE, nrow(x)),
                simDist = c(x$exonEnd - x$exonStart + 1))
   })
 
@@ -79,7 +81,7 @@ create_slimMap <- function(exon_df, mutation_rate = 1E-8, recomb_rate = 1E-8){
   rc_map <- do.call(rbind, ie_dist)
   rc_map$endPos <- cumsum(rc_map$simDist)
   row.names(rc_map) = NULL
-  return(rc_map)
+  return(rc_map[, -c(3, 6)])
 }
 
 #' Re-map slim mutations
@@ -100,7 +102,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 
   #subset by introns for each chromosome
   bychr_int <- lapply(bychr, function(x){
-    x[x$type == "intron", ]
+    x[!x$exon, ]
   })
 
   #get chrom starts and stops
@@ -134,13 +136,13 @@ reMap_mutations <- function(mutationDF, recomb_map){
                                      labels = FALSE) + 1)/2
 
     #get cumulative intron distance
-    bychr_int[[i]]$cumDist <- cumsum(bychr_int[[i]]$dist)
+    bychr_int[[i]]$cumDist <- cumsum(bychr_int[[i]]$segLength)
 
     mut_by_chrom[[i]]$position <- mut_by_chrom[[i]]$position +
       bychr_int[[i]]$cumDist[mut_by_chrom[[i]]$ex_num] -
       mut_by_chrom[[i]]$ex_num
 
-    mut_by_chrom[[i]]$colID <- c(1:nrow(mut_by_chrom[[i]]))
+#    mut_by_chrom[[i]]$colID <- c(1:nrow(mut_by_chrom[[i]]))
 
   }
 
