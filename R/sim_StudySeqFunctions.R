@@ -21,10 +21,18 @@ sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
   #for the seed founder: sample one haplotype from those that carry the RV
   # and one haplotype from those that DO NOT carry the RV
   #for all other founders: sample 2 haplotypes that do not carry the RV
-  founder_genos = haplotype_dist[c(sample(x = RV_haps, size = 1),
-                                   sample(x = noRV_haps,
-                                          size = (2*length(founder_ids) + 1),
-                                          replace = TRUE)), ]
+  if(length(RV_haps) == 1){
+    founder_genos = haplotype_dist[c(RV_haps,
+                                     sample(x = noRV_haps,
+                                            size = (2*length(founder_ids) + 1),
+                                            replace = TRUE)), ]
+  } else {
+    founder_genos = haplotype_dist[c(sample(x = RV_haps, size = 1),
+                                     sample(x = noRV_haps,
+                                            size = (2*length(founder_ids) + 1),
+                                            replace = TRUE)), ]
+  }
+
 
 
   #Asscociate RV to row 1, if paternally inherited OR row 2 if maternally inherited.
