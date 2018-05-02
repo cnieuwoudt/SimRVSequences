@@ -2,9 +2,7 @@
 #'
 #' This data set cataloges the positions of the exons residing in the 25 genes that have the highest interaction with the TNFSF10 gene USCS Genome Browser's Gene Interaction Tool.  We use this data set to model a pseudo-apoptosis sub-pathway in our examples and vignette.
 #'
-#' We note that all overlapping exons in this database have been combined into a single observation.  When exons have been combined from genes with different NCBI  reference sequence accession numbers, each accession number is listed in the variable \code{NCBIref}.
-#'
-#' NOTE: (REMOVE BEFORE RELEASE) Combine Pathway Exons.R contains details
+#'  In this data set, any overlapping exonshave been combined into a single observation.  When exons from genes with different NCBI accession numbers have been combined the variable \code{NCBIref} will contain multiple NCBI reference sequence accession numbers, each separated by a comma.  We note that different NCBI reference sequence accession numbers may exist for isoforms or transcript variants of the same gene.
 #'
 #' @docType data
 #'
@@ -18,6 +16,6 @@
 #'   \item{exonStart}{Numeric. The exon's starting position, in base pairs.}
 #'   \item{exonStop}{Numeric. The exon's ending position, in base pairs.}
 #'   \item{NCBIref}{Character. The NCBI reference seqence accession number of the gene(s) in which the exon(s) reside.}
-#'   \item{gene}{Character. The names of the gene.}
+#'   \item{gene}{Character. The name(s) of the gene.}
 #' }
 "hg_apopPath"

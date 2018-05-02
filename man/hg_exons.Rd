@@ -18,7 +18,7 @@ hg_exons
 This data set catalouges the positions, in base pairs, of the exons residing on human chromosomes 1-22.  The positions of the exons were obtained from the UCSC Genome Broswer, using the hg38 database and ncbiRefSeqCurated table.  In this dataset we have combined overlapping exons into a single entry.
 }
 \details{
-NOTE: (REMOVE BEFORE RELEASE) CombineExons_NCBI.R contains details
+In \code{hg_exons} overlapping exons are combined into a single observation. When exons from genes with different NCBI accession numbers have been combined the variable \code{NCBIref} will contain multiple accession numbers, each separated by a comma.  We note that different accession numbers may exist for isoforms or transcript variants of the same gene.
 }
 \references{
 Karolchik, D., Hinrichs, A. S., Furey, T. S., Roskin, K. M., Sugnet, C. W., Haussler, D., and Ken, W. J. (2004). The UCSC Table Browser data retrieval tool. \emph{Nucleic Acids Res}.
