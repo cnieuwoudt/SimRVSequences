@@ -2,13 +2,15 @@
 #'
 #' For internal use.
 #'
+#' Prior to running this function, for each chromosome, we have a coded sequence (i.e. c(1, 2, 1)) and a list of crossover points (i.e. c(45, 100)). This data would indicate that the offspring inherts all genetic data from the start postion to postion 45 of the parent's 1st haplotype, then all genetic data after position 45 up to postion 100 from the 2nd haplotype, and all genetic data after postion 100 from the 1st haplotype.  This function completes that task.
+#'
 #' @param parental_genotypes The parental genotype sequence information.
-#' @param Cmarker_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
-#' @param inherited_haplotype The inherited haplotype sequence.
-#' @param chiasmata_locations The chiasmata locations.
+#' @param Cmarker_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosome that the marker resides on, column 3: the position of the marker in cM.
+#' @param inherited_haplotype The coded haplotype sequence, which indiciates the haplotype that the data will come from.
+#' @param chiasmata_locations A list of crossover locations.
 #' @param REDchrom_map Data.frame.  The chromosome map, reduced to the chromosome in question.
 #'
-#' @return offspring_seq
+#' @return offspring_seq. The genetic data that the offspring inherits from this parent.  This will be a recombined sequence.
 #' @export
 #'
 reconstruct_fromHaplotype <- function(parental_genotypes,
@@ -36,9 +38,11 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
       start_switch <- switch_alleles_loc[2*i - 1]
       end_switch <- switch_alleles_loc[2*i]
 
-      #switch alleles between chiasmata
-      offspring_seq[which(Cmarker_map$position >= start_switch & Cmarker_map$position < end_switch)] <-
-        parental_genotypes[switch_alle, which(Cmarker_map$position >= start_switch & Cmarker_map$position < end_switch)]
+      #determine the columns that need to be swapped
+      swap_cols <- which(Cmarker_map$position >= start_switch & Cmarker_map$position < end_switch)
+
+      #switch alleles between crossovers
+      offspring_seq[, swap_cols] <- parental_genotypes[switch_alle, swap_cols]
     }
   } else {
     offspring_seq <- parental_genotypes[inherited_haplotype[1], ]

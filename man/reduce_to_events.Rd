@@ -2,7 +2,7 @@
 % Please edit documentation in R/utility_Functions.R
 \name{reduce_to_events}
 \alias{reduce_to_events}
-\title{Reduce chiasmata vector to crossovers that transmitted gamete participates in based on the allele vector.}
+\title{Reduce chiasmata vector to crossovers that this gamete participated in based on the allele vector.}
 \usage{
 reduce_to_events(gamete_haplo, chias_locations)
 }
@@ -17,6 +17,13 @@ The locations of crossovers
 \description{
 For internal use.
 }
+\details{
+For example, if coded allele vector was c(1, 1, 2), then this gamete did not participate in the second crossover,
+hence the list of chiasmata event locations, say c(40, 80), would be reduced to c(80), and the coded allele vector
+would be reduced to c(1, 2). That is, there is only one crossover from haplotype 1 to 2 at position 80.
+
+We don't actually return the coded vector at this point.  We only need the code for the first haplotype, after applying this function every crossover will be meaningful. That is the coded vector will never contain repeats after this function runs.
+}
 \examples{
 \dontrun{
 haplo_vec <- sample(x = c(2, 3), size = 10, replace = TRUE)
@@ -25,4 +32,3 @@ reduce_to_events(gamete_haplo = haplo_vec,
                  chias_locations = chias_vec)
 }
 }
-\keyword{internal}

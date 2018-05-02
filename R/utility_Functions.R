@@ -32,15 +32,21 @@ get_parOffInfo <- function(ped_file){
 }
 
 
-#' Reduce chiasmata vector to crossovers that transmitted gamete participates in based on the allele vector.
+#' Reduce chiasmata vector to crossovers that this gamete participated in based on the allele vector.
 #'
 #' For internal use.
+#'
+#' For example, if coded allele vector was c(1, 1, 2), then this gamete did not participate in the second crossover,
+#' hence the list of chiasmata event locations, say c(40, 80), would be reduced to c(80), and the coded allele vector
+#' would be reduced to c(1, 2). That is, there is only one crossover from haplotype 1 to 2 at position 80.
+#'
+#' We don't actually return the coded vector at this point.  We only need the code for the first haplotype, after applying this function every crossover will be meaningful. That is the coded vector will never contain repeats after this function runs.
 #'
 #' @param gamete_haplo Numeric vector. The inherited haplotype.
 #' @param chias_locations  Numeric vector.  Chiasmata locations.
 #'
 #' @return The locations of crossovers
-#' @keywords internal
+#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -64,7 +70,7 @@ reduce_to_events <- function(gamete_haplo, chias_locations){
       rhap <- gamete_haplo[c((keep_ind[i] + 1) : length(gamete_haplo))]
       if ( sum(rhap == rhap[1]) == length(rhap) | length(rhap) == 1 ) {
         #if the remaining items to check have length 1 or are
-        #all the same element we are done so break while loop
+        #all the same element we are done; i.e. break while condition
         d <- length(gamete_haplo) + 1
       } else {
         keep_ind[i + 1] <- keep_ind[i] +
