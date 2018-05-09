@@ -17,9 +17,6 @@ body{ /* Normal  */
 }
 </style>
 
-<style>
-    p {line-height: 3em;}
-</style>
 
 # Table of contents
 1. [Introduction](#introduction)
@@ -34,19 +31,25 @@ body{ /* Normal  */
 
 # 1. Introduction <a name="introduction"></a>
 
-Family-based studies are more attractive than case-control studies because they have more power to detect causal rare variants, require smaller sample sizes, and can more accurately detect sequencing errors (cite Wiseman?).  However, data collection for these studies is both time consuming and expensive.  
+Family-based studies are more attractive than case-control studies because they have more power to detect causal rare variants, require smaller sample sizes, and can more accurately detect sequencing errors [4].  However, data collection for these studies is both time consuming and expensive.  
 
-`SimRVSequences` provides methods to simulate sequence data for family-based studies.  To accomplish this we require: (1) single-nucleotide variant (SNV) data from a sample of unrelated individuals and (2) a sample of ascertained pedigrees.  Presently, we streamline this process for pedigrees simulated by `SimRVPedigree` and exon-only SNV data produced by SLiM 2.0 [1].  In this vignette we illustrate how the methods provided by `SimRVSequences` may be used to accomplish this task.
+`SimRVSequences` provides methods to simulate sequence data for family-based studies.  To accomplish this we require: (1) single-nucleotide variant (SNV) data from a sample of unrelated individuals and (2) a sample of ascertained pedigrees.  Presently, we streamline this process for pedigrees simulated by `SimRVPedigree` [3] and exon-only SNV data produced by SLiM 2.0 [1].  In this vignette we illustrate how the methods provided by `SimRVSequences` may be used to accomplish this task.
 
 # 2. `SimRVSequences` Assumptions <a name="Assumptions"></a>
 
-1. Given a sample of ascertained pedigrees we allow for the possibility that different families may segregate different rare variants, but make the assumption that within a family genetic cases are due to a causal rare variant (cRV) that increases disease susceptibility.  That is, each pedigree may have no more than 1 cRV segregating among descendents.  Furthermore, only 1 copy of the familal cRV may be introduced to the pedigree.
+1. Given a sample of ascertained pedigrees we allow families to segregate different rare variants, but assume that within a family genetic cases are due to a causal rare variant (cRV) that increases disease susceptibility.  We assume that no more than 1 cRV segregating among descendants, and that only 1 copy of the familial cRV is introduced to the pedigree.
+2. We assume that the cRV status of every pedigree member is known.  The `R` package `SimRVPedigree` may be used to simulate pedigrees that meet this criteria.
+3. Founder haplotypes are sampled from the population distribution of haplotypes conditioned on the founder's cRV status.
+4. We use a conditional gene-drop algorithm to model inheritance from parent to offspring, which can be described as follows for each parent-offspring pair.
+  * Simulation of gametes.
+    1.  Following the direction of Voorrips 2012, we assume that the distance between chiasmata may be modeled by a gamma distribution.  The default parameter settings shape = 2.63 and rate = 2*2.63 are used to model genetic recombination with chiasmata interference, with a burn in of 1000 cM.  To model recombination without chiasmata interference, i.e. according to Haldane's model: set shape = 1, rate = 2, and burn in to 0.
+    2. We assume no chromatid interference so that non-sister chromatids are equally likely to participate in a crossover event [cite Lange, or Voorrips?].
+    3. To simulate the formation of gametes we assume that homologous chromatids are assigned to one of four gamete cells with equal probability.  This assignment occurs independently for non-homologous chromosomes.
+  * To determine which of the four gametes is transmitted from parent to offspring, we consider the rare-variant status of the parent and the offspring, as follows.
+    + Case 1: If **both the parent and offspring carry the cRV** we randomly select (with equal probability) the inherited gamete from the two possible parental gametes that do carry the causal rare variant.
+    + Case 2: If the **parent carries the cRV but the offspring does not**, we randomly select (with equal probability) the inherited gamete from the two possible parental gametes that do not carry the causal rare variant.
+    + Case 3: If the **parent is not a carrier of the cRV**, then the cRV status of the offspring is irrelevant for this parent's transmission because the offspring cannot inherit it from this parent.  In this scenario, we randomly select the inherited gamete from the four parental gametes with equal probability.
 
-2. We use a preferential gene-drop algorithm to ensure that the cRV is inherited by the correct descendents.
-  1. Sample founder haplotypes conditional on cRV status at the familial disease locus:
-  2. For each parent-offspring pair:
-     1. Simualte recombination amand formation of gametes. We assume that genetic recombination can be modelled by a gamma distribution with shape = 2.63, rate = 2*2.63 (cite Voorrips).  (NOTE: users can simulate recombination according to Haldane's model if they set shape = 1 and rate = 0.5, check parameter setting before JINKO.)
-     2. Sample the gamete inherited by the offspring conditional on the offspring's cRV status.
 
 
 # 3. Exon-Only Data with SLiM 2.0 <a name="SlimMap"></a>
@@ -64,14 +67,39 @@ data("hg_exons")
 head(hg_exons, n = 4)
 ```
 
-As seen in the output above, the `hg_exons` data set catalogs the position of each exon in the 22 human autosomes. The data contained in `hg_exons` was collected from the UCSC Genome Browser (cite Genome and Table Browser). The variable `chrom` is the chromosome on which the exon resides, `exonStart` is the position of the first base pair in the exon, and `exonEnd` is the position of the last base pair in the exon.  The variable `NCBIref` is the NCBI reference sequence accession numbers for the coding region in which the exon resides.  In `hg_exons` overlapping exons are combined into a single observation; when exons from different genes have been combined the variable `NCBIref` will contain a multiple NCBI reference sequence accession numbers, separated by a comma.  We note that different NCBI reference sequence accession numbers may exist for isoforms or transcript variants of the same gene.  
+As seen in the output above, the `hg_exons` data set catalogs the position of each exon in the 22 human autosomes. The data contained in `hg_exons` was collected from the UCSC Genome Browser [5, 6]. The variable `chrom` is the chromosome on which the exon resides, `exonStart` is the position of the first base pair in the exon, and `exonEnd` is the position of the last base pair in the exon.  The variable `NCBIref` is the NCBI reference sequence accession numbers for the coding region in which the exon resides.  In `hg_exons` overlapping exons have been combined into a single observation. When exons from genes with different NCBI accession numbers have been combined the variable `NCBIref` will contain multiple accession numbers, each separated by a comma.  We note that different accession numbers may exist for transcript variants of the same gene.
 
 The `create_slimMap` function has three arguments:
 
-1. `exon_df`: A data frame that contains the positions of each exon to simulate.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `exon_df` does not contain any overlapping segments.  Prior to supplying exon data to `create_slimMap` users must combine overlapping exons into a single observation.  The `combine_exons` function may be used to accomplish this task.*  The variable `NCBIref`, as seen in `hg_exons`, is not required.
-2. `mutation_rate`: the per site per generation mutation rate. By default, `mutation_rate= 1E-8`, as in Haris (2016).
-3. `recomb_rate`: the per site per generation recombination rate.  By default, `recomb_rate= 1E-8`, as in Haris (2016).   
- 
+1. `exon_df`: A data frame that contains the positions of each exon to simulate.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.   *We expect that `exon_df` does not contain any overlapping segments.  Prior to supplying exon data to `create_slimMap` users must combine overlapping exons into a single observation.  The `combine_exons` function may be used to accomplish this task.*  The variable `NCBIref`, as seen in `hg_exons`, is not required.
+2. `mutation_rate`: the per site per generation mutation rate. By default, `mutation_rate= 1E-8`, as in Harris (2016).
+3. `recomb_rate`: the per site per generation recombination rate.  By default, `recomb_rate= 1E-8`, as in Harris (2016).  
+
+Usage of the `combine_exons` function is illustrated below.
+
+```{r}
+#create an example data frame that contains the 
+#the variables: chrom, exonStart, and exonEnd
+exDat <- data.frame(chrom     = c(1, 1, 1, 2, 2, 2),
+                    exonStart = c(1, 2, 5, 1, 3, 3),
+                    exonEnd   = c(3, 4, 7, 4, 5, 6))
+
+#View exDat data set
+exDat
+```
+
+From the output above, we see that the first two exons in chromosome one overlap (i.e. the exons with ranges [1, 3] and [2, 4]), as do all three exons in chromosome two.
+
+```{r}
+#supply exDat to combine exons
+#and view the results
+combine_exons(exDat)
+```
+
+After supplying the data to `combine_exons` we see that the segments [1, 3] and [2, 4] on chromosome one have been combined in to a single segment: [1, 4].  Similarly, the three overlapping exons from chromosome two: [1, 4], [3, 5], and [3, 6], have now been combined into the segment [1, 6].
+
+Since the exons in `hg_exons` have already been combined into non-overlapping segments, we simply supply this data frame to `create_slimMap`.
+
 ```{r}
 # create recombination map for exon-only data using the hg_exons dataset 
 s_map <- create_slimMap(exon_df = hg_exons)
@@ -83,21 +111,20 @@ head(s_map, n = 4)
 
 The `create_slimMap` function returns a data frame with several variables:
 
-1. `chrom`:  the chomosome number.
-2. `seLength`: the length of the segment in base pairs.  *We assume that segments contain the postions listed in `exonStart` and `exonEnd.`  Therefore, for an exon, `segLength` is calculated as `exonEnd - exonStart + 1.`
-3. `recRate`: the per site per generation recombination rate.  Following Harris (2016), segments between exons on the same chromosome are simulated as a single base pair with `rec_rate` = recombination rate * number of base pairs in the segment.  For each chromosome, a single site is created between the last exon on the previous chromosome and the first exon of the current chromosome.  This site will have recombination rate 0.5 to accommodate unlinked chromosomes.
+1. `chrom`:  the chromosome number.
+2. `segLength`: the length of the segment in base pairs.  *We assume that segments contain the positions listed in `exonStart` and `exonEnd.`  Therefore, for an exon, `segLength` is calculated as `exonEnd - exonStart + 1.`*
+3. `recRate`: the per site per generation recombination rate.  Following Harris (2016), segments between exons on the same chromosome are simulated as a single base pair with `rec_rate` equal tp recombination rate multiplied by the number of base pairs in the segment.  For each chromosome, a single site is created between the last exon on the previous chromosome and the first exon of the current chromosome.  This site will have recombination rate 0.5 to accommodate unlinked chromosomes.
 4. `mutRate`: the per site per generation mutation rate.  Since we are interested in exon-only data, the mutation rate outside exons is set to zero.
 5. `exon`: logical variable, `TRUE` if segment is an exon and `FALSE` if not an exon. 
-6. `simDist`: the simulated distance, in base pairs. When `exon = TRUE`, `simDist = segLength`. For exons sim
-7. `endPos`: The cumulative length of all segments.
+6. `simDist`: the simulated exon length, in base pairs. When `exon = TRUE`, `simDist = segLength`; however, when `exon = FALSE`, `simDist = 1`.
+7. `endPos`: The simulated end position, in base pairs, of the segment.
 
 
-The first row in the output above contains information about the genetic segment **before the first exon** on chromosome 1.  From `segLength` we can see that there are 11,872 base pairs before the first exon on chromosome 1, which is simulated as a single site since `simDist` = 1. The recombination rate for this segment is set to zero.  However, the first non-exon segement for any other chromosome will be 0.5 so that chromosomes are unlinked.  The mutation rate for this non-exon segment is set to zero since we are interested in exon-only data.   
+The first row in the output above contains information about the genetic segment **before the first exon** on chromosome 1.  From `segLength` we can see that there are 11,873 base pairs before the first exon on chromosome 1, which is simulated as a single site since `simDist` = 1. The recombination rate for this segment is set to zero.  However, the first non-exon segment for any other chromosome will be 0.5 so that chromosomes are unlinked.  The mutation rate for this non-exon segment is set to zero since we are interested in exon-only data.   
 
-The second row of the output catalogs information for the first exon on chromosome 1.  This exon contains 355 base pairs, hence `simDist` for this segment is 355.  The per site per genertation mutation and recombination rates for this exon are 1E-08.
+The second row of the output catalogs information for the first exon on chromosome 1.  This exon contains 354 base pairs, hence `simDist` for this segment is 354.  The per site per generation mutation and recombination rates for this exon are 1E-08.
 
-The third row contains the information for the second non-exon segment on chromosome 1. This segment contains 384 base pairs. Notice again that we simulate this segment as a single site, but set the recombination rate to 384*1E-8 = 3.84E-6.
-
+The third row contains the information for the second non-exon segment on chromosome 1. This segment contains 385 base pairs. Notice that like the first non-exon segment (i.e. row 1) we simulate this segment as a single site, since `simDist = 1`.  However, we set the recombination rate to `segLength` multiplied by the argument `recomb_rate` (i.e. 385*1E-8 = 3.85E-6).
 
 Only three of the variables returned by `create_slimMap` are required by SLiM 2.0 to simulate exon-only data: `recRate`, `mutRate`, and `endPos`.  The other variables seen in the output above are used by the `read_slim` function to remap mutations to their correct positions after simulation (see section 3 for details). 
 
@@ -115,18 +142,17 @@ slimMap$endPos <- slimMap$endPos - 1
 head(slimMap)
 ```
 
-We used SLiM 2.0 to generate neutral mutations in exons and allowed them to accumulate over 44,000 generations, as in Harris (2016).  However, SLiM is incredibly versatile and can accommodate many different types of simulations.  The creators of SLiM provide excellent resources and documentation to simulate forwards-in-time evolutionary data, which can be found at the SLiM website: https://messerlab.org/slim/ .
+We used SLiM 2.0 to generate neutral mutations in exons and allowed them to accumulate over 44,000 generations, as in Harris (2016).  However, SLiM is incredibly versatile and can accommodate many different types of simulations.  The creators of SLiM provide excellent resources and documentation to simulate forwards-in-time evolutionary data, which can be found at the SLiM website: https://messerlab.org/slim/.
 
 # 4. Import SLiM 2.0 Data <a name="SlimDat"></a>
 
-To import data simulated by SLiM, we provide the `read_slim` function.  Presently, The `read_slim` function is only appropriate for data produced by SLiM's outputFull() method. We do not support output in MS or VCF data format (i.e. produced by outputVCFsample() or outputMSSample() in SLiM 2.0).
+To import data simulated by SLiM, we provide the `read_slim` function.  Presently, the `read_slim` function is only appropriate for data produced by SLiM's outputFull() method. We do not support output in MS or VCF data format (i.e. produced by outputVCFsample() or outputMSSample() in SLiM 2.0).
 
-
-NOTE, we only allow for 0/1 mutations (figure out how to phrase this...)
+Please also note that we currently only permit for SNV data(i.e. 0/1 mutations).
 
 The `read_slim` function has three arguments:
 
-1. `file_path`: The file path of the .txt output file created by outputFull() in SLiM 2.0.
+1. `file_path`: The file path of the .txt output file created by the outputFull() method in SLiM 2.0.
 2. `keep_maf`: The largest allele frequency for retained SNVs. All variants with allele frequency greater than `keep_maf` will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R.
 3. `recomb_map`: A recombination map of the same format as the data frame returned by `create_slimMap`.  Users who followed the instructions in Section 2, may simply supply the output from `create_slimMap` as `recomb_map`.  
 
@@ -140,7 +166,7 @@ The following code demonstrates how the `read-slim` function would be called if 
 # Let's suppose the output is saved in the 
 # current working directory and is named "slimOut.txt".  
 # We import the data using the read_slim function.
-s_out <- read_slim(file_path  = slimOut.txt, 
+s_out <- read_slim(file_path  = "slimOut.txt", 
                    recomb_map = create_slimMap(hg_exons))
 
 
@@ -155,14 +181,12 @@ The `EXmut` data set represents the `Mutations` data set returned by `read_slim,
 ```{r}
 #import the EXmut dataset
 data(EXmut)
-```
 
-```{r}
 #view the first 4 observations
 head(EXmut, n = 4)
 ```
 
-The `EXmut` data frame is used to catalog the SNVs in `EXgen`.  The variable `colID` associates the rows of `Mutations` to the columns of `Genomes`, `chrom` identifies the chromosome number, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of each SNV, and `marker` is a unique identified for each SNV.
+The `EXmut` data frame is used to catalog the SNVs in `EXgen`.  The variable `colID` associates the rows of `EXmut` to the columns of `EXgen`, `chrom` identifies the chromosome number, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of each SNV, and `marker` is a unique identifier for each SNV.
 
 
 ```{r}
@@ -172,7 +196,7 @@ data(EXgen)
 #dimensions of EXgen
 dim(EXgen)
 ```
-Looking at the output above we see that there are 20,000 haplotypes which contian 192 mutations in `EXgen`.
+Looking at the output above we see that there are 20,000 haplotypes which contain 192 mutations in `EXgen`.
 
 ```{r}
 #number of rows in EXmut
@@ -185,14 +209,14 @@ Since `EXmut` catalogs the SNVs in `EXgen`, `EXmut` will have 192 rows.
 EXgen[1:15, 1:30]
 ```
 
-`EXgen` is a sparse matrix of class dgCMatrix.  Entries of `1` represent a mutated allele, while the wild type is represented as `.`.  Recall that we retain SNVs with derived allele frequency less than or equal to `keep_maf`; hence, the majority of entries represent the wild type allele.  
+`EXgen` is a sparse matrix of class dgCMatrix.  Entries of `1` represent a mutated allele, while the wild type is represented as '`.`'.  Recall that we retain SNVs with derived allele frequency less than or equal to `keep_maf`; hence, the majority of entries represent the wild type allele.  
 
 
 # 5. Select Pool of Causal Variants <a name="CausalVars"></a>
 
 Our next task is to decide which mutations will be modeled as causal variants.  Family-based studies are attractive because of their ability to detect rare causal variation.  However, even family-based studies may not identify a strong association between the disease of interest and a single gene or variant.  When this occurs, one must consider that variation in a pathway, or a set of related genes, may be sufficient to predispose individuals to disease.  We will focus on the latter approach, and note that implementation of a single causal variant is equivalent to a pathway containing a single gene with a single mutation.
 
-Consider a pseudo-apoptosis sub-pathway centered about the TNFSF10 gene based on the 25 genes that have the highest interaction with this gene in the USCS Genome Browser's Gene Interaction Tool [add citation number].  The data for this pseudo-pathway is contained in the `hg_apopPath` data set.
+Consider a pseudo-apoptosis sub-pathway centered about the TNFSF10 gene based on the 25 genes that have the highest interaction with this gene in the USCS Genome Browser's Gene Interaction Tool [5, 6, 7].  The data for this pseudo-pathway is contained in the `hg_apopPath` data set.
 
 ```{r}
 # load the hg_apopPath data
@@ -220,37 +244,41 @@ head(mutDF, n = 4)
 
 Upon supplying the `EXmut` data set and a pathway data set, such as `hg_apopPath`, to `identify_pathwaySNVs`, the variable `pathwayRV` is added to `EXmut` and marked TRUE for SNVs located in the pathway of interest.
 
-For `SimRVpedigree`'s ascertainment process to be valid we require the cumulative carrier probability of all causal rare variants to be small, i.e $\le$ 0.002 (cite Nieuwoudt 2017).  To accommodate this assumption we must create an additional variable that identifies causal variants. 
+For `SimRVpedigree`'s ascertainment process to be valid we require the probability that a random individual carries a risk allele to be small, i.e $\le$ 0.002 (cite Nieuwoudt 2017).
 
-```{r, eval = TRUE}
-# tabulate the derived allele frequency of the SNVs located in our pathway
+Consider a set of $n$ causal SNVs with derived allele frequencies $p_i, p_2, ..., p_n$, and let $p_{tot} = \sum_{i=1}^n p_i$.  For sufficiently rare SNVs, we may compute the cumulative carrier probability as $p_{tot}^2 + 2*p_{tot}(1-p_{tot})$.
+
+To satisfy the condition $p_{carrier} \le 0.002$, we require that $1 - (p{tot} - 1)^2 \le 0.002$, or that $p{tot} \le 0.001$.
+
+We will now demonstrate how users may accommodate this assumption by creating a new variable that identifies causal SNVs.
+```{r}
+# tabulate the derived allele frequencies 
+# of the SNVs located in our pathway
 table(mutDF$afreq[mutDF$pathwayRV == TRUE])
 ```
 
-The output above tabulates variants in our pathway by their derived allele frequency,  For example, our pathway contains 12 SNVs with derived allele frequency 5E-05, 9 SNVs with derived allele frequency 1E-04, and so on.
-In total, we can see that there are a variety of SNVs in our pathway to choose from.  To obtain a pool of variants with cumulative allele frequency 0.002, we could choose the SNVs in our pathway with derived allele frequency 5E-05, 1E-04, or 5E-04 to be our causal SNVs.  This could be carried out as follows.
+The output above tabulates variants in our pathway by their derived allele frequency,  For example, our pathway contains 12 SNVs with derived allele frequency 5e-05, 4 SNVs with derived allele frequency 1e-04, 13 SNVs with derived allele frequency 0.00015, and so on.  In total, we can see that there are a variety of SNVs in our pathway to choose from.
+
+To obtain a pool of variants with $p_{tot} \sim 0.001$, we could choose the 12 SNVs with derived allele frequency 5e-05, and 4 SNVs with derived allele frequency 1e-4 to be our causal SNVs, so that $p_{tot} = 12*5e-5 + 4*1e-4 = 0.001$.
 
 ```{r}
-# Create a logical variable that is TRUE for SNVs  
-# with carrier probability 5e-05, 1e-04, or 5e-04, 
-# and FALSE otherwise
-keep_RVs_cp <- mutDF$afreq %in% c(5e-05, 1e-04, 5e-04)
-
 # Create the variable 'possibleRV', which is TRUE for SNVs
-# in our pathway, with carrier proability 5e-05, 1e-04, or 5e-04;
+# in our pathway with derived allele frequncy 5e-05 or 1e-04,
 # and FALSE otherwise
-mutDF$possibleRV = ifelse(keep_RVs_cp == TRUE & mutDF$pathwayRV == TRUE,
+mutDF$possibleRV = ifelse(mutDF$afreq %in% c(5e-5, 1e-04) & 
+                            mutDF$pathwayRV == TRUE,
                           TRUE,
                           FALSE)
 
-# verify that cumulative carrier probability of causal variants is 0.002
+# verify that sum of the derived allele 
+# frequencies of causal SNVs is 0.001
 sum(mutDF$afreq[mutDF$possibleRV == TRUE])
 
 #determine the number of variants in our pool of causal variants
 sum(mutDF$possibleRV == TRUE)
 ```
 
-From the output above we see that we have selected a pool of 22 causal variants in our pathway with cumulative allele frequency 0.002. 
+From the output above we see that we have selected a pool of 16 causal variants in our pathway with a cumulative allele frequency of 0.001. 
 
 ```{r}
 #view first 4 observations of mutDF
@@ -262,8 +290,7 @@ The `sim_RVstudy` function (discussed in section 6) will use the variable `possi
 
 # 6. Pedigree Data <a name="PedSample"></a>
 
-The R package `SimRVPedigree` [3] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  For the purpose of illustration we will use the data set `EgPeds`, which is included with `SimRVPedigree` to serve as our sample of ascertained pedigrees.  To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette. 
-
+The R package `SimRVPedigree` [3] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  For the purpose of illustration we will use the `SimRVPedigree` data set `EgPeds` to serve as our sample of ascertained pedigrees.  To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette.
 
 ```{r}
 # load the SimRVPedigree library
@@ -276,6 +303,67 @@ data(EgPeds)
 head(EgPeds, n = 4)
 ```
 
+The columns displayed in the output above are described as follows:
+
+ 1. `FamID`: family identification number 
+ 2. `ID`: individual identification number
+ 3. `sex`: sex identification variable: `sex = 0` for males, and `sex = 1` females. 
+ 4. `dadID`: identification number of father
+ 5. `momID`: identification number of mother
+ 6. `affected`: affection status: `affected = TRUE` if individual has developed lymphoid cancer, and `FALSE` otherwise.
+ 7. `DA1`: paternally inherited allele at the assumed disease locus: `DA1 = 1` if the cRV is present, and `0` otherwise.
+ 8. `DA2`: maternally inherited allele at the assumed disease locus: `DA2 = 1` if the cRV is present, and `0` otherwise.
+ 9. `birthYr`: the individual's birth year.
+ 10. `onsetYr`: the individual's year of disease onset, when applicable.
+ 11. `deathYr`: the individual's year of death, when applicable.
+ 12. `RR`: the individual's relative-risk of disease.
+ 13. `available`: availability status: `available = TRUE` if individual is recalled by proband, and `FALSE` otherwise.  We note that, by default, all marry-ins are unavailable since we do not simulate life events for marry-ins.
+ 14. `Gen`: the individual's generation number relative to the eldest pedigree founder.  That is, the eldest founder will have `Gen = 1`, his or her offspring will have `Gen = 2`, etc. 
+ 15. `proband`: a proband identifier: `proband = TRUE` if the individual is the proband, and `FALSE` otherwise.
+
+[Alternatively]
+A full description of the output above can be found in the documentation and vignette for `SimRVPedigree`.
+
+To simulate sequence data we require the variables: `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.
+
+To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette.
+
+The R package `SimRVPedigree` [3] is used to simulate pedigrees ascertained for multiple disease-affected relatives. To illustrate the usage of `SimRVSequences` methods we will simulate a single pedigree using the `sim_RVped` method.
+
+```{r}
+# load the SimRVPedigree library
+library(SimRVPedigree)
+
+#Read in age-specific hazards
+data(AgeSpecific_Hazards)
+
+# Simulate pedigree ascertained for at least two disese-affected individuals, 
+# according to the age-specific hazard rates in the `AgeSpecific_Hazards` data 
+# set, ascertained from 1995 to 2015, with seed-founder birth year spanning 
+# from 1900 to 1920, stop year set to 2017, and family identification number 
+# set to 1, and with genetic relative-risk 20.
+set.seed(1960)
+library(doParallel)
+library(doRNG)
+ex_RVped <- sim_RVped(hazard_rates = hazard(hazardDF = AgeSpecific_Hazards),
+                      GRR = 20,
+                      RVfounder = TRUE,
+                      FamID = 1,
+                      founder_byears = c(1900, 1920),
+                      ascertain_span = c(1995, 2015),
+                      num_affected = 2,
+                      stop_year = 2017,
+                      recall_probs = c(1, 1, 0))[[2]]
+
+
+# Plot the ascertained pedigree (i.e. after proband selection and trimming)
+plot(ex_RVped)
+
+#View the first 4 rows of ex_ped
+head(ex_RVped, n = 4)
+```
+
+To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette.
 
 # 7. Simulate Sequence Data <a name="SimSeq"></a>
 Simulating sequence data for ascertained pedigree is achieved with `sim_RVstudy`.  The `sim_RVstudy` function has 6 arguments:
@@ -338,8 +426,11 @@ Biology and Evolution; 34(1), pp. 230-240.
   *The role of large pedigrees in an era of high-throughput sequencing*. 
   Human Genetics 131, pp. 1555-1563.
   
-[5] Karolchik, D., Hinrichs, A. S., Furey, T. S., Roskin, K. M., Sugnet, C. W., Haussler, D., and Ken, W. J. (2004). The UCSC Table Browser data retrieval tool. *Nucleic Acids Res*.
+[5] Karolchik, D., Hinrichs, A. S., Furey, T. S., Roskin, K. M., Sugnet, C. W., Haussler, D., and Ken, W. J. (2004). **The UCSC Table Browser data retrieval tool**. Nucleic Acids Res.
 
-[6] Kent, W. J., Sugnet, C. W., Furey, T. S., Roskin, K. M., Pringle, T. H., Zahler, A. M., and Haussler, D. (2002). The human genome browser at UCSC. *Genome Res*, 12(6):996-1006.
+[6] Kent, W. J., Sugnet, C. W., Furey, T. S., Roskin, K. M., Pringle, T. H., Zahler, A. M., and Haussler, D. (2002). **The human genome browser at UCSC**. *Genome Res*, 12(6):996-1006.
 
-[7] Poon, H., Quirk, C., DeZiel, C., and Heckerman, D. (2014). Literome: Pubmed-scale genomic knowledge base in the cloud. *Bioinformatics*, 30:2840-2842.
+[7] Poon, H., Quirk, C., DeZiel, C., and Heckerman, D. (2014). **Literome: Pubmed-scale genomic knowledge base in the cloud**. *Bioinformatics*, 30:2840-2842.
+
+[9] Roeland E. Voorrips, Chris A Maliepaard. (2012). **The simulation of meiosis in diploid and tetraploid organisms using various genetic models**. *BMC Bioinformatics*, 13:248.
+
