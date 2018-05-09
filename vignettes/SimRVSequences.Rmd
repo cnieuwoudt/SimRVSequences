@@ -290,17 +290,54 @@ The `sim_RVstudy` function (discussed in section 6) will use the variable `possi
 
 # 6. Pedigree Data <a name="PedSample"></a>
 
-The R package `SimRVPedigree` [3] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  For the purpose of illustration we will use the `SimRVPedigree` data set `EgPeds` to serve as our sample of ascertained pedigrees.  To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette.
+The R package `SimRVPedigree` [3] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  The following example demonstrates how users could use `SimRVPedigree` to simulate five pedigrees ascertained for multiple disease-affected relatives.  
 
-```{r}
+```{r, echo=FALSE, eval=TRUE}
+data("study_peds")
+```
+```{r, echo = TRUE, eval = FALSE}
 # load the SimRVPedigree library
 library(SimRVPedigree)
 
-# import the EgPeds dataset
-data(EgPeds)
+#Create hazard object from AgeSpecific_Hazards data
+data(AgeSpecific_Hazards)
+my_HR = hazard(AgeSpecific_Hazards)
 
-# view first 4 obsetvations of EgPeds
-head(EgPeds, n = 4)
+# load libraries needed to simulate pedigrees in parallel.
+library(doParallel)
+library(doRNG)
+
+npeds <- 5    #set the number of pedigrees to generate
+
+cl <- makeCluster(2)   # create cluster
+registerDoParallel(cl) # register cluster
+
+
+study_peds = foreach(i = seq(npeds), .combine = rbind,
+                  .packages = c("kinship2", "SimRVPedigree"),
+                  .options.RNG = 844090518
+) %dorng% {
+  # Simulate pedigrees ascertained for at least three disese-affected individuals,
+  # according to the age-specific hazard rates in the `AgeSpecific_Hazards` data
+  # set, ascertained from 1980 to 2018, with seed-founder birth year spanning
+  # from 1900 to 1920, stop year set to 2018, and with genetic relative-risk 50.
+  sim_RVped(hazard_rates = my_HR,
+            GRR = 50, FamID = i,
+            RVfounder = TRUE,
+            founder_byears = c(1900, 1920),
+            ascertain_span = c(1980, 2018),
+            stop_year = 2018,
+            recall_probs = c(1, 0.5, 0),
+            num_affected = 3)[[2]]}
+
+stopCluster(cl) #shut down cluster
+```
+```{r}
+# Plot the pedigree with FamID 1
+plot(study_peds[study_peds$FamID == 1, ])
+
+#View the first 4 rows of study_peds
+head(study_peds, n = 4)
 ```
 
 The columns displayed in the output above are described as follows:
@@ -321,47 +358,7 @@ The columns displayed in the output above are described as follows:
  14. `Gen`: the individual's generation number relative to the eldest pedigree founder.  That is, the eldest founder will have `Gen = 1`, his or her offspring will have `Gen = 2`, etc. 
  15. `proband`: a proband identifier: `proband = TRUE` if the individual is the proband, and `FALSE` otherwise.
 
-[Alternatively]
-A full description of the output above can be found in the documentation and vignette for `SimRVPedigree`.
-
-To simulate sequence data we require the variables: `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.
-
-To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette.
-
-The R package `SimRVPedigree` [3] is used to simulate pedigrees ascertained for multiple disease-affected relatives. To illustrate the usage of `SimRVSequences` methods we will simulate a single pedigree using the `sim_RVped` method.
-
-```{r}
-# load the SimRVPedigree library
-library(SimRVPedigree)
-
-#Read in age-specific hazards
-data(AgeSpecific_Hazards)
-
-# Simulate pedigree ascertained for at least two disese-affected individuals, 
-# according to the age-specific hazard rates in the `AgeSpecific_Hazards` data 
-# set, ascertained from 1995 to 2015, with seed-founder birth year spanning 
-# from 1900 to 1920, stop year set to 2017, and family identification number 
-# set to 1, and with genetic relative-risk 20.
-set.seed(1960)
-library(doParallel)
-library(doRNG)
-ex_RVped <- sim_RVped(hazard_rates = hazard(hazardDF = AgeSpecific_Hazards),
-                      GRR = 20,
-                      RVfounder = TRUE,
-                      FamID = 1,
-                      founder_byears = c(1900, 1920),
-                      ascertain_span = c(1995, 2015),
-                      num_affected = 2,
-                      stop_year = 2017,
-                      recall_probs = c(1, 1, 0))[[2]]
-
-
-# Plot the ascertained pedigree (i.e. after proband selection and trimming)
-plot(ex_RVped)
-
-#View the first 4 rows of ex_ped
-head(ex_RVped, n = 4)
-```
+Not all of the variables above are required to simulate sequence data; the required variables are: `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.
 
 To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette.
 
@@ -379,7 +376,7 @@ Assuming users have followed the steps outlined in the previous sections, we may
 
 ```{r}
 # simualte sequence using sim_RVstudy
-study_seq <- sim_RVstudy(ped_files = EgPeds, 
+study_seq <- sim_RVstudy(ped_files = study_peds, 
                          marker_map = mutDF,
                          haplotype_dist = EXgen)
 
