@@ -10,7 +10,7 @@ sim_RVseq(ped_file, founder_genos, marker_map, chrom_map, RV_marker,
 \arguments{
 \item{ped_file}{Data frame. Must match format of pedigree simulated by sim_RVped}
 
-\item{founder_genos}{Dataframe.  A dataframe with rows corresponding to founders, and colums corresponding to markers.  Markers must be listed in same order as \code{marker_map}.}
+\item{founder_genos}{Dataframe.  A dataframe with rows corresponding to founders, and columns corresponding to markers.  Markers must be listed in same order as \code{marker_map}.}
 
 \item{marker_map}{Dataframe. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
 
