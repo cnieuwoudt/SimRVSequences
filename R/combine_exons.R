@@ -1,7 +1,6 @@
 #' Combine overlapping exons into a single observation
 #'
 #' @param exon_data The exon data to combine.  This data must unclude named variables: 'chrom', a chromosome identifer; 'exonStart', the first position of the exon in base pairs; and 'exonEnd', the last position of the exon in base pairs.
-#' @param zero_start. Logical.  \code{zero_start = TRUE} if the first position is 0-based, and \code{zero_start = FALSE} if the first position is 1-based.
 #'
 #' @return A matrix of exon unions, i.e. non-overlapping observations, by chromosome.
 #' @export
@@ -17,9 +16,9 @@
 #'
 #' # supply exDat to combine_exons to combine overlapping segments
 #' # into a single observation.
-#' combine_exons(t1)
+#' combine_exons(exDat)
 #'
-combine_exons <- function(exon_data, zero_start = FALSE){
+combine_exons <- function(exon_data){
 
   #check to see if exon_data contains the three named
   #columns we require to combine exons
