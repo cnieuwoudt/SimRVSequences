@@ -187,3 +187,42 @@ convert_BP_to_cM <- function(pos_BP){ pos_BP/1000000 }
 #' @export
 #'
 convert_CM_to_BP <- function(pos_CM){ pos_CM*1000000 }
+
+
+#' Assign generation number based on oldest founder
+#'
+#' @param x an object of class ped
+#'
+#' @return a list of generation numbers for pedigree members, in the order listed in \code{x}.
+#' @importFrom kinship2 kindepth
+#' @importFrom SimRVPedigree ped2pedigree
+#' @importFrom SimRVPedigree new.ped
+#' @export
+assign_gen <- function(x){
+  # create a ped object
+  # this will also check to see that
+  # all required fields are present
+  # i.e. FamID, ID, dadID, momID, sex, and affected
+  x <- new.ped(x)
+
+  Gen <- NA
+  mates <- cbind(x$dadID, x$momID)
+  #remove all rows with only zeros, these are founders
+  mates <- unique(mates)
+  mates <- mates[!is.na(mates[, 1]), ]
+
+  #get kindepth and set Gen to kindepth when kindepth is non-zero
+  kd <- kindepth(ped2pedigree(x))
+  Gen[kd != 0] <- kd[kd != 0]
+
+  if(class(mates) == "matrix"){
+    for(i in 1:nrow(mates)){
+      mate_gens <-  kd[x$ID %in% mates[i, ]]
+      Gen[x$ID %in% mates[i, ]] <- max(mate_gens)
+    }
+  } else {
+    Gen[x$ID %in% mates] <- 0
+  }
+
+  return(Gen + 1)
+}
