@@ -73,12 +73,11 @@ test_that("reconstruct_fromHaplotype contains the correct number of swaps", {
                                                      REDchrom_map = C1map)
 
 
-  inherit_hap
-  event_loc
-  inherited_genomic_seq
-  rle(as.numeric(inherit_hap))$values
-  rle(as.numeric(inherited_genomic_seq))$values
-
+  # inherit_hap
+  # event_loc
+  # inherited_genomic_seq
+  # rle(as.numeric(inherit_hap))$values
+  # rle(as.numeric(inherited_genomic_seq))$values
 
   expect_equal(rle(as.numeric(inherit_hap))$values, rle(as.numeric(inherited_genomic_seq))$values)
 
