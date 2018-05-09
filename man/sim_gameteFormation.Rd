@@ -27,13 +27,13 @@ A list containing the following:
 Simulate formation of gametes. \strong{This function will likely become an internal function}.
 }
 \examples{
-data(hg_chrom)
-my_chrom_map = hg_chrom
+my_chrom_map <- data.frame(chrom = c(1, 2, 3),
+                           start_pos = c(0, 0, 0),
+                           end_pos  = c(248956422, 242193529, 198295559))
 my_chrom_map$start_pos = convert_BP_to_cM(my_chrom_map$start_pos)
 my_chrom_map$end_pos = convert_BP_to_cM(my_chrom_map$end_pos)
-my_chrom_map$center = convert_BP_to_cM(my_chrom_map$center)
 
-sim_gameteFormation(my_chrom_map, allele_IDs = c(0, 1))
+sim_gameteFormation(my_chrom_map, allele_IDs = c(1, 2))
 sim_gameteFormation(my_chrom_map, allele_IDs = c("a", "b"))
 
 \dontrun{
