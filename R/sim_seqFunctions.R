@@ -19,11 +19,16 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
                                       chiasmata_locations,
                                       REDchrom_map){
 
-  if (length(chiasmata_locations) > 0){
+  # reduce chiasmata_locations to the chiasmata that
+  # the haplotypes participated in
+  cross_loc <- reduce_to_events(as.numeric(inherited_haplotype), chiasmata_locations)
+
+
+  if (length(cross_loc) > 0){
 
     #determine which inherited haplotype participated in chiasmata
     switch_alleles_loc <- c(REDchrom_map$start_pos,
-                            reduce_to_events(as.numeric(inherited_haplotype), chiasmata_locations),
+                            cross_loc,
                             REDchrom_map$end_pos + 1) #1 added here in case of marker at end of chromosome
 
     #determine first allele ID in inherited_haplotype
@@ -41,11 +46,16 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
       #determine the columns that need to be swapped
       swap_cols <- which(Cmarker_map$position >= start_switch & Cmarker_map$position < end_switch)
 
-      #switch alleles between crossovers
-      offspring_seq[, swap_cols] <- parental_genotypes[switch_alle, swap_cols]
+      #Occasionally, there is no marker data to swap since markers may be far apart
+      #when this occurs length(swap_cols) = 0. When this is the case we do nothing.
+      if (length(swap_cols) > 0) {
+        #switch alleles between crossovers
+        offspring_seq[swap_cols] <- parental_genotypes[switch_alle, swap_cols]
+      }
+
     }
   } else {
-    offspring_seq <- parental_genotypes[inherited_haplotype[1], ]
+    offspring_seq <- parental_genotypes[as.numeric(inherited_haplotype[1]), ]
   }
 
   return(offspring_seq)
@@ -57,7 +67,7 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #' @param ped_file Data frame. Must match format of pedigree simulated by sim_RVped
 #' @param marker_map Dataframe. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
 #' @param RV_marker character. The marker name of the RV locus.
-#' @param founder_genos Dataframe.  A dataframe with rows corresponding to founders, and colums corresponding to markers.  Markers must be listed in same order as \code{marker_map}.
+#' @param founder_genos Dataframe.  A dataframe with rows corresponding to founders, and columns corresponding to markers.  Markers must be listed in same order as \code{marker_map}.
 #'
 #' @return offspring_sequences
 #' @export
