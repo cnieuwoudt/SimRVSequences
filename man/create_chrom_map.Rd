@@ -15,4 +15,3 @@ a dataframe catalouging the start and stop positions, in base pairs, for each ch
 \description{
 Create chromosome map from marker map
 }
-\keyword{internal}

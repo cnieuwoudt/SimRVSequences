@@ -3,7 +3,7 @@
 #' @inheritParams sim_RVstudy
 #'
 #' @return a dataframe catalouging the start and stop positions, in base pairs, for each chromosome.  We use this information to determine what regions to simulate recombination over.
-#' @keywords internal
+#' @export
 create_chrom_map <- function(marker_map){
   chrom_map <- do.call(rbind, lapply(sort(unique(marker_map$chrom)), function(x){
     c(x, range(marker_map$position[marker_map$chrom == x]))
