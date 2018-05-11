@@ -5,7 +5,7 @@
 #' Prior to running this function, for each chromosome, we have a coded sequence (i.e. c(1, 2, 1)) and a list of crossover points (i.e. c(45, 100)). This data would indicate that the offspring inherts all genetic data from the start postion to postion 45 of the parent's 1st haplotype, then all genetic data after position 45 up to postion 100 from the 2nd haplotype, and all genetic data after postion 100 from the 1st haplotype.  This function completes that task.
 #'
 #' @param parental_genotypes The parental genotype sequence information.
-#' @param Cmarker_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosome that the marker resides on, column 3: the position of the marker in cM.
+#' @param CSNV_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosome that the marker resides on, column 3: the position of the marker in cM.
 #' @param inherited_haplotype The coded haplotype sequence, which indiciates the haplotype that the data will come from.
 #' @param chiasmata_locations A list of crossover locations.
 #' @param REDchrom_map Data.frame.  The chromosome map, reduced to the chromosome in question.
@@ -14,7 +14,7 @@
 #' @export
 #'
 reconstruct_fromHaplotype <- function(parental_genotypes,
-                                      Cmarker_map,
+                                      CSNV_map,
                                       inherited_haplotype,
                                       chiasmata_locations,
                                       REDchrom_map){
@@ -44,7 +44,7 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
       end_switch <- switch_alleles_loc[2*i]
 
       #determine the columns that need to be swapped
-      swap_cols <- which(Cmarker_map$position >= start_switch & Cmarker_map$position < end_switch)
+      swap_cols <- which(CSNV_map$position >= start_switch & CSNV_map$position < end_switch)
 
       #Occasionally, there is no marker data to swap since markers may be far apart
       #when this occurs length(swap_cols) = 0. When this is the case we do nothing.
@@ -65,9 +65,9 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #'
 #' @inheritParams sim_gameteInheritance
 #' @param ped_file Data frame. Must match format of pedigree simulated by sim_RVped
-#' @param marker_map Dataframe. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
+#' @param SNV_map Dataframe. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
 #' @param RV_marker character. The marker name of the RV locus.
-#' @param founder_genos Dataframe.  A dataframe with rows corresponding to founders, and columns corresponding to markers.  Markers must be listed in same order as \code{marker_map}.
+#' @param founder_genos Dataframe.  A dataframe with rows corresponding to founders, and columns corresponding to markers.  Markers must be listed in same order as \code{SNV_map}.
 #'
 #' @return offspring_sequences
 #' @export
@@ -76,7 +76,7 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #' #FIND SHORT WORKING EXAMPLE
 #'
 sim_RVseq <- function(ped_file, founder_genos,
-                      marker_map, chrom_map, RV_marker,
+                      SNV_map, chrom_map, RV_marker,
                       burn_in = 1000, gamma_params = c(2.63, 2.63/0.5)){
 
   #Get parent/offspring information
@@ -93,8 +93,8 @@ sim_RVseq <- function(ped_file, founder_genos,
   for (i in 1:nrow(PO_info)) {
     #determine the chromosome number and location of the familial RV locus
     #then store as a dataframe with chrom in the first column
-    RVL <- marker_map[which(marker_map$marker == RV_marker),
-                      which(colnames(marker_map) %in% c("chrom", "position"))]
+    RVL <- SNV_map[which(SNV_map$marker == RV_marker),
+                      which(colnames(SNV_map) %in% c("chrom", "position"))]
 
     if(colnames(RVL[1]) != "chrom"){
       RVL <- RVL[, c(2, 1)]
@@ -113,8 +113,8 @@ sim_RVseq <- function(ped_file, founder_genos,
                        function(x){
                          reconstruct_fromHaplotype(parental_genotypes =
                                                      ped_genos[which(ped_geno_IDs == PO_info[i, 4]),
-                                                                        which(marker_map$chrom == chrom_map$chrom[x])],
-                                                   Cmarker_map = marker_map[which(marker_map$chrom == chrom_map$chrom[x]),],
+                                                                        which(SNV_map$chrom == chrom_map$chrom[x])],
+                                                   CSNV_map = SNV_map[which(SNV_map$chrom == chrom_map$chrom[x]),],
                                                    inherited_haplotype = loop_gams$haplotypes[[x]],
                                                    chiasmata_locations = loop_gams$cross_locations[[x]],
                                                    REDchrom_map = chrom_map[x, ])

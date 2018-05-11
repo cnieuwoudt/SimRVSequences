@@ -4,15 +4,15 @@
 \alias{sim_RVseq}
 \title{Simulate sequence data for a pedigree}
 \usage{
-sim_RVseq(ped_file, founder_genos, marker_map, chrom_map, RV_marker,
+sim_RVseq(ped_file, founder_genos, SNV_map, chrom_map, RV_marker,
   burn_in = 1000, gamma_params = c(2.63, 2.63/0.5))
 }
 \arguments{
 \item{ped_file}{Data frame. Must match format of pedigree simulated by sim_RVped}
 
-\item{founder_genos}{Dataframe.  A dataframe with rows corresponding to founders, and columns corresponding to markers.  Markers must be listed in same order as \code{marker_map}.}
+\item{founder_genos}{Dataframe.  A dataframe with rows corresponding to founders, and columns corresponding to markers.  Markers must be listed in same order as \code{SNV_map}.}
 
-\item{marker_map}{Dataframe. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
+\item{SNV_map}{Dataframe. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
 
 \item{chrom_map}{Data.frame.  A data.frame consisting of three columns: column 1 contains the chromosome numbers, column 2 start postion of chromosome (in cM), column 3 end position of chromosome (in cM).}
 

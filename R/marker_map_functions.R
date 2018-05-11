@@ -4,9 +4,9 @@
 #'
 #' @return a dataframe catalouging the start and stop positions, in base pairs, for each chromosome.  We use this information to determine what regions to simulate recombination over.
 #' @export
-create_chrom_map <- function(marker_map){
-  chrom_map <- do.call(rbind, lapply(sort(unique(marker_map$chrom)), function(x){
-    c(x, range(marker_map$position[marker_map$chrom == x]))
+create_chrom_map <- function(SNV_map){
+  chrom_map <- do.call(rbind, lapply(sort(unique(SNV_map$chrom)), function(x){
+    c(x, range(SNV_map$position[SNV_map$chrom == x]))
   }))
 
   chrom_map <- as.data.frame(chrom_map)
@@ -15,45 +15,45 @@ create_chrom_map <- function(marker_map){
 }
 
 
-#' Check marker_map for possible issues
+#' Check SNV_map for possible issues
 #'
 #' @inheritParams sim_RVstudy
 #' @keywords internal
 #'
-check_marker_map <- function(marker_map){
-  #check to see if marker_map contains the column information we expect
+check_SNV_map <- function(SNV_map){
+  #check to see if SNV_map contains the column information we expect
   # and check to see if we have any missing values.
 
   ## Check colID variable
-  if(!c("colID") %in% colnames(marker_map)){
-    stop("The variable 'colID' is missing from marker_map.")
+  if(!c("colID") %in% colnames(SNV_map)){
+    stop("The variable 'colID' is missing from SNV_map.")
   }
-  if(any(is.na(marker_map$colID))){
-    stop("The variable 'colID' in the marker_map dataset contains missing values.")
+  if(any(is.na(SNV_map$colID))){
+    stop("The variable 'colID' in the SNV_map dataset contains missing values.")
   }
 
   ## Check chrom variable
-  if(!c("chrom") %in% colnames(marker_map)){
-    stop("The variable 'chrom' is missing from marker_map.")
+  if(!c("chrom") %in% colnames(SNV_map)){
+    stop("The variable 'chrom' is missing from SNV_map.")
   }
-  if(any(is.na(marker_map$chrom))){
-    stop("The variable 'chrom' in the marker_map dataset contains missing values.")
+  if(any(is.na(SNV_map$chrom))){
+    stop("The variable 'chrom' in the SNV_map dataset contains missing values.")
   }
 
   ## Check position variable
-  if(!c("position") %in% colnames(marker_map)){
-    stop("The variable 'position' is missing from marker_map.")
+  if(!c("position") %in% colnames(SNV_map)){
+    stop("The variable 'position' is missing from SNV_map.")
   }
-  if(any(is.na(marker_map$position))){
-    stop("The variable 'position' in the marker_map dataset contains missing values.")
+  if(any(is.na(SNV_map$position))){
+    stop("The variable 'position' in the SNV_map dataset contains missing values.")
   }
 
   ## Check marker variable
-  if(!c("marker") %in% colnames(marker_map)){
-    stop("The variable 'marker' is missing from marker_map.")
+  if(!c("marker") %in% colnames(SNV_map)){
+    stop("The variable 'marker' is missing from SNV_map.")
   }
-  if(any(is.na(marker_map$marker))){
-    stop("The variable 'marker' in the marker_map dataset contains missing values.")
+  if(any(is.na(SNV_map$marker))){
+    stop("The variable 'marker' in the SNV_map dataset contains missing values.")
   }
 
 }

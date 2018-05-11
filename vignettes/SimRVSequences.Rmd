@@ -216,7 +216,7 @@ EXgen[1:15, 1:30]
 
 Our next task is to decide which mutations will be modeled as causal variants.  Family-based studies are attractive because of their ability to detect rare causal variation.  However, even family-based studies may not identify a strong association between the disease of interest and a single gene or variant.  When this occurs, one must consider that variation in a pathway, or a set of related genes, may be sufficient to predispose individuals to disease.  We will focus on the latter approach, and note that implementation of a single causal variant is equivalent to a pathway containing a single gene with a single mutation.
 
-Consider a pseudo-apoptosis sub-pathway centered about the TNFSF10 gene based on the 25 genes that have the highest interaction with this gene in the USCS Genome Browser's Gene Interaction Tool [5, 6, 7].  The data for this pseudo-pathway is contained in the `hg_apopPath` data set.
+Consider a pseudo-apoptosis sub-pathway centered about the TNFSF10 gene based on the 25 genes that have the highest interaction with this gene in the UCSC Genome Browser's Gene Interaction Tool [5, 6, 7].  The data for this pseudo-pathway is contained in the `hg_apopPath` data set.
 
 ```{r}
 # load the hg_apopPath data
@@ -365,36 +365,53 @@ To learn more about simulating pedigrees with `SimRVPedigree` please refer to `S
 # 7. Simulate Sequence Data <a name="SimSeq"></a>
 Simulating sequence data for ascertained pedigree is achieved with `sim_RVstudy`.  The `sim_RVstudy` function has 6 arguments:
 
-1. `ped_files` A data frame containing study pedigrees.
-2. `marker_map` A data frame of SNV data.
-3. `haplotype_dist` Genotype data
+1. `ped_files` A data frame of pedigrees, which must contain the variables:  `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`. See Section 6 on simulating pedigrees for more details.
+3. `haplos` A sparse matrix of genotype data, which is assumed to be of the same format as `EXgen`.
+2. `SNV_map` A data frame cataloging the SNV data in `haplos`. This is assumed to be of the same format as `EXmut`. 
 4. `affected_only` a logical variable.  When `affected_only = TRUE`, data is only simulated for affected individuals and the family members that connect them.  When `affected_only = FALSE` sequence data is simulated for the entire pedigree. By default, `affected_only = TRUE`.
-5. `gamma_params` describe.... By default, `gamma_params = c(4/7, 2)`.
-6. `burn-in` describe...  By default, `burn_in = 1000`.
+5. `gamma_params` The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, `gamma_params = c(2.63, 2.63/0.5)`, as in [9].
+6. `burn-in` The burn in distance in cM, used to simulate first chiasmata location. By default, `burn_in = 1000`, as in [9].
 
 Assuming users have followed the steps outlined in the previous sections, we may call `sim_RVstudy` as follows.
 
 ```{r}
+set.seed(1)
 # simualte sequence using sim_RVstudy
 study_seq <- sim_RVstudy(ped_files = study_peds, 
-                         marker_map = mutDF,
-                         haplotype_dist = EXgen)
+                         SNV_map = mutDF,
+                         haplos = EXgen)
 
 # view summary of output
 summary(study_seq)
-
 ```
 
-From the above output we see that `sim_RVstudy` returns two items: a sparse matrix named `ped_genos` and a data frame named `geno_map`.   
+From the above output we see that `sim_RVstudy` returns three items: a sparse matrix named `ped_genos`, a data frame named `geno_map`, and a data frame named `SNV_map`.   
 
 
 ```{r}
-# view part of ped_genos
-study_seq$ped_genos[1:15, 1:30]
-
+#View the first 15 haplotypes in ped_genos
+study_seq$ped_genos[1:15, ]
 ```
 
-The `ped_genos` output contains the haplotypes for the  individuals in `ped_files`.  If `affected_only = TRUE`, this matrix will contain data for affected individuals and obligate carriers only.  If `affected_only = FALSE` `ped_genos` contains the haplotype data for all individuals in `ped_files`.  The data for founding individuals is drawn from `haplotype_dist`.  The data for non-carriers is obtained by preferential gene-drop (cite paper2 preprint).
+The `ped_genos` output contains the haplotypes for the  individuals in `ped_files`.  If `affected_only = TRUE`, this matrix will contain data for affected individuals and individuals who connect them.  If `affected_only = FALSE` `ped_genos` contains the haplotype data for all individuals in `ped_files`.
+
+```{r}
+#Determine the dimensions of ped_genos
+dim(study_seq$ped_genos)
+
+#Determine the dimensions of EXgen
+dim(EXgen)
+```
+
+
+Notice also that the number of columns (i.e. mutations) in `ped_genos` is far less than the number of columns in `EXgen`.  This is because with the `remove_wild` setting we remove superfluous markers from our data.  That is, when no one in our study carries a mutated allele at a SNV location, we remove the marker from the data.
+
+```{r}
+#View the first 4 observations in SNV_map
+head(study_seq$SNV_map, n = 4)
+```
+
+
 
 ```{r}
 # view the first observations in geno_map

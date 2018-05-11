@@ -37,7 +37,7 @@ test_that("reconstruct_fromHaplotype returns an identical sequence when no cross
   #reconstruct the offspring sequence given the locations of crossovers
   #and the participating haplotype sequences.
   inherited_genomic_seq <- reconstruct_fromHaplotype(parental_genotypes = parent_hap,
-                                                     Cmarker_map = C1mut,
+                                                     CSNV_map = C1mut,
                                                      inherited_haplotype = inherit_hap,
                                                      chiasmata_locations = event_loc,
                                                      REDchrom_map = C1map)
@@ -68,7 +68,7 @@ test_that("reconstruct_fromHaplotype contains the correct number of swaps", {
                                     nrow = 2, byrow = TRUE))
 
   inherited_genomic_seq <- reconstruct_fromHaplotype(parental_genotypes = parent_hap,
-                                                     Cmarker_map = C1mut,
+                                                     CSNV_map = C1mut,
                                                      inherited_haplotype = inherit_hap,
                                                      chiasmata_locations = event_loc,
                                                      REDchrom_map = C1map)
@@ -124,7 +124,7 @@ test_that("reconstruct_fromHaplotype can handle superfluous swaps, i.e. multiple
   cross_loc <- event_loc[cumsum(rl[-length(rl)])]
 
   inherited_genomic_seq <- reconstruct_fromHaplotype(parental_genotypes = parent_hap,
-                                                     Cmarker_map = C1mut,
+                                                     CSNV_map = C1mut,
                                                      inherited_haplotype = inherit_hap,
                                                      chiasmata_locations = event_loc,
                                                      REDchrom_map = C1map)

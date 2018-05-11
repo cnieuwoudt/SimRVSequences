@@ -4,20 +4,20 @@
 \alias{sim_RVstudy}
 \title{Simulate sequence data for a study}
 \usage{
-sim_RVstudy(ped_files, marker_map, haplotype_dist, affected_only = TRUE,
+sim_RVstudy(ped_files, SNV_map, haplos, affected_only = TRUE,
   convert_to_cM = TRUE, remove_wild = TRUE, burn_in = 1000,
   gamma_params = c(2.63, 2.63/0.5))
 }
 \arguments{
 \item{ped_files}{Data frame. Must match format of pedigree simulated by sim_RVped}
 
-\item{marker_map}{Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
+\item{SNV_map}{Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
 
-\item{haplotype_dist}{sparseMatrix. The genomes matrix returned by \code{read_slim}.  Mutations in haplotype_dist are described in \code{marker_map}.}
+\item{haplos}{sparseMatrix. The genomes matrix returned by \code{read_slim}.  Mutations in haplos are described in \code{SNV_map}.}
 
 \item{affected_only}{Logical. When \code{affected_only = TRUE} pedigrees are reduced contain only diesease-affected relatives, their parents, and any obligate carriers or founders; sequence data is simulated only for retained family memebres. When \code{affected_only = FALSE} sequence data is simulated for all.  By default, \code{affected_only = TRUE}.}
 
-\item{convert_to_cM}{Logical. The setting \code{convert_to_cM = TRUE} must be used if genomic positions are given in base pairs.  If the genomic postions in \code{marker_map} are listed in centiMorgan, please set \code{convert_to_cM = FALSE}.  By default, \code{convert_to_cM = TRUE}.}
+\item{convert_to_cM}{Logical. The setting \code{convert_to_cM = TRUE} must be used if genomic positions are given in base pairs.  If the genomic postions in \code{SNV_map} are listed in centiMorgan, please set \code{convert_to_cM = FALSE}.  By default, \code{convert_to_cM = TRUE}.}
 
 \item{remove_wild}{Logical. Should markers at which no member of study carry a mutated allele be removed from the data. By default, \code{remove_wild = TRUE}.}
 
@@ -44,8 +44,8 @@ markers$possibleRV = FALSE
 markers$possibleRV[1] = TRUE
 
 seqDat = sim_RVstudy(ped_files = EgPeds,
-                     marker_map = markers,
-                     haplotype_dist = EXgen)
+                     SNV_map = markers,
+                     haplos = EXgen)
 
 summary(seqDat)
 
