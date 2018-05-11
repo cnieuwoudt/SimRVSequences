@@ -47,6 +47,49 @@ sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
   return(list(founder_genos, founder_genos_ID))
 }
 
+#' Remove markers at which all individuals carry wild type allele
+#'
+#' @param f_haps The founder haplotypes data. This is a list of lists (by family). By family, this contains the haplotypes for each founder (first item), and a list of ID numbers (second item) which is used to map the haplotype to the person to whom it belongs.
+#' @param marker_map data.frame. Catalogs the SNV data contained in the familial haplotypes.
+#'
+#' @return A list (by family) of haplotype matrices and ID vectors and the reduce marker data set.
+#' @importFrom Matrix colSums
+#' @export
+#'
+#' @examples
+#' #probably no examples
+#'
+remove_allWild <- function(f_haps, marker_map){
+
+  #determine which columns are all zero in founder haplotype data.
+  #These are markers at which no one in ped_files will carry a SNV
+  #(i.e. all family members will carry the wild type allele) since no
+  #founders have mutated alleles to pass on.
+  #We will reduce the size of the data by removing these superfluous
+
+  #Determine all wild columns by family
+  wild_col <- lapply(f_haps, function(x){
+    which(colSums(x[[1]]) == 0)
+  })
+
+  #determine all wild columns overall - by study
+  remove_cols <- Reduce(intersect, wild_col)
+
+  #remove all wild columns from founder haplotypes
+  red_haps <- lapply(f_haps, function(x){
+    list(x[[1]][, -remove_cols],
+         x[[2]])
+  })
+
+  #remove all wild columns from marker_map
+  #RECALL: rows of marker_map are columns in haplotype data
+  marker_map <- marker_map[-remove_cols, ]
+  marker_map$colID <- seq(1:nrow(marker_map))
+  row.names(marker_map) = NULL
+
+  return(list(red_haps, marker_map))
+}
+
 #' Simulate sequence data for a study
 #'
 #' @inheritParams sim_RVseq
@@ -55,6 +98,7 @@ sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
 #' @param haplotype_dist sparseMatrix. The genomes matrix returned by \code{read_slim}.  Mutations in haplotype_dist are described in \code{marker_map}.
 #' @param affected_only Logical. When \code{affected_only = TRUE} pedigrees are reduced contain only diesease-affected relatives, their parents, and any obligate carriers or founders; sequence data is simulated only for retained family memebres. When \code{affected_only = FALSE} sequence data is simulated for all.  By default, \code{affected_only = TRUE}.
 #' @param convert_to_cM Logical. The setting \code{convert_to_cM = TRUE} must be used if genomic positions are given in base pairs.  If the genomic postions in \code{marker_map} are listed in centiMorgan, please set \code{convert_to_cM = FALSE}.  By default, \code{convert_to_cM = TRUE}.
+#' @param remove_wild Logical. Should markers at which no member of study carry a mutated allele be removed from the data. By default, \code{remove_wild = TRUE}.
 #'
 #' @return study_sequences
 #' @export
@@ -81,6 +125,7 @@ sim_RVstudy <- function(ped_files, marker_map,
                         haplotype_dist,
                         affected_only = TRUE,
                         convert_to_cM = TRUE,
+                        remove_wild = TRUE,
                         burn_in = 1000,
                         gamma_params = c(2.63, 2.63/0.5)){
 
@@ -133,6 +178,14 @@ sim_RVstudy <- function(ped_files, marker_map,
                haplotype_dist, RV_col_loc = which(marker_map$marker == Fam_RVs[x]))
   })
 
+  #If desired by user, we now reduce the size of the data by removing
+  #markers at which no member of our study carries a mutated allele.
+  if (remove_wild) {
+    reduced_dat <- remove_allWild(f_haps = f_genos, marker_map)
+    f_genos <- reduced_dat[[1]]
+    marker_map <- reduced_dat[[2]]
+  }
+
   #simulate non-founder haploypes via conditional gene drop
   ped_seqs <- lapply(c(1:length(FamIDs)), function(x){
     sim_RVseq(ped_file = ped_files[ped_files$FamID == FamIDs[x], ],
@@ -145,12 +198,5 @@ sim_RVstudy <- function(ped_files, marker_map,
   ped_genos <- do.call("rbind", lapply(ped_seqs, function(x){x$ped_genos}))
   geno_map <- do.call("rbind", lapply(ped_seqs, function(x){x$geno_map}))
 
-
-  # #return data for affecteds only
-  # if (affected_only) {
-  #   study_sequenceDat <- study_sequenceDat[which(study_sequenceDat$affected == 1), ]
-  #   #study_sequenceDat <- study_sequenceDat[, -which(colnames(study_sequenceDat) == "affected")]
-  # }
-
-  return(list(ped_genos = ped_genos, geno_map = geno_map))
+  return(list(ped_genos = ped_genos, geno_map = geno_map, SNV_map = marker_map))
 }

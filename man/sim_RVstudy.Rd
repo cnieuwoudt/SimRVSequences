@@ -5,7 +5,8 @@
 \title{Simulate sequence data for a study}
 \usage{
 sim_RVstudy(ped_files, marker_map, haplotype_dist, affected_only = TRUE,
-  convert_to_cM = TRUE, burn_in = 1000, gamma_params = c(2.63, 2.63/0.5))
+  convert_to_cM = TRUE, remove_wild = TRUE, burn_in = 1000,
+  gamma_params = c(2.63, 2.63/0.5))
 }
 \arguments{
 \item{ped_files}{Data frame. Must match format of pedigree simulated by sim_RVped}
@@ -17,6 +18,8 @@ sim_RVstudy(ped_files, marker_map, haplotype_dist, affected_only = TRUE,
 \item{affected_only}{Logical. When \code{affected_only = TRUE} pedigrees are reduced contain only diesease-affected relatives, their parents, and any obligate carriers or founders; sequence data is simulated only for retained family memebres. When \code{affected_only = FALSE} sequence data is simulated for all.  By default, \code{affected_only = TRUE}.}
 
 \item{convert_to_cM}{Logical. The setting \code{convert_to_cM = TRUE} must be used if genomic positions are given in base pairs.  If the genomic postions in \code{marker_map} are listed in centiMorgan, please set \code{convert_to_cM = FALSE}.  By default, \code{convert_to_cM = TRUE}.}
+
+\item{remove_wild}{Logical. Should markers at which no member of study carry a mutated allele be removed from the data. By default, \code{remove_wild = TRUE}.}
 
 \item{burn_in}{Numeric. The burn in distance in cM. By default, \code{burn_in = 1000}.}
 
