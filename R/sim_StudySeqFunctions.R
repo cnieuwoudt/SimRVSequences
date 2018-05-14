@@ -112,8 +112,8 @@ remove_allWild <- function(f_haps, SNV_map){
 #' data(EXgen)
 #'
 #' markers = EXmut
-#' markers$possibleRV = FALSE
-#' markers$possibleRV[1] = TRUE
+#' markers$possibleSNV = FALSE
+#' markers$possibleSNV[1] = TRUE
 #'
 #' seqDat = sim_RVstudy(ped_files = EgPeds,
 #'                      SNV_map = markers,
@@ -132,19 +132,6 @@ sim_RVstudy <- function(ped_files, SNV_map,
   #check SNV_map for possible issues
   check_SNV_map(SNV_map)
 
-  #create chrom_map, this is used to determine where we need to
-  #simulate recombination
-  chrom_map <- create_chrom_map(SNV_map)
-
-  #convert from base pairs to centiMorgan
-  if (convert_to_cM) {
-    options(digits = 9)
-    chrom_map$start_pos <- convert_BP_to_cM(chrom_map$start_pos)
-    chrom_map$end_pos <- convert_BP_to_cM(chrom_map$end_pos)
-
-    SNV_map$position <- convert_BP_to_cM(SNV_map$position)
-  }
-
   FamIDs <- unique(ped_files$FamID)
   #reduce to affected only pedigrees unless otherwise specified
   if (affected_only) {
@@ -157,8 +144,7 @@ sim_RVstudy <- function(ped_files, SNV_map,
 
   #sampling from RV markers
   #to determine familial RV locus
-  Fam_RVs <- sample(x = SNV_map$marker[SNV_map$possibleRV],
-                    #prob = SNV_map$probCausal,
+  Fam_RVs <- sample(x = SNV_map$marker[SNV_map$possibleSNV],
                     size = length(FamIDs),
                     replace = TRUE)
 
@@ -184,6 +170,20 @@ sim_RVstudy <- function(ped_files, SNV_map,
     reduced_dat <- remove_allWild(f_haps = f_genos, SNV_map)
     f_genos <- reduced_dat[[1]]
     SNV_map <- reduced_dat[[2]]
+
+  }
+
+  #create chrom_map, this is used to determine where we need to
+  #simulate recombination
+  chrom_map <- create_chrom_map(SNV_map)
+
+  #convert from base pairs to centiMorgan
+  if (convert_to_cM) {
+    options(digits = 9)
+    chrom_map$start_pos <- convert_BP_to_cM(chrom_map$start_pos)
+    chrom_map$end_pos <- convert_BP_to_cM(chrom_map$end_pos)
+
+    SNV_map$position <- convert_BP_to_cM(SNV_map$position)
   }
 
   #simulate non-founder haploypes via conditional gene drop

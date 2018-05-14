@@ -10,6 +10,8 @@
 #' @param chiasmata_locations A list of crossover locations.
 #' @param REDchrom_map Data.frame.  The chromosome map, reduced to the chromosome in question.
 #'
+#' @importFrom Matrix colSums
+#'
 #' @return offspring_seq. The genetic data that the offspring inherits from this parent.  This will be a recombined sequence.
 #' @export
 #'
@@ -23,8 +25,22 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
   # the haplotypes participated in
   cross_loc <- reduce_to_events(as.numeric(inherited_haplotype), chiasmata_locations)
 
+  if (class(parental_genotypes) == "numeric"){
+    #If parental haplotype is of length 1, we return the inherited haplotype
+    offspring_seq <- parental_genotypes[as.numeric(inherited_haplotype[1])]
 
-  if (length(cross_loc) > 0){
+  } else if (all(colSums(parental_genotypes) == 0) | length(cross_loc) == 0) {
+    #if parental haplotypes types do not contain any SNVs (for this chrom)
+    #we can return either of the two original parental haplotypes
+    #as they will remain unchanged after recombination
+    #
+    #If parental haplotypes do not participate in recombination events
+    #we return the inherited haplotype
+    offspring_seq <- parental_genotypes[as.numeric(inherited_haplotype[1]), ]
+
+  } else if (length(cross_loc) > 0){
+    #This is the non-trival case. i.e. more than 1 SNV on the chrom
+    #with crossovers
 
     #determine which inherited haplotype participated in chiasmata
     switch_alleles_loc <- c(REDchrom_map$start_pos,
@@ -52,10 +68,8 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
         #switch alleles between crossovers
         offspring_seq[swap_cols] <- parental_genotypes[switch_alle, swap_cols]
       }
-
     }
-  } else {
-    offspring_seq <- parental_genotypes[as.numeric(inherited_haplotype[1]), ]
+
   }
 
   return(offspring_seq)
