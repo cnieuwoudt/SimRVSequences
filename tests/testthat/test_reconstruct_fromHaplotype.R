@@ -46,46 +46,7 @@ test_that("reconstruct_fromHaplotype returns an identical sequence when no cross
   expect_true(all(inherited_genomic_seq == inherit_hap))
 })
 
-
-test_that("reconstruct_fromHaplotype contains the correct number of swaps", {
-
-  #sample crossover locations over the area of interest in this chromosome
-  event_loc = sort(runif(sample(1:6, size = 1), min(C1mut$position), max(C1mut$position)))
-
-
-  #sample gametes for each crossover.
-  #Note that some crossover events will be trivial if this gamete did
-  #not pariticipate in the crossover.
-  inherit_hap = matrix(sample(1:2,
-                              size = (length(event_loc) + 1),
-                              replace = TRUE),
-                       nrow = 1)
-
-
-  #matrix with 1 stored for every mutation from paternal haplotype
-  #and 2 for every mutation from maternal haplotype
-  parent_hap = as.data.frame(matrix(c(rep(1, nrow(C1mut)), rep(2, nrow(C1mut))),
-                                    nrow = 2, byrow = TRUE))
-
-  inherited_genomic_seq <- reconstruct_fromHaplotype(parental_genotypes = parent_hap,
-                                                     CSNV_map = C1mut,
-                                                     inherited_haplotype = inherit_hap,
-                                                     chiasmata_locations = event_loc,
-                                                     REDchrom_map = C1map)
-
-
-  # inherit_hap
-  # event_loc
-  # inherited_genomic_seq
-  # rle(as.numeric(inherit_hap))$values
-  # rle(as.numeric(inherited_genomic_seq))$values
-
-  expect_equal(rle(as.numeric(inherit_hap))$values, rle(as.numeric(inherited_genomic_seq))$values)
-
-})
-
-
-test_that("reconstruct_fromHaplotype can handle superfluous swaps, i.e. multiple swaps between successive markers", {
+test_that("reconstruct_fromHaplotype returns the correct swaps and can handle superfluous swaps, i.e. multiple swaps between successive markers", {
 
   ## RUN THIS TEST LAST
   ## We alter C1mut to create a known issue that the previous
