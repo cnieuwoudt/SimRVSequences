@@ -45,10 +45,10 @@ Family-based studies are more attractive than case-control studies because they 
     1.  Following the direction of Voorrips 2012, we assume that the distance between chiasmata may be modeled by a gamma distribution.  The default parameter settings shape = 2.63 and rate = 2*2.63 are used to model genetic recombination with chiasmata interference, with a burn in of 1000 cM.  To model recombination without chiasmata interference, i.e. according to Haldane's model: set shape = 1, rate = 2, and burn in to 0.
     2. We assume no chromatid interference so that non-sister chromatids are equally likely to participate in a crossover event [cite Lange, or Voorrips?].
     3. To simulate the formation of gametes we assume that homologous chromatids are assigned to one of four gamete cells with equal probability.  This assignment occurs independently for non-homologous chromosomes.
-  * To determine which of the four gametes is transmitted from parent to offspring, we consider the rare-variant status of the parent and the offspring, as follows.
-    + Case 1: If **both the parent and offspring carry the cRV** we randomly select (with equal probability) the inherited gamete from the two possible parental gametes that do carry the causal rare variant.
-    + Case 2: If the **parent carries the cRV but the offspring does not**, we randomly select (with equal probability) the inherited gamete from the two possible parental gametes that do not carry the causal rare variant.
-    + Case 3: If the **parent is not a carrier of the cRV**, then the cRV status of the offspring is irrelevant for this parent's transmission because the offspring cannot inherit it from this parent.  In this scenario, we randomly select the inherited gamete from the four parental gametes with equal probability.
+  * We use a conditional gene drop algorithm to determine which of the four gametes is transmitted from parent to offspring by considering the cRV status of the parent and the offspring, as follows.
+    + Case 1: If **both the parent and offspring carry the cRV** we sample the inherited gamete from the two possible parental gametes that carry the cRV.
+    + Case 2: If the **parent carries the cRV but the offspring does not**, we sample the inherited gamete from the two possible parental gametes that do not carry the cRV.
+    + Case 3: If the **parent is not a carrier of the cRV**, then the cRV status of the offspring is irrelevant for this parent's transmission because the offspring cannot inherit it from this parent.  In this scenario, we sample the inherited gamete from the four parental gametes with equal probability.
 
 
 
@@ -150,15 +150,33 @@ To import data simulated by SLiM, we provide the `read_slim` function.  Presentl
 
 Please also note that we currently only permit for SNV data(i.e. 0/1 mutations).
 
-The `read_slim` function has three arguments:
+The `read_slim` function has four arguments:
 
 1. `file_path`: The file path of the .txt output file created by the outputFull() method in SLiM 2.0.
 2. `keep_maf`: The largest allele frequency for retained SNVs. All variants with allele frequency greater than `keep_maf` will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R.
-3. `recomb_map`: A recombination map of the same format as the data frame returned by `create_slimMap`.  Users who followed the instructions in Section 2, may simply supply the output from `create_slimMap` as `recomb_map`.  
+3. `recomb_map`: (Optional) A recombination map of the same format as the data frame returned by `create_slimMap`.  Users who followed the instructions in Section 2, may simply supply the output from `create_slimMap` as `recomb_map`. 
+4. `pathway_df`: (Optional) A data frame that contains the positions for each exon in the pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.  All overlapping exons MUST be combined into a single observation. Please execute the command `help(combine_exons)` for more details.*
 
 To clarify, the argument `recomb_map` is used to remap mutations to their actual locations and chromosomes.  This is necessary when data has been simulated over non-contiguous regions such as exon-only data.
 
 In addition to reducing the size of the data, the argument `keep_maf` has practicable applicability as well.  In family-based studies, common SNVs are generally filtered out prior to analysis.  Users who intend to study common variants in addition to rare variants may need to run chromosome specific analyses to allow for allocation of large data sets in `R`.
+
+
+Family-based studies are attractive because of their ability to detect rare causal variation.  However, even family-based studies may not identify a strong association between the disease of interest and a single gene or variant.  When this occurs, one must consider that variation in a pathway, or a set of related genes, may be sufficient to predispose individuals to disease.
+
+To accomodate this scenario, we allow users to identify SNVs located within a pathway of interest.  This is done by supplying  a data frame, `pathway-df` to `read_slim`.
+
+For example, consider a pseudo-apoptosis sub-pathway centered about the TNFSF10 gene based on the 25 genes that have the highest interaction with this gene in the UCSC Genome Browser's Gene Interaction Tool [5, 6, 7].  The data for this pseudo-pathway is contained in the `hg_apopPath` data set.
+
+```{r}
+# load the hg_apopPath data
+data("hg_apopPath")
+
+#View the first 4 observations of hg_apopPath
+head(hg_apopPath, n = 4)
+```
+
+The `hg_apopPath` data set is similar the `hg_exons` data set discussed in section 2.  However, `hg_apopPath` only catalogs the positions of exons contained in our pseudo-pathway.  
 
 The following code demonstrates how the `read-slim` function would be called if the `create_slimMap` function was used to create the recombination map for SLiM as in section 2.
 
@@ -167,9 +185,8 @@ The following code demonstrates how the `read-slim` function would be called if 
 # current working directory and is named "slimOut.txt".  
 # We import the data using the read_slim function.
 s_out <- read_slim(file_path  = "slimOut.txt", 
-                   recomb_map = create_slimMap(hg_exons))
-
-
+                   recomb_map = create_slimMap(hg_exons),
+                   pathway_df = hg_apopPath)
 ```
 
 Though not displayed here, the `read_slim` function returns a list with 2 items. The first is a data frame named `Mutations`, which catalogs SNV information.  The second item is a sparse matrix named `Genomes`, which contains the haplotype data for all diploid individuals in the simulation.  
@@ -186,8 +203,7 @@ data(EXmut)
 head(EXmut, n = 4)
 ```
 
-The `EXmut` data frame is used to catalog the SNVs in `EXgen`.  The variable `colID` associates the rows of `EXmut` to the columns of `EXgen`, `chrom` identifies the chromosome number, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of each SNV, and `marker` is a unique identifier for each SNV.
-
+The `EXmut` data frame is used to catalog the SNVs in `EXgen`.  The variable `colID` associates the rows of `EXmut` to the columns of `EXgen`, `chrom` identifies the chromosome number, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of each SNV, `marker` is a unique identifier for each SNV, and `pathwaySNV` identifies SNVs located within the our pseudo-pathway.
 
 ```{r}
 #import the EXgen dataset
@@ -196,13 +212,13 @@ data(EXgen)
 #dimensions of EXgen
 dim(EXgen)
 ```
-Looking at the output above we see that there are 20,000 haplotypes which contain 192 mutations in `EXgen`.
+Looking at the output above we see that there are 20,000 haplotypes which contain 250 mutations in `EXgen`.
 
 ```{r}
 #number of rows in EXmut
 nrow(EXmut)
 ```
-Since `EXmut` catalogs the SNVs in `EXgen`, `EXmut` will have 192 rows.
+Since `EXmut` catalogs the SNVs in `EXgen`, `EXmut` will have 250 rows.
 
 ```{r}
 #View the first 30 mutations of the first 15 haplotypes in EXgen
@@ -214,78 +230,50 @@ EXgen[1:15, 1:30]
 
 # 5. Select Pool of Causal Variants <a name="CausalVars"></a>
 
-Our next task is to decide which mutations will be modeled as causal variants.  Family-based studies are attractive because of their ability to detect rare causal variation.  However, even family-based studies may not identify a strong association between the disease of interest and a single gene or variant.  When this occurs, one must consider that variation in a pathway, or a set of related genes, may be sufficient to predispose individuals to disease.  We will focus on the latter approach, and note that implementation of a single causal variant is equivalent to a pathway containing a single gene with a single mutation.
-
-Consider a pseudo-apoptosis sub-pathway centered about the TNFSF10 gene based on the 25 genes that have the highest interaction with this gene in the UCSC Genome Browser's Gene Interaction Tool [5, 6, 7].  The data for this pseudo-pathway is contained in the `hg_apopPath` data set.
-
-```{r}
-# load the hg_apopPath data
-data("hg_apopPath")
-
-#View the first 4 observations of hg_apopPath
-head(hg_apopPath, n = 4)
-```
-
-The `hg_apopPath` data set is similar the `hg_exons` data set discussed in section 2.  However, `hg_apopPath` only catalogs the positions of exons contained in our pseudo-pathway.  
-
-Assuming that the data has been imported using the `read_slim` function, the `identify_pathwaySNVs` function may be used to further refine the `Mutations` data set returned by `read_slim`.  The `identify_pathwaySNVs` function has two arguments:
-
- 1. `markerDF` a data frame containing SNV data, which must be of the same format as the `Mutations` data frame returned by `read_slim`.  
- 2. `pathwayDF` A data frame that contains the positions for each exon in the pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.  All overlapping exons MUST be combined into a single observation. Please execute the command `help(combine_exons)` for more details.*
-
-```{r, eval = TRUE}
-# identify variants located in exons contained in our pathway
-mutDF <- identify_pathwaySNVs(markerDF  = EXmut,
-                              pathwayDF = hg_apopPath)
-
-#View the first 4 observations of mutDF
-head(mutDF, n = 4)
-```
-
-Upon supplying the `EXmut` data set and a pathway data set, such as `hg_apopPath`, to `identify_pathwaySNVs`, the variable `pathwayRV` is added to `EXmut` and marked TRUE for SNVs located in the pathway of interest.
+Our next task is to decide which mutations will be modeled as causal variants.  We will focus on the pathway approach, which allows for causal variation in a pathway, or a set of related genes, but note that implementation of a single causal variant is equivalent to a pathway containing a single gene with a single mutation.
 
 For `SimRVpedigree`'s ascertainment process to be valid we require the probability that a random individual carries a risk allele to be small, i.e $\le$ 0.002 (cite Nieuwoudt 2017).
 
-Consider a set of $n$ causal SNVs with derived allele frequencies $p_i, p_2, ..., p_n$, and let $p_{tot} = \sum_{i=1}^n p_i$.  For sufficiently rare SNVs, we may compute the cumulative carrier probability as $p_{tot}^2 + 2*p_{tot}(1-p_{tot})$.
+Consider a set of $n$ causal SNVs with derived allele frequencies $p_1, p_2, ..., p_n$, and let $p_{tot} = \sum_{i=1}^n p_i$.  For sufficiently rare SNVs, we may compute the cumulative carrier probability as $p_{tot}^2 + 2*p_{tot}(1-p_{tot})$.
 
-To satisfy the condition $p_{carrier} \le 0.002$, we require that $1 - (p{tot} - 1)^2 \le 0.002$, or that $p{tot} \le 0.001$.
+To satisfy the condition $p_{carrier} \le 0.002$, we require that $1 - (1 - p{tot})^2 \le 0.002$, or that $p{tot} \le 0.001$.
 
 We will now demonstrate how users may accommodate this assumption by creating a new variable that identifies causal SNVs.
 ```{r}
 # tabulate the derived allele frequencies 
 # of the SNVs located in our pathway
-table(mutDF$afreq[mutDF$pathwayRV == TRUE])
+table(EXmut$afreq[EXmut$pathwaySNV == TRUE])
 ```
 
-The output above tabulates variants in our pathway by their derived allele frequency,  For example, our pathway contains 12 SNVs with derived allele frequency 5e-05, 4 SNVs with derived allele frequency 1e-04, 13 SNVs with derived allele frequency 0.00015, and so on.  In total, we can see that there are a variety of SNVs in our pathway to choose from.
+The output above tabulates variants in our pathway by their derived allele frequencies,  For example, our pathway contains 12 SNVs with derived allele frequency 5e-05, 4 SNVs with derived allele frequency 1e-04, 5 SNVs with derived allele frequency 0.00015, and so on.  In total, we can see that there are a variety of SNVs in our pathway to choose from.
 
-To obtain a pool of variants with $p_{tot} \sim 0.001$, we could choose the 12 SNVs with derived allele frequency 5e-05, and 4 SNVs with derived allele frequency 1e-4 to be our causal SNVs, so that $p_{tot} = 12*5e-5 + 4*1e-4 = 0.001$.
+To obtain a pool of variants with $p_{tot} \sim 0.001$, let's choose the 12 SNVs with derived allele frequency 5e-05, and 4 SNVs with derived allele frequency 1e-4 to be our causal SNVs, so that $p_{tot} = 12(5\times10^{-5}) + 4(1\times10^{-4}) = 0.001$.
 
 ```{r}
-# Create the variable 'possibleRV', which is TRUE for SNVs
+# Create the variable 'possibleSNV', which is TRUE for SNVs
 # in our pathway with derived allele frequncy 5e-05 or 1e-04,
 # and FALSE otherwise
-mutDF$possibleRV = ifelse(mutDF$afreq %in% c(5e-5, 1e-04) & 
-                            mutDF$pathwayRV == TRUE,
+EXmut$possibleSNV = ifelse(EXmut$afreq %in% c(5e-5, 1e-04) & 
+                            EXmut$pathwaySNV == TRUE,
                           TRUE,
                           FALSE)
 
 # verify that sum of the derived allele 
 # frequencies of causal SNVs is 0.001
-sum(mutDF$afreq[mutDF$possibleRV == TRUE])
+sum(EXmut$afreq[EXmut$possibleSNV == TRUE])
 
 #determine the number of variants in our pool of causal variants
-sum(mutDF$possibleRV == TRUE)
+sum(EXmut$possibleSNV == TRUE)
 ```
 
-From the output above we see that we have selected a pool of 16 causal variants in our pathway with a cumulative allele frequency of 0.001. 
+From the output above we see that we have selected a pool of 16 causal variants from our pathway with a cumulative allele frequency of 0.001. 
 
 ```{r}
-#view first 4 observations of mutDF
-head(mutDF, n = 4)
+#view first 4 observations of EXmut
+head(EXmut, n = 4)
 ```
 
-The `sim_RVstudy` function (discussed in section 6) will use the variable `possibleRV` to identify potential familial causal variants.  We then sample familial causal rare variants from this pool so that different families segregate different rare variants. Upon identifying the familial rare variant we then sample haplotypes for each founder from the distribution of haplotypes conditioned on the founder's rare variant status at the familial disease locus.  This ensures that the causal rare variant is introduced by the correct founder.
+The `sim_RVstudy` function (discussed in section 6) will use the variable `possibleSNV` to identify potential familial causal variants.  We then sample familial cRVs from this pool so that different families segregate different rare variants. Upon identifying the familial cRV we then sample haplotypes for each founder from the distribution of haplotypes conditioned on the founder's cRV status.  This ensures that the cRV is introduced by the correct founder.
  
 
 # 6. Pedigree Data <a name="PedSample"></a>
@@ -313,8 +301,9 @@ cl <- makeCluster(2)   # create cluster
 registerDoParallel(cl) # register cluster
 
 
+#simulate a sample of five pedigrees using foreach
 study_peds = foreach(i = seq(npeds), .combine = rbind,
-                  .packages = c("kinship2", "SimRVPedigree"),
+                  .packages = c("SimRVPedigree"),
                   .options.RNG = 844090518
 ) %dorng% {
   # Simulate pedigrees ascertained for at least three disese-affected individuals,
@@ -332,10 +321,18 @@ study_peds = foreach(i = seq(npeds), .combine = rbind,
 
 stopCluster(cl) #shut down cluster
 ```
-```{r}
+```{r, fig.height = 6.5, fig.width = 7}
 # Plot the pedigree with FamID 1
-plot(study_peds[study_peds$FamID == 1, ])
+plot(study_peds[study_peds$FamID == 1, ],
+     ref_year = 2018)
+```
 
+According to the legend, disease-affected individuals (IDs 1, 4, and 12) are indicated by a solid shading in the upper left third of their symbol.  The proband (ID 12) is indicated by shading in the lower portion of her symbol. Individuals who have inherited the \crv{} (IDs 1, 4, 12) are indicated by shading in the upper right portion of their symbol.
+
+The seed founder (ID 1) and all of her descendants have age data relative to the reference year, which are displayed below their symbols.  If a descendant has died by the reference year (IDs 1 and 4) their year of birth and death are displayed in parentheses, and their symbol will have a diagonal line over it. Descendants who are still alive at the reference year have an age identifier.  Descendants who have experienced disease-onset by the reference year will have a disease onset age identifier.
+
+
+```{r}
 #View the first 4 rows of study_peds
 head(study_peds, n = 4)
 ```
@@ -347,15 +344,15 @@ The columns displayed in the output above are described as follows:
  3. `sex`: sex identification variable: `sex = 0` for males, and `sex = 1` females. 
  4. `dadID`: identification number of father
  5. `momID`: identification number of mother
- 6. `affected`: affection status: `affected = TRUE` if individual has developed lymphoid cancer, and `FALSE` otherwise.
- 7. `DA1`: paternally inherited allele at the assumed disease locus: `DA1 = 1` if the cRV is present, and `0` otherwise.
- 8. `DA2`: maternally inherited allele at the assumed disease locus: `DA2 = 1` if the cRV is present, and `0` otherwise.
+ 6. `affected`: affection status: `affected = TRUE` if individual has developed disease, and `FALSE` otherwise.
+ 7. `DA1`: paternally inherited allele at the cRV locus: `DA1 = 1` if the cRV is present, and `0` otherwise.
+ 8. `DA2`: maternally inherited allele at the cRV locus: `DA2 = 1` if the cRV is present, and `0` otherwise.
  9. `birthYr`: the individual's birth year.
- 10. `onsetYr`: the individual's year of disease onset, when applicable.
- 11. `deathYr`: the individual's year of death, when applicable.
+ 10. `onsetYr`: the individual's year of disease onset, when applicable, and `NA` otherwise.
+ 11. `deathYr`: the individual's year of death, when applicable, and `NA` otherwise.
  12. `RR`: the individual's relative-risk of disease.
  13. `available`: availability status: `available = TRUE` if individual is recalled by proband, and `FALSE` otherwise.  We note that, by default, all marry-ins are unavailable since we do not simulate life events for marry-ins.
- 14. `Gen`: the individual's generation number relative to the eldest pedigree founder.  That is, the eldest founder will have `Gen = 1`, his or her offspring will have `Gen = 2`, etc. 
+ 14. `Gen`: the individual's generation number relative to the eldest pedigree founder.  That is, the seed founder will have `Gen = 1`, his or her offspring will have `Gen = 2`, etc. 
  15. `proband`: a proband identifier: `proband = TRUE` if the individual is the proband, and `FALSE` otherwise.
 
 Not all of the variables above are required to simulate sequence data; the required variables are: `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.
@@ -378,7 +375,7 @@ Assuming users have followed the steps outlined in the previous sections, we may
 set.seed(1)
 # simualte sequence using sim_RVstudy
 study_seq <- sim_RVstudy(ped_files = study_peds, 
-                         SNV_map = mutDF,
+                         SNV_map = EXmut,
                          haplos = EXgen)
 
 # view summary of output
