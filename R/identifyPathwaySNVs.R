@@ -3,7 +3,7 @@
 #' @param markerDF A data frame containing SNV data.   See details.
 #' @param pathwayDF A data frame containing pathway data.  See details.
 #'
-#' @return A dataframe with the same format as \code{markerDF}, but with a variable \code{pathwayRV} marked FALSE for all variants located outside exons in \code{pathwayDF}, or with derived allele frequency greater than \code{carrier_prob}.
+#' @return A dataframe with the same format as \code{markerDF}, but with a variable \code{pathwaySNV} marked FALSE for all variants located outside exons in \code{pathwayDF}, or with derived allele frequency greater than \code{carrier_prob}.
 #' @export
 #'
 #' @examples
@@ -11,11 +11,11 @@
 #'
 identify_pathwaySNVs <- function(markerDF, pathwayDF){
 
-  if (is.null(markerDF$pathwayRV)) {
-    markerDF$pathwayRV <- TRUE
+  if (is.null(markerDF$pathwaySNV)) {
+    markerDF$pathwaySNV <- TRUE
   }
 
-  #Mark pathwayRV FALSE for any variants that do not fall
+  #Mark pathwaySNV FALSE for any variants that do not fall
   #within the exons catalouged in pathwayDF
   markerDF <- do.call(rbind, lapply(unique(markerDF$chrom), function(x){
     identify_pathwayRVs_byChrom(pathwayDF[pathwayDF$chrom == x, ],
@@ -32,11 +32,11 @@ identify_pathwaySNVs <- function(markerDF, pathwayDF){
 #' @param path_by_chrom The pathway data for the chromosome under consideration
 #' @param marker_map_by_chrom The marker_map for the chromosome under consideration
 #'
-#' @return marker_map_by_chrom with pathwayRV identified
+#' @return marker_map_by_chrom with pathwaySNV identified
 #' @keywords internal
 identify_pathwayRVs_byChrom <- function(path_by_chrom, marker_map_by_chrom){
   if(nrow(path_by_chrom) == 0){
-    marker_map_by_chrom$pathwayRV <- FALSE
+    marker_map_by_chrom$pathwaySNV <- FALSE
   } else {
     #since we will want to include variants that occur at the first base pair
     #location, subtracting 1 from start positions
@@ -59,10 +59,10 @@ identify_pathwayRVs_byChrom <- function(path_by_chrom, marker_map_by_chrom){
     if(any(duplicated(cbreaks))){
       stop("Expecting non-overlapping exonStart and exonEnd positions. \n Please combine overlapping segments into a single entry.")}
 
-    marker_map_by_chrom$pathwayRV <- cut(marker_map_by_chrom$position,
+    marker_map_by_chrom$pathwaySNV <- cut(marker_map_by_chrom$position,
                                          breaks = cbreaks,
                                          labels = FALSE)
-    marker_map_by_chrom$pathwayRV <- marker_map_by_chrom$pathwayRV %in% keep_bins
+    marker_map_by_chrom$pathwaySNV <- marker_map_by_chrom$pathwaySNV %in% keep_bins
   }
 
   return(marker_map_by_chrom)

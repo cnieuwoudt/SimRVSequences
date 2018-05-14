@@ -156,6 +156,8 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #'
 #' The \code{read_slim} function is used to extract SNV (single nucleotide variant) data from the text file produced by SLiM's outputFull() method. Currently, we do not support output in MS or VCF format (i.e. output produced by SLiM's outputMSSample() or outputVCFSample() methods).
 #'
+#' When supplied, we expect that `pathwayDF` does not contain any overlapping segments.  *All overlapping exons MUST be combined into a single observation. Please execute the command `help(combine_exons)` for more details.*
+#'
 #' In addition to allowing users to specify recombination hotspots, the recombination map provided to SLiM can be used to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  The \code{\link{create_slimMap}} function may be used to create a recombination map to simulate exon-only data with SLiM.  In this case, simply supply the data frame returned by \code{create_slimMap} to the \code{recomb_map} argument of \code{read_slim} to map mutations to their actual locations and/or their appropriate chromosomes.  If \code{create_slimMap} was not used to create the recombination map used with SLiM 2.0, users must take care to ensure that \code{recomb_map} is of the same form as the output produced by \code{\link{create_slimMap}}.
 #'
 #' The first item returned by \code{read_slim} is a data frame named \code{Mutations}, which catalouges SNV ID, genomic position, chromosome, and derived allele frequency.  The variable \code{colID} references the SNV's ID which is also its column position in the sparse genotype matrix. The variable \code{position} is the genomic position of the SNV (in bp), and \code{afreq} is the derived allele frequency of the SNV, \code{chrom} identifies the chromosome, and \code{marker} is a unique character identifier.  When \code{recomb_map} is not provided, we assume that all mutations reside on the first chromosome so that \code{chrom} is 1 for every mutation.
@@ -172,6 +174,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' @param file_path character.  The file path of the SLiM 2.0 output file.
 #' @param keep_maf numeric. The largest allele frequency for retained SNVs.  All variants with allele frequency greater than \code{keep_maf} will be removed.  Please note, removing common variants is recommended for large datasets due to the limitations of data allocation in \code{R}.
 #' @param recomb_map data frame. The recombination map provided to SLiM 2.0, see details.
+#' @param pathway_df data frame. A data frame that contains the positions for each exon in the pathway of interest.  This data frame must contain the variables \code{chrom}, \code{exonStart}, and \code{exonEnd}.  See details.
 #'
 #' @return  A list containing:
 #' @return \item{\code{Mutations} }{A dataframe containing SNV information, see details..}
@@ -190,7 +193,9 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' sout = read_slim(file_path = "C:/Data/Slim/SLiMtest_output.txt",
 #'                  keep_maf = 0.01)
 #' }
-read_slim <- function(file_path, keep_maf = 0.01, recomb_map = NULL){
+read_slim <- function(file_path, keep_maf = 0.01,
+                      recomb_map = NULL,
+                      pathway_df = NULL){
   print("Reading Slim File")
   exDat = readLines(file_path)
 
@@ -298,12 +303,24 @@ read_slim <- function(file_path, keep_maf = 0.01, recomb_map = NULL){
     RareMutData$chrom <- 1
   }
 
+
   row.names(RareMutData) = NULL
 
   RareMutData$marker <- paste0(RareMutData$chrom, sep = "_", RareMutData$position)
-  #RareMutData$possibleRV <- TRUE
 
-  return(list(Mutations = RareMutData[, c(1, 4, 2, 3, 5)], Genomes = GenoData))
+  #reduce RareMutData, yet again, to the columns we actually need
+  #really should clean this up soon
+  RareMutData <- RareMutData[, c(1, 4, 2, 3, 5)]
+
+
+  #if pathway data has been supplied, identify pathway SNVs
+  if (!is.null(pathway_df)) {
+    print("Identifying Pathway SNVs")
+    RareMutData <- identify_pathwaySNVs(markerDF = RareMutData,
+                                        pathwayDF = pathway_df)
+  }
+
+  return(list(Mutations = RareMutData, Genomes = GenoData))
 }
 
 

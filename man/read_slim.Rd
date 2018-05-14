@@ -4,7 +4,8 @@
 \alias{read_slim}
 \title{Read SLiM 2.0 Output}
 \usage{
-read_slim(file_path, keep_maf = 0.01, recomb_map = NULL)
+read_slim(file_path, keep_maf = 0.01, recomb_map = NULL,
+  pathway_df = NULL)
 }
 \arguments{
 \item{file_path}{character.  The file path of the SLiM 2.0 output file.}
@@ -12,6 +13,8 @@ read_slim(file_path, keep_maf = 0.01, recomb_map = NULL)
 \item{keep_maf}{numeric. The largest allele frequency for retained SNVs.  All variants with allele frequency greater than \code{keep_maf} will be removed.  Please note, removing common variants is recommended for large datasets due to the limitations of data allocation in \code{R}.}
 
 \item{recomb_map}{data frame. The recombination map provided to SLiM 2.0, see details.}
+
+\item{pathway_df}{data frame. A data frame that contains the positions for each exon in the pathway of interest.  This data frame must contain the variables \code{chrom}, \code{exonStart}, and \code{exonEnd}.  See details.}
 }
 \value{
 A list containing:
@@ -25,6 +28,8 @@ Extract SNV data from SLiM output.
 }
 \details{
 The \code{read_slim} function is used to extract SNV (single nucleotide variant) data from the text file produced by SLiM's outputFull() method. Currently, we do not support output in MS or VCF format (i.e. output produced by SLiM's outputMSSample() or outputVCFSample() methods).
+
+When supplied, we expect that `pathwayDF` does not contain any overlapping segments.  *All overlapping exons MUST be combined into a single observation. Please execute the command `help(combine_exons)` for more details.*
 
 In addition to allowing users to specify recombination hotspots, the recombination map provided to SLiM can be used to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  The \code{\link{create_slimMap}} function may be used to create a recombination map to simulate exon-only data with SLiM.  In this case, simply supply the data frame returned by \code{create_slimMap} to the \code{recomb_map} argument of \code{read_slim} to map mutations to their actual locations and/or their appropriate chromosomes.  If \code{create_slimMap} was not used to create the recombination map used with SLiM 2.0, users must take care to ensure that \code{recomb_map} is of the same form as the output produced by \code{\link{create_slimMap}}.
 

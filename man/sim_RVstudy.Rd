@@ -40,8 +40,8 @@ data(EXmut)
 data(EXgen)
 
 markers = EXmut
-markers$possibleRV = FALSE
-markers$possibleRV[1] = TRUE
+markers$possibleSNV = FALSE
+markers$possibleSNV[1] = TRUE
 
 seqDat = sim_RVstudy(ped_files = EgPeds,
                      SNV_map = markers,

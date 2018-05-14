@@ -12,7 +12,7 @@ identify_pathwaySNVs(markerDF, pathwayDF)
 \item{pathwayDF}{A data frame containing pathway data.  See details.}
 }
 \value{
-A dataframe with the same format as \code{markerDF}, but with a variable \code{pathwayRV} marked FALSE for all variants located outside exons in \code{pathwayDF}, or with derived allele frequency greater than \code{carrier_prob}.
+A dataframe with the same format as \code{markerDF}, but with a variable \code{pathwaySNV} marked FALSE for all variants located outside exons in \code{pathwayDF}, or with derived allele frequency greater than \code{carrier_prob}.
 }
 \description{
 Identify SNVs located in a specified pathway
