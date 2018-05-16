@@ -1,11 +1,11 @@
 library(testthat)
 context("reconstruct_fromHaplotype")
 
-data(EXmut)
+data(EXmuts)
 
 #Chromosome info we will need
 #store the mutation data for chromosome 1
-C1mut = EXmut[which(EXmut$chrom == 1), ]
+C1mut = EXmuts[which(EXmuts$chrom == 1), ]
 
 #reformat so that mutations occur at consecutive positions
 #this helps with testing.
