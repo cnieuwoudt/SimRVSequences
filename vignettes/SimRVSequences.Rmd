@@ -26,7 +26,8 @@ body{ /* Normal  */
 5. [Select Pool of Causal Variants](#CausalVars)
 6. [Pedigree Data](#PedSample)
 7. [Simulate Sequence Data](#SimSeq)
-8. [References](#Ref)
+8. [Timing](#Time)
+9. [References](#Ref)
 
 
 # 1. Introduction <a name="introduction"></a>
@@ -162,9 +163,7 @@ To clarify, the argument `recomb_map` is used to remap mutations to their actual
 In addition to reducing the size of the data, the argument `keep_maf` has practicable applicability as well.  In family-based studies, common SNVs are generally filtered out prior to analysis.  Users who intend to study common variants in addition to rare variants may need to run chromosome specific analyses to allow for allocation of large data sets in `R`.
 
 
-Family-based studies are attractive because of their ability to detect rare causal variation.  However, even family-based studies may not identify a strong association between the disease of interest and a single gene or variant.  When this occurs, one must consider that variation in a pathway, or a set of related genes, may be sufficient to predispose individuals to disease.
-
-To accomodate this scenario, we allow users to identify SNVs located within a pathway of interest.  This is done by supplying  a data frame, `pathway-df` to `read_slim`.
+Family-based studies are attractive because of their ability to detect rare causal variation.  However, even family-based studies may not identify a strong association between the disease of interest and a single gene or variant.  When this occurs, one must consider that variation in a pathway, or a set of related genes, may be sufficient to predispose individuals to disease.  To accomodate this scenario, we allow users to identify SNVs located within a pathway of interest.  This is done by supplying  a data frame, `pathway_df` to `read_slim`.
 
 For example, consider a pseudo-apoptosis sub-pathway centered about the TNFSF10 gene based on the 25 genes that have the highest interaction with this gene in the UCSC Genome Browser's Gene Interaction Tool [5, 6, 7].  The data for this pseudo-pathway is contained in the `hg_apopPath` data set.
 
@@ -176,9 +175,9 @@ data("hg_apopPath")
 head(hg_apopPath, n = 4)
 ```
 
-The `hg_apopPath` data set is similar the `hg_exons` data set discussed in section 2.  However, `hg_apopPath` only catalogs the positions of exons contained in our pseudo-pathway.  
+The `hg_apopPath` data set is similar the `hg_exons` data set discussed in section 2.  However, `hg_apopPath` only catalogs the positions of exons contained in our pseudo-pathway.  As mentioned previously, the `read_slim` function only requires the three variables: `chrom`, `exonStart`, and `exonEnd` in the data frame `pathway_df`.
 
-The following code demonstrates how the `read-slim` function would be called if the `create_slimMap` function was used to create the recombination map for SLiM as in section 2.
+The following code demonstrates how the `read_slim` function would be called if the `create_slimMap` function was used to create the recombination map for SLiM as in section 2.
 
 ```{r, eval =  FALSE, echo = TRUE}
 # Let's suppose the output is saved in the 
@@ -189,43 +188,43 @@ s_out <- read_slim(file_path  = "slimOut.txt",
                    pathway_df = hg_apopPath)
 ```
 
-Though not displayed here, the `read_slim` function returns a list with 2 items. The first is a data frame named `Mutations`, which catalogs SNV information.  The second item is a sparse matrix named `Genomes`, which contains the haplotype data for all diploid individuals in the simulation.  
+Though not displayed here, the `read_slim` function returns a list with 2 items. The first is a data frame named `Mutations`, which catalogs SNV information.  The second item is a sparse matrix named `Haplotypes`, which contains the haplotype data for diploid individuals.  
 
-We note that importing SLiM data can be time-consuming; importing exon-only mutation data simulated over the 22 human autosomes for a sample of 10,000 individuals on a (computer specs here) took approximately 7 mins.  For the purpose of demonstration, we use the `EXmut` and `EXgen` data sets provided by `SimRVsequences`.
+We note that importing SLiM data can be time-consuming; importing exon-only mutation data simulated over the 22 human autosomes for a sample of 10,000 individuals on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM took approximately 7 mins.  For the purpose of demonstration, we use the `EXmuts` and `EXhaps` data sets provided by `SimRVsequences`.
 
-The `EXmut` data set represents the `Mutations` data set returned by `read_slim,` and the `EXgen` data set represents the sparse matrix `Genomes` returned by `read_slim`.
+The `EXmuts` data set represents the `Mutations` data set returned by `read_slim,` and the `EXhaps` data set represents the sparse matrix `Haplotypes` returned by `read_slim`.
 
 ```{r}
-#import the EXmut dataset
-data(EXmut)
+#import the EXmuts dataset
+data(EXmuts)
 
 #view the first 4 observations
-head(EXmut, n = 4)
+head(EXmuts, n = 4)
 ```
 
-The `EXmut` data frame is used to catalog the SNVs in `EXgen`.  The variable `colID` associates the rows of `EXmut` to the columns of `EXgen`, `chrom` identifies the chromosome number, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of each SNV, `marker` is a unique identifier for each SNV, and `pathwaySNV` identifies SNVs located within the our pseudo-pathway.
+The `EXmuts` data frame is used to catalog the SNVs in `EXhaps`.  The variable `colID` associates the rows of `EXmuts` to the columns of `EXhaps`, `chrom` identifies the chromosome number, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of each SNV, `marker` is a unique identifier for each SNV, and `pathwaySNV` identifies SNVs located within the our pseudo-pathway.
 
 ```{r}
-#import the EXgen dataset
-data(EXgen)
+#import the EXhaps dataset
+data(EXhaps)
 
-#dimensions of EXgen
-dim(EXgen)
+#dimensions of EXhaps
+dim(EXhaps)
 ```
-Looking at the output above we see that there are 20,000 haplotypes which contain 250 mutations in `EXgen`.
+Looking at the output above we see that there are 20,000 haplotypes which contain 250 mutations in `EXhaps`.
 
 ```{r}
-#number of rows in EXmut
-nrow(EXmut)
+#number of rows in EXmuts
+nrow(EXmuts)
 ```
-Since `EXmut` catalogs the SNVs in `EXgen`, `EXmut` will have 250 rows.
+Since `EXmuts` catalogs the SNVs in `EXhaps`, `EXmuts` will have 250 rows.
 
 ```{r}
-#View the first 30 mutations of the first 15 haplotypes in EXgen
-EXgen[1:15, 1:30]
+#View the first 30 mutations of the first 15 haplotypes in EXhaps
+EXhaps[1:15, 1:30]
 ```
 
-`EXgen` is a sparse matrix of class dgCMatrix.  Entries of `1` represent a mutated allele, while the wild type is represented as '`.`'.  Recall that we retain SNVs with derived allele frequency less than or equal to `keep_maf`; hence, the majority of entries represent the wild type allele.  
+`EXhaps` is a sparse matrix of class dgCMatrix.  Entries of `1` represent a mutated allele, while the wild type is represented as '`.`'.  Recall that we retain SNVs with derived allele frequency less than or equal to `keep_maf`; hence, the majority of entries represent the wild type allele.  
 
 
 # 5. Select Pool of Causal Variants <a name="CausalVars"></a>
@@ -242,7 +241,7 @@ We will now demonstrate how users may accommodate this assumption by creating a 
 ```{r}
 # tabulate the derived allele frequencies 
 # of the SNVs located in our pathway
-table(EXmut$afreq[EXmut$pathwaySNV == TRUE])
+table(EXmuts$afreq[EXmuts$pathwaySNV == TRUE])
 ```
 
 The output above tabulates variants in our pathway by their derived allele frequencies,  For example, our pathway contains 12 SNVs with derived allele frequency 5e-05, 4 SNVs with derived allele frequency 1e-04, 5 SNVs with derived allele frequency 0.00015, and so on.  In total, we can see that there are a variety of SNVs in our pathway to choose from.
@@ -253,24 +252,24 @@ To obtain a pool of variants with $p_{tot} \sim 0.001$, let's choose the 12 SNVs
 # Create the variable 'possibleSNV', which is TRUE for SNVs
 # in our pathway with derived allele frequncy 5e-05 or 1e-04,
 # and FALSE otherwise
-EXmut$possibleSNV = ifelse(EXmut$afreq %in% c(5e-5, 1e-04) & 
-                            EXmut$pathwaySNV == TRUE,
+EXmuts$possibleSNV = ifelse(EXmuts$afreq %in% c(5e-5, 1e-04) & 
+                            EXmuts$pathwaySNV == TRUE,
                           TRUE,
                           FALSE)
 
 # verify that sum of the derived allele 
 # frequencies of causal SNVs is 0.001
-sum(EXmut$afreq[EXmut$possibleSNV == TRUE])
+sum(EXmuts$afreq[EXmuts$possibleSNV == TRUE])
 
 #determine the number of variants in our pool of causal variants
-sum(EXmut$possibleSNV == TRUE)
+sum(EXmuts$possibleSNV == TRUE)
 ```
 
 From the output above we see that we have selected a pool of 16 causal variants from our pathway with a cumulative allele frequency of 0.001. 
 
 ```{r}
-#view first 4 observations of EXmut
-head(EXmut, n = 4)
+#view first 4 observations of EXmuts
+head(EXmuts, n = 4)
 ```
 
 The `sim_RVstudy` function (discussed in section 6) will use the variable `possibleSNV` to identify potential familial causal variants.  We then sample familial cRVs from this pool so that different families segregate different rare variants. Upon identifying the familial cRV we then sample haplotypes for each founder from the distribution of haplotypes conditioned on the founder's cRV status.  This ensures that the cRV is introduced by the correct founder.
@@ -363,60 +362,90 @@ To learn more about simulating pedigrees with `SimRVPedigree` please refer to `S
 Simulating sequence data for ascertained pedigree is achieved with `sim_RVstudy`.  The `sim_RVstudy` function has 6 arguments:
 
 1. `ped_files` A data frame of pedigrees, which must contain the variables:  `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`. See Section 6 on simulating pedigrees for more details.
-3. `haplos` A sparse matrix of genotype data, which is assumed to be of the same format as `EXgen`.
-2. `SNV_map` A data frame cataloging the SNV data in `haplos`. This is assumed to be of the same format as `EXmut`. 
+3. `haplos` A sparse matrix of haplotype data, which contains the haplotype data for a sample of unrelated individuals.  Rows are assumed to be haplotypes, while columns reprsent SNVs.  If `read_slim` was used to import data, users may supply the sparse matrix `Haplotypes` returned by this function.   
+2. `SNV_map` A data frame cataloging the SNV data in `haplos`. The rows of `SNV_map` describe the columns in `haplos.`  If `read_slim` was used to import data, the data frame `Mutations` returned by this function is of the proper format.  We note that users must add the variable `possibleSNV` to `Mutations` as in section 5.  If the varible `possibleSNV` is not included a single SNV is randomly sampled and set to be the cRV for every pedigree in the study.  
 4. `affected_only` a logical variable.  When `affected_only = TRUE`, data is only simulated for affected individuals and the family members that connect them.  When `affected_only = FALSE` sequence data is simulated for the entire pedigree. By default, `affected_only = TRUE`.
-5. `gamma_params` The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, `gamma_params = c(2.63, 2.63/0.5)`, as in [9].
-6. `burn-in` The burn in distance in cM, used to simulate first chiasmata location. By default, `burn_in = 1000`, as in [9].
+5. `gamma_params` The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, `gamma_params = c(2.63, 2*2.63)`, as in [9].
+6. `burn-in` The burn in distance in cM, used to simulate the location of the first chiasmata. By default, `burn_in = 1000`, as in [9].
 
 Assuming users have followed the steps outlined in the previous sections, we may call `sim_RVstudy` as follows.
 
 ```{r}
-set.seed(1)
+set.seed(11956)
 # simualte sequence using sim_RVstudy
 study_seq <- sim_RVstudy(ped_files = study_peds, 
-                         SNV_map = EXmut,
-                         haplos = EXgen)
+                         SNV_map = EXmuts,
+                         haplos = EXhaps)
 
 # view summary of output
 summary(study_seq)
 ```
 
-From the above output we see that `sim_RVstudy` returns three items: a sparse matrix named `ped_genos`, a data frame named `geno_map`, and a data frame named `SNV_map`.   
-
-
-```{r}
-#View the first 15 haplotypes in ped_genos
-study_seq$ped_genos[1:15, ]
-```
-
-The `ped_genos` output contains the haplotypes for the  individuals in `ped_files`.  If `affected_only = TRUE`, this matrix will contain data for affected individuals and individuals who connect them.  If `affected_only = FALSE` `ped_genos` contains the haplotype data for all individuals in `ped_files`.
+From the above output we see that `sim_RVstudy` returns four items: a sparse matrix named `ped_haplos`, a data frame named `haplo_map`, a data frame named `SNV_map`, and a data frame named `ped_files`.  When `affected_only = TRUE` is used `ped_files` will contain affected individuals and individuals who connect them, otherwise `ped_files` will contain pedigree  information for all individuals in the original pedigrees.
 
 ```{r}
-#Determine the dimensions of ped_genos
-dim(study_seq$ped_genos)
+#View the first 15 haplotypes in ped_haplos
+study_seq$ped_haplos[1:15, ]
+```
 
-#Determine the dimensions of EXgen
-dim(EXgen)
+The `ped_haplos` output contains the haplotypes for the individuals in `ped_files`.  If `affected_only = TRUE`, this matrix will contain data for affected individuals and individuals who connect them.  If `affected_only = FALSE` `ped_haplos` contains the haplotype data for all individuals in `ped_files`.
+
+```{r}
+#Determine the dimensions of ped_haplos
+dim(study_seq$ped_haplos)
+
+#Determine the dimensions of EXhaps
+dim(EXhaps)
 ```
 
 
-Notice also that the number of columns (i.e. mutations) in `ped_genos` is far less than the number of columns in `EXgen`.  This is because with the `remove_wild` setting we remove superfluous markers from our data.  That is, when no one in our study carries a mutated allele at a SNV location, we remove the marker from the data.
+Notice also that the number of columns (i.e. mutations) in `ped_haplos` is far less than the number of columns in `EXhaps`.  This is because the `remove_wild` setting was used to remove superfluous markers from our data.  That is, when no one in our study carries a mutated allele at a SNV locus, we remove the marker from the data.  Since we are focused on rare variation, and since `study_peds` is a small study containing only five families the reduction in data is quite significant.
 
 ```{r}
 #View the first 4 observations in SNV_map
 head(study_seq$SNV_map, n = 4)
 ```
 
+The output `SNV_map` catalogs the SNVs, i.e. columns,  in `ped_haplos`.  For example, the first column in `ped_haplos` is a SNV located on chromosome 1 at postion 23084822.  
+
+```{r}
+# view the first observations in haplo_map
+head(study_seq$haplo_map)
+```
+
+The `haplo_map` data frame is used to map the haplotypes (i.e. rows) in `ped_haplos` to the individuals in `ped_files`.  Notice that in the output above individual 1 from family 1 is listed in rows 1 and 2, and individual 2 from family 1 is listed in rows 3 and 4.  This is because the genetic material inherited from each parent is stored in its own row.  The first row represents the material inherited from the father, while the second row represents the material inherited from the mother.
+
+
+This is counting the total number of SNVs sharded by the affected relatives in the pedigrees.
+NOTE: may share more than number of affected
+
+```{r}
+summarize_study(study_seq)
+```
 
 
 ```{r}
-# view the first observations in geno_map
-head(study_seq$geno_map)
+#plot the pedigree for family 1, after sequence data simulation
+#Since the affected_only option was used the pedigree will now contain 
+#only the affected relatives and the relatives who connect them.
+plot(study_seq$ped_files[study_seq$ped_files$FamID == 1, ],
+     location = "bottomleft")
+
+#haplotype data for family 1, appended with IDs
+cbind(study_seq$haplo_map$ID[study_seq$haplo_map$FamID == 1],
+      study_seq$ped_haplos[study_seq$haplo_map$FamID == 1, ])
 ```
 
-The `geno_map` data frame is used to map the haplotypes (i.e. rows) in `ped_genos` to the individuals in `ped_files`.  Notice that in the output above individual 1 from family 1 is listed in rows 1 and 2, and individual 2 from family 1 is listed in rows 3 and 4.  This is because the genetic material inherited from each parent is stored in its own row.  The first row represents the material inherited from the father, while the second row represents the material inherited from the mother.
+```{r}
+hap_at_path <- cbind(study_seq$haplo_map$ID[study_seq$haplo_map$FamID == 1],
+                     study_seq$ped_haplos[study_seq$haplo_map$FamID == 1,
+                                          study_seq$SNV_map$possibleSNV])
+colnames(hap_at_path) <- c("ID", study_seq$SNV_map$marker[study_seq$SNV_map$possibleSNV])
 
+hap_at_path
+```
+
+# 8. Timing <a name="Time"></a>
 Importing exon-only sequence data from slim output took approximately 6.9 minutes.
 Simulating exon-only sequence data for 200 pedigrees on (insert computer specs here) took approximately 1.15 minutes (affected-only).
 
