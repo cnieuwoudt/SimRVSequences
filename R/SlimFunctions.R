@@ -320,7 +320,7 @@ read_slim <- function(file_path, keep_maf = 0.01,
                                         pathwayDF = pathway_df)
   }
 
-  return(list(Mutations = RareMutData, Genomes = GenoData))
+  return(list(Mutations = RareMutData, Haplotypes = GenoData))
 }
 
 
