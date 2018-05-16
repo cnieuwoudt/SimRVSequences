@@ -1,3 +1,21 @@
+#' Reduce haplos to contain non-cSNV data
+#'
+#' @inheritParams sim_FGenos
+#'
+#' @return The reduced haplotype matrix.
+#'
+#' @export
+condition_haplos_no_cSNV <- function(haplos, RV_pool_loc){
+  #determine which of the haplotypes carry a causal SNV
+  RV_haps <- lapply(RV_pool_loc, function(x){
+    which(haplos[, x] == 1)
+  })
+
+  RV_rows <- Reduce(union, RV_haps)
+
+  return(haplos[-RV_rows, ])
+}
+
 #' Draw Founder Genotypes from Haplotype Distribution Given Familial Risk Variant
 #'
 #' \strong{For internal use.}
@@ -7,42 +25,64 @@
 #' @param RV_founder_pat Numeric. RV_founder_pat == 1 if RV founder inherited the RV from dad, and 0 if inherited RV from mom.
 #' @param haplos sparseMatrix.  The sparseMatrix of genomes returned by \code{read_slimOut}.
 #' @param RV_col_loc Nueric. The column location of the familial RV in haplos.
+#' @param RV_pool_loc The column locations of each SNV in the pool of candidate SNVs.
 #'
 #' @return list of familial founder genotypes
 #' @export
 #'
 sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
-                       haplos, RV_col_loc) {
+                       haplos, RV_col_loc, RV_pool_loc) {
 
-  #Determine which haplotypes carry the familial rare variant and which so not
-  RV_haps <- which(haplos[, RV_col_loc] == 1)
-  noRV_haps <- which(haplos[, RV_col_loc] == 0)
+  #here we determine the protocol for fully sporatic families
+  #i.e. families that do not segregate any cSNVs
+  if(is.null(RV_founder)){
+    #reduce haplos to contain only haplotypes that do
+    #not carry any cRV in our pool of possible SNVs
+    noRV_haps <- condition_haplos_no_cSNV(haplos, RV_pool_loc)
 
-  #for the seed founder: sample one haplotype from those that carry the RV
-  # and one haplotype from those that DO NOT carry the RV
-  #for all other founders: sample 2 haplotypes that do not carry the RV
-  if(length(RV_haps) == 1){
-    founder_genos = haplos[c(RV_haps,
-                                     sample(x = noRV_haps,
-                                            size = (2*length(founder_ids) + 1),
-                                            replace = TRUE)), ]
+    #sample all founder data from this pool
+    founder_genos = noRV_haps[c(sample(x = 1:nrow(noRVhaps),
+                                       size = (2*length(founder_ids) + 2),
+                                       replace = TRUE)), ]
+
+    #create IDs to associate founders to rows in founder_genos
+    founder_genos_ID <- rep(c(RV_founder, founder_ids), each = 2)
+
   } else {
-    founder_genos = haplos[c(sample(x = RV_haps, size = 1),
-                                     sample(x = noRV_haps,
-                                            size = (2*length(founder_ids) + 1),
-                                            replace = TRUE)), ]
+
+    #Determine which haplotypes carry the familial rare variant and which so not
+    RV_haps <- which(haplos[, RV_col_loc] == 1)
+    noRV_haps <- which(haplos[, RV_col_loc] == 0)
+
+    #NOTE: Under this scheme, marry-ins may introduce SNVs from our pool of causal
+    #rare variants, just not the one that is the familial cRV
+
+    #for the seed founder: sample one haplotype from those that carry the RV
+    # and one haplotype from those that DO NOT carry the RV
+    #for all other founders: sample 2 haplotypes that do not carry the RV
+    if(length(RV_haps) == 1){
+      founder_genos = haplos[c(RV_haps,
+                               sample(x = noRV_haps,
+                                      size = (2*length(founder_ids) + 1),
+                                      replace = TRUE)), ]
+    } else {
+      founder_genos = haplos[c(sample(x = RV_haps, size = 1),
+                               sample(x = noRV_haps,
+                                      size = (2*length(founder_ids) + 1),
+                                      replace = TRUE)), ]
+    }
+
+
+
+    #Asscociate RV to row 1, if paternally inherited OR row 2 if maternally inherited.
+    if(RV_founder_pat == 0){
+      founder_genos[c(1,2), ] <- founder_genos[c(2, 1), ]
+    }
+
+
+    #create IDs to associate founders to rows in founder_genos
+    founder_genos_ID <- rep(c(RV_founder, founder_ids), each = 2)
   }
-
-
-
-  #Asscociate RV to row 1, if paternally inherited OR row 2 if maternally inherited.
-  if(RV_founder_pat == 0){
-    founder_genos[c(1,2), ] <- founder_genos[c(2, 1), ]
-  }
-
-
-  #create IDs to associate founders to rows in founder_genos
-  founder_genos_ID <- rep(c(RV_founder, founder_ids), each = 2)
 
   return(list(founder_genos, founder_genos_ID))
 }
@@ -97,7 +137,7 @@ remove_allWild <- function(f_haps, SNV_map){
 #' @param SNV_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
 #' @param haplos sparseMatrix. The genomes matrix returned by \code{read_slim}.  Mutations in haplos are described in \code{SNV_map}.
 #' @param affected_only Logical. When \code{affected_only = TRUE} pedigrees are reduced contain only diesease-affected relatives, their parents, and any obligate carriers or founders; sequence data is simulated only for retained family memebres. When \code{affected_only = FALSE} sequence data is simulated for all.  By default, \code{affected_only = TRUE}.
-#' @param convert_to_cM Logical. The setting \code{convert_to_cM = TRUE} must be used if genomic positions are given in base pairs.  If the genomic postions in \code{SNV_map} are listed in centiMorgan, please set \code{convert_to_cM = FALSE}.  By default, \code{convert_to_cM = TRUE}.
+#' @param pos_in_bp Logical. The setting \code{pos_in_bp = TRUE} must be used if genomic positions are given in base pairs.  If the genomic postions in \code{SNV_map} are listed in centiMorgan, please set \code{pos_in_bp = FALSE}.  By default, \code{pos_in_bp = TRUE}.
 #' @param remove_wild Logical. Should markers at which no member of study carry a mutated allele be removed from the data. By default, \code{remove_wild = TRUE}.
 #'
 #' @return study_sequences
@@ -108,10 +148,10 @@ remove_allWild <- function(f_haps, SNV_map){
 #' data(EgPeds)
 #'
 #' library(SimRVSequences)
-#' data(EXmut)
+#' data(EXmuts)
 #' data(EXgen)
 #'
-#' markers = EXmut
+#' markers = EXmuts
 #' markers$possibleSNV = FALSE
 #' markers$possibleSNV[1] = TRUE
 #'
@@ -124,7 +164,7 @@ remove_allWild <- function(f_haps, SNV_map){
 sim_RVstudy <- function(ped_files, SNV_map,
                         haplos,
                         affected_only = TRUE,
-                        convert_to_cM = TRUE,
+                        pos_in_bp = TRUE,
                         remove_wild = TRUE,
                         burn_in = 1000,
                         gamma_params = c(2.63, 2.63/0.5)){
@@ -133,6 +173,7 @@ sim_RVstudy <- function(ped_files, SNV_map,
   check_SNV_map(SNV_map)
 
   FamIDs <- unique(ped_files$FamID)
+
   #reduce to affected only pedigrees unless otherwise specified
   if (affected_only) {
     Afams <- lapply(FamIDs, function(x){
@@ -144,6 +185,11 @@ sim_RVstudy <- function(ped_files, SNV_map,
 
   #sampling from RV markers
   #to determine familial RV locus
+  if (is.null(SNV_map$possibleSNV)) {
+    SNV_map$possibleSNV = FALSE
+    SNV_map$possibleSNV[sample(1:nrow(SNV_map), size = 1)] = TRUE
+  }
+
   Fam_RVs <- sample(x = SNV_map$marker[SNV_map$possibleSNV],
                     size = length(FamIDs),
                     replace = TRUE)
@@ -161,7 +207,8 @@ sim_RVstudy <- function(ped_files, SNV_map,
                RV_founder_pat = ped_files$DA1[which(ped_files$FamID == FamIDs[x]
                                                    & is.na(ped_files$dadID)
                                                    & (ped_files$DA1 + ped_files$DA2) == 1)],
-               haplos, RV_col_loc = which(SNV_map$marker == Fam_RVs[x]))
+               haplos, RV_col_loc = which(SNV_map$marker == Fam_RVs[x]),
+               RV_pool_loc = SNV_map$colID[SNV_map$possibleSNV])
   })
 
   #If desired by user, we now reduce the size of the data by removing
@@ -170,15 +217,14 @@ sim_RVstudy <- function(ped_files, SNV_map,
     reduced_dat <- remove_allWild(f_haps = f_genos, SNV_map)
     f_genos <- reduced_dat[[1]]
     SNV_map <- reduced_dat[[2]]
-
   }
 
-  #create chrom_map, this is used to determine where we need to
-  #simulate recombination
+  #create chrom_map, this is used to determine the segments over
+  #which we will simulate genetic recombination
   chrom_map <- create_chrom_map(SNV_map)
 
   #convert from base pairs to centiMorgan
-  if (convert_to_cM) {
+  if (pos_in_bp) {
     options(digits = 9)
     chrom_map$start_pos <- convert_BP_to_cM(chrom_map$start_pos)
     chrom_map$end_pos <- convert_BP_to_cM(chrom_map$end_pos)
@@ -195,8 +241,14 @@ sim_RVstudy <- function(ped_files, SNV_map,
               burn_in, gamma_params)
     })
 
-  ped_genos <- do.call("rbind", lapply(ped_seqs, function(x){x$ped_genos}))
-  geno_map <- do.call("rbind", lapply(ped_seqs, function(x){x$geno_map}))
+  ped_haplos <- do.call("rbind", lapply(ped_seqs, function(x){x$ped_genos}))
+  haplo_map <- do.call("rbind", lapply(ped_seqs, function(x){x$geno_map}))
 
-  return(list(ped_genos = ped_genos, geno_map = geno_map, SNV_map = SNV_map))
+  #convert back to base pairs if we converted to CM
+  if (pos_in_bp) {
+    options(digits = 9)
+    SNV_map$position <- convert_CM_to_BP(SNV_map$position)
+  }
+
+  return(list(ped_haplos = ped_haplos, haplo_map = haplo_map, SNV_map = SNV_map, ped_files = ped_files))
 }
