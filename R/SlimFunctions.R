@@ -231,7 +231,7 @@ read_slim <- function(file_path, keep_maf = 0.01,
   IndHead <- which(exDat == "Individuals:")
   GenHead <- which(exDat == "Genomes:")
 
-  popCount <- as.numeric(unlist(strsplit(exDat[PopHead+1], split = " "))[2])
+  popCount <- as.numeric(unlist(strsplit(exDat[PopHead + 1], split = " "))[2])
   #-----------#
   # Mutations #
   #-----------#
@@ -253,7 +253,7 @@ read_slim <- function(file_path, keep_maf = 0.01,
   #First position in slim is 0, not 1
   MutData$position <- MutData$position + 1
 
-  #calculate the minor allele frequency
+  #calculate the derived allele frequency
   MutData$afreq <- MutData$prevalence/(2*popCount)
 
   #order Mutation dataset by tempID, so that (later) we can order
