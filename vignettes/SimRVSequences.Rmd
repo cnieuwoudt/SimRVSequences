@@ -229,7 +229,7 @@ EXhaps[1:15, 1:30]
 
 # 5. Select Pool of Causal Variants <a name="CausalVars"></a>
 
-Our next task is to decide which mutations will be modeled as causal variants.  We will focus on the pathway approach, which allows for causal variation in a pathway, or a set of related genes, but note that implementation of a single causal variant is equivalent to a pathway containing a single gene with a single mutation.
+Our next task is to decide which mutations will be modeled as causal variants.  We will focus on a pathway approach, which allows for causal variation in a pathway, or a set of related genes, but note that implementation of a single causal variant is equivalent to a pathway containing a single gene with a single mutation.
 
 For `SimRVpedigree`'s ascertainment process to be valid we require the probability that a random individual carries a risk allele to be small, i.e $\le$ 0.002 (cite Nieuwoudt 2017).
 
@@ -326,7 +326,7 @@ plot(study_peds[study_peds$FamID == 1, ],
      ref_year = 2018)
 ```
 
-According to the legend, disease-affected individuals (IDs 1, 4, and 12) are indicated by a solid shading in the upper left third of their symbol.  The proband (ID 12) is indicated by shading in the lower portion of her symbol. Individuals who have inherited the \crv{} (IDs 1, 4, 12) are indicated by shading in the upper right portion of their symbol.
+According to the legend, disease-affected individuals (IDs 1, 4, and 12) are indicated by a solid shading in the upper left third of their symbol.  The proband (ID 12) is indicated by shading in the lower portion of her symbol. Individuals who have inherited the cRV (IDs 1, 4, 12) are indicated by shading in the upper right portion of their symbol.
 
 The seed founder (ID 1) and all of her descendants have age data relative to the reference year, which are displayed below their symbols.  If a descendant has died by the reference year (IDs 1 and 4) their year of birth and death are displayed in parentheses, and their symbol will have a diagonal line over it. Descendants who are still alive at the reference year have an age identifier.  Descendants who have experienced disease-onset by the reference year will have a disease onset age identifier.
 
@@ -365,6 +365,8 @@ Simulating sequence data for ascertained pedigree is achieved with `sim_RVstudy`
 3. `haplos` A sparse matrix of haplotype data, which contains the haplotype data for a sample of unrelated individuals.  Rows are assumed to be haplotypes, while columns reprsent SNVs.  If `read_slim` was used to import data, users may supply the sparse matrix `Haplotypes` returned by this function.   
 2. `SNV_map` A data frame cataloging the SNV data in `haplos`. The rows of `SNV_map` describe the columns in `haplos.`  If `read_slim` was used to import data, the data frame `Mutations` returned by this function is of the proper format.  We note that users must add the variable `possibleSNV` to `Mutations` as in section 5.  If the varible `possibleSNV` is not included a single SNV is randomly sampled and set to be the cRV for every pedigree in the study.  
 4. `affected_only` a logical variable.  When `affected_only = TRUE`, data is only simulated for affected individuals and the family members that connect them.  When `affected_only = FALSE` sequence data is simulated for the entire pedigree. By default, `affected_only = TRUE`.
+5. `remove_wild` a logical variable that determines if SNVs not carried by any member of the study should be removed from the data.  When  `remove_wild = TRUE` such SNVs are removed from the data, otherwise they are not.
+6.  `pos_in_bp` is a logical varible which indicates if the positions in `SNV_map` are listed in base pairs.  When `pos_in_bp = TRUE`, we assume the the positions are listed in base pairs, when `pos_in_bp = FALSE` we assume that the postions in `SNV_map` are listed in centimorgan.
 5. `gamma_params` The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, `gamma_params = c(2.63, 2*2.63)`, as in [9].
 6. `burn-in` The burn in distance in cM, used to simulate the location of the first chiasmata. By default, `burn_in = 1000`, as in [9].
 
@@ -416,7 +418,7 @@ head(study_seq$haplo_map)
 The `haplo_map` data frame is used to map the haplotypes (i.e. rows) in `ped_haplos` to the individuals in `ped_files`.  Notice that in the output above individual 1 from family 1 is listed in rows 1 and 2, and individual 2 from family 1 is listed in rows 3 and 4.  This is because the genetic material inherited from each parent is stored in its own row.  The first row represents the material inherited from the father, while the second row represents the material inherited from the mother.
 
 
-This is counting the total number of SNVs sharded by the affected relatives in the pedigrees.
+This function is counting the total number of SNVs sharded by the affected relatives in the pedigrees.
 NOTE: may share more than number of affected
 
 ```{r}
@@ -424,7 +426,7 @@ summarize_study(study_seq)
 ```
 
 
-```{r}
+```{r, fig.height = 4, fig.width = 4}
 #plot the pedigree for family 1, after sequence data simulation
 #Since the affected_only option was used the pedigree will now contain 
 #only the affected relatives and the relatives who connect them.
@@ -446,8 +448,22 @@ hap_at_path
 ```
 
 # 8. Timing <a name="Time"></a>
-Importing exon-only sequence data from slim output took approximately 6.9 minutes.
-Simulating exon-only sequence data for 200 pedigrees on (insert computer specs here) took approximately 1.15 minutes (affected-only).
+**All of the following timing estimates were performed on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM.**
+
+Importing exon-only sequence data from the text file produced by slim's outputFull() method slim output took approximately 6.9 minutes.
+
+To time simulation of sequence data with the `sim_RVstudy` function, we explore the effects of the `affected_only` and `remove_wild` arguments on a sample of 200 fully-ascertained pedigrees which contained at least 2 disease-affected relatives.
+
+When `affected_only = TRUE`, data is simulated only for the affected individuals and the family members that connect them, otherwise if `affected_only = FALSE` sequence data is simulated for the entire pedigree.  When `remove_wild = TRUE` the size of the data is reduced by removing SNVs not carried by any member of the study from the data; otherwise if `remove_wild = FALSE` they are not.
+
+Number of Pedigrees|`affected_only`|`remove_wild`|time (in minutes)
+---------|--------|------|--------------
+200|TRUE|TRUE|0.83
+200|TRUE|FALSE|1.12
+200|FALSE|TRUE|6.68
+200|FALSE|FALSE|8.84
+
+For the sample of 200 pedigrees used to time `sim_RVstudy`, setting `affected_only = FALSE` resulted in simuation of sequence data for a total of 4874 individuals, when `affected_only = TRUE` the data was reduced to contain a total of 806 individuals.  On average, this resulted in a reduction of 24.25 individuals from each pedigree.
 
 
 # 8. References <a name="Ref"></a>
