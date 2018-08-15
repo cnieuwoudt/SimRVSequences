@@ -33,15 +33,16 @@ condition_haplos_no_cSNV <- function(haplos, RV_pool_loc){
 sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
                        haplos, RV_col_loc, RV_pool_loc) {
 
-  #here we determine the protocol for fully sporatic families
+  #here we handle the fully sporatic families
   #i.e. families that do not segregate any cSNVs
   if(is.null(RV_founder)){
+
     #reduce haplos to contain only haplotypes that do
-    #not carry any cRV in our pool of possible SNVs
+    #not carry any of the cRVs in our pool of possible SNVs
     noRV_haps <- condition_haplos_no_cSNV(haplos, RV_pool_loc)
 
     #sample all founder data from this pool
-    founder_genos = noRV_haps[c(sample(x = 1:nrow(noRVhaps),
+    founder_genos <- noRV_haps[c(sample(x = 1:nrow(noRV_haps),
                                        size = (2*length(founder_ids) + 2),
                                        replace = TRUE)), ]
 
@@ -51,23 +52,27 @@ sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
   } else {
 
     #Determine which haplotypes carry the familial rare variant and which so not
-    RV_haps <- which(haplos[, RV_col_loc] == 1)
-    noRV_haps <- which(haplos[, RV_col_loc] == 0)
+    RV_hap_loc <- which(haplos[, RV_col_loc] == 1)
+    noRV_hap_loc <- which(haplos[, RV_col_loc] == 0)
+
+    #NOTE: Under this scheme, marry-ins may NOT introduce any SNV
+    #from our pool of causal rare variants
 
     #NOTE: Under this scheme, marry-ins may introduce SNVs from our pool of causal
     #rare variants, just not the one that is the familial cRV
 
+
     #for the seed founder: sample one haplotype from those that carry the RV
-    # and one haplotype from those that DO NOT carry the RV
+    #and one haplotype from those that DO NOT carry the RV
     #for all other founders: sample 2 haplotypes that do not carry the RV
-    if(length(RV_haps) == 1){
-      founder_genos = haplos[c(RV_haps,
-                               sample(x = noRV_haps,
+    if(length(RV_hap_loc) == 1){
+      founder_genos <- haplos[c(RV_hap_loc,
+                               sample(x = noRV_hap_loc,
                                       size = (2*length(founder_ids) + 1),
                                       replace = TRUE)), ]
     } else {
-      founder_genos = haplos[c(sample(x = RV_haps, size = 1),
-                               sample(x = noRV_haps,
+      founder_genos <- haplos[c(sample(x = RV_hap_loc, size = 1),
+                               sample(x = noRV_hap_loc,
                                       size = (2*length(founder_ids) + 1),
                                       replace = TRUE)), ]
     }
@@ -87,7 +92,9 @@ sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
   return(list(founder_genos, founder_genos_ID))
 }
 
-#' Remove markers at which all individuals carry wild type allele
+#' Remove unmutated markers from data
+#'
+#' Remove any markers for which all founders, in the study, are homozygous for the wild-type allele.  Since we do not model de novo mutations, it is not possible for non-founders to develop mutations at these loci.
 #'
 #' @param f_haps The founder haplotypes data. This is a list of lists (by family). By family, this contains the haplotypes for each founder (first item), and a list of ID numbers (second item) which is used to map the haplotype to the person to whom it belongs.
 #' @param SNV_map data.frame. Catalogs the SNV data contained in the familial haplotypes.
@@ -149,7 +156,7 @@ remove_allWild <- function(f_haps, SNV_map){
 #'
 #' library(SimRVSequences)
 #' data(EXmuts)
-#' data(EXgen)
+#' data(EXhaps)
 #'
 #' markers = EXmuts
 #' markers$possibleSNV = FALSE
@@ -157,15 +164,14 @@ remove_allWild <- function(f_haps, SNV_map){
 #'
 #' seqDat = sim_RVstudy(ped_files = EgPeds,
 #'                      SNV_map = markers,
-#'                      haplos = EXgen)
+#'                      haplos = EXhaps)
 #'
 #' summary(seqDat)
 #'
-sim_RVstudy <- function(ped_files, SNV_map,
-                        haplos,
+sim_RVstudy <- function(ped_files, SNV_map, haplos,
                         affected_only = TRUE,
-                        pos_in_bp = TRUE,
                         remove_wild = TRUE,
+                        pos_in_bp = TRUE,
                         burn_in = 1000,
                         gamma_params = c(2.63, 2.63/0.5)){
 
@@ -185,18 +191,20 @@ sim_RVstudy <- function(ped_files, SNV_map,
 
   #sampling from RV markers
   #to determine familial RV locus
+  #NOTE: IF POSSIBLE SNV NOT SPECIFIED A SINGLE SNV IS CHOSEN AS
+  #      CAUSAL FOR ALL FAMILIES IN STUDY.  DOES NOT CONSIDER ALLELE FREQUENCY.
   if (is.null(SNV_map$possibleSNV)) {
     SNV_map$possibleSNV = FALSE
     SNV_map$possibleSNV[sample(1:nrow(SNV_map), size = 1)] = TRUE
   }
 
+  #sample the familial cSV from the pool of potential cRVs with replacement.
   Fam_RVs <- sample(x = SNV_map$marker[SNV_map$possibleSNV],
                     size = length(FamIDs),
                     replace = TRUE)
 
-  #Given the location of familial risk variants,
-  #sample familial founder haplotypes from
-  #conditional haplotype distribution
+  #Given the location of familial risk variants, sample familial founder
+  #haplotypes from conditional haplotype distribution
   f_genos <- lapply(c(1:length(FamIDs)), function(x){
     sim_FGenos(founder_ids = ped_files$ID[which(ped_files$FamID == FamIDs[x]
                                                 & is.na(ped_files$dadID)

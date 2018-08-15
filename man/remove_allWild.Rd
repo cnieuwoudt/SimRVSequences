@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim_StudySeqFunctions.R
 \name{remove_allWild}
 \alias{remove_allWild}
-\title{Remove markers at which all individuals carry wild type allele}
+\title{Remove unmutated markers from data}
 \usage{
 remove_allWild(f_haps, SNV_map)
 }
@@ -15,7 +15,7 @@ remove_allWild(f_haps, SNV_map)
 A list (by family) of haplotype matrices and ID vectors and the reduce marker data set.
 }
 \description{
-Remove markers at which all individuals carry wild type allele
+Remove any markers for which all founders, in the study, are homozygous for the wild-type allele.  Since we do not model de novo mutations, it is not possible for non-founders to develop mutations at these loci.
 }
 \examples{
 #probably no examples
