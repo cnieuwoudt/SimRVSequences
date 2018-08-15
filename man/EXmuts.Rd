@@ -17,7 +17,7 @@
 EXmuts
 }
 \description{
-This data set contains mutations along segments of length 20,000 base pairs from human chromosomes 1-5. This dataset is intended to accompany the EXgen dataset and is used for demonstration purposes.
+This data set catalogs the mutations in the \code{\link{EXhaps}} data set.  Each row of \code{EXmuts} describes a column (i.e. SNV) in \code{EXhaps}. This toy data set is used primarily for demonstration, and does not represent a complete sample of all mutations that would accompany a full exon-only simulation.
 }
 \seealso{
 EXgen
