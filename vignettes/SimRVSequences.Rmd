@@ -2,7 +2,7 @@
 title: "SimRVSequences"
 author: "Christina Nieuwoudt and Jinko Graham"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_document
+output: rmarkdown::pdf_document
 setspace: doublespacing
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
@@ -32,30 +32,43 @@ body{ /* Normal  */
 
 # 1. Introduction <a name="introduction"></a>
 
-Family-based studies are more attractive than case-control studies because they have more power to detect causal rare variants, require smaller sample sizes, and can more accurately detect sequencing errors [4].  However, data collection for these studies is both time consuming and expensive.  
+Family-based studies are more attractive than case-control studies because they have more power to detect causal rare variants, require smaller sample sizes, and can more accurately detect sequencing errors [4].  However, data collection for these studies is both time consuming and expensive. Furthermore, evaluating methodology to identify causal rare variants requires simulated data. 
 
-`SimRVSequences` provides methods to simulate sequence data for family-based studies.  To accomplish this we require: (1) single-nucleotide variant (SNV) data from a sample of unrelated individuals and (2) a sample of ascertained pedigrees.  Presently, we streamline this process for pedigrees simulated by `SimRVPedigree` [3] and exon-only SNV data produced by SLiM 2.0 [1].  In this vignette we illustrate how the methods provided by `SimRVSequences` may be used to accomplish this task.
+`SimRVSequences` provides methods to simulate sequence data for family-based studies.  To accomplish this we require: (1) single-nucleotide variant (SNV) data from a sample of unrelated individuals and (2) a sample of ascertained pedigrees.  Presently, we streamline this process for pedigrees simulated by `SimRVPedigree` [3] and exon-only SNV data produced by SLiM 2.0 [1]. **UPDATE TO SLiM 3.0**  In this vignette we illustrate how the methods provided by `SimRVSequences` may be used to accomplish this task.
 
 # 2. `SimRVSequences` Assumptions <a name="Assumptions"></a>
 
-1. Given a sample of ascertained pedigrees we allow families to segregate different rare variants, but assume that within a family genetic cases are due to a causal rare variant (cRV) that increases disease susceptibility.  We assume that no more than 1 cRV segregating among descendants, and that only 1 copy of the familial cRV is introduced to the pedigree.
-2. We assume that the cRV status of every pedigree member is known.  The `R` package `SimRVPedigree` may be used to simulate pedigrees that meet this criteria.
-3. Founder haplotypes are sampled from the population distribution of haplotypes conditioned on the founder's cRV status.
-4. We use a conditional gene-drop algorithm to model inheritance from parent to offspring, which can be described as follows for each parent-offspring pair.
+1. Given a sample of ascertained pedigrees we allow families to segregate different rare variants, but assume that within a family genetic cases are due to a single, **causal rare variant (cRV)** that increases disease susceptibility.  We assume that only one copy of the familial cRV is introduced to the pedigree.
+2. We assume that the cRV status of every pedigree member is known.  The `R` package `SimRVPedigree` [3] may be used to simulate pedigrees that meet this criteria.
+3. Founder haplotypes are sampled from a user-specified, population distribution of haplotypes conditioned on their cRV status.
+4. We use a conditional gene-drop algorithm to model inheritance from parent to offspring, which can be described as follows.
   * Simulation of gametes.
-    1.  Following the direction of Voorrips 2012, we assume that the distance between chiasmata may be modeled by a gamma distribution.  The default parameter settings shape = 2.63 and rate = 2*2.63 are used to model genetic recombination with chiasmata interference, with a burn in of 1000 cM.  To model recombination without chiasmata interference, i.e. according to Haldane's model: set shape = 1, rate = 2, and burn in to 0.
-    2. We assume no chromatid interference so that non-sister chromatids are equally likely to participate in a crossover event [cite Lange, or Voorrips?].
+    1. Following Voorrips and Maliepaard (2012), we model the distance between chiasmata by a gamma distribution.  The default parameter settings, `shape = 2.63` and `rate = 2*2.63`, are used to model genetic recombination with chiasmata interference.  To model recombination without chiasmata interference, i.e. according to Haldane's model, set `shape = 1` and `rate = 2`.
+    2. We assume no chromatid interference so that non-sister chromatids are equally likely to participate in a crossover event.
     3. To simulate the formation of gametes we assume that homologous chromatids are assigned to one of four gamete cells with equal probability.  This assignment occurs independently for non-homologous chromosomes.
   * We use a conditional gene drop algorithm to determine which of the four gametes is transmitted from parent to offspring by considering the cRV status of the parent and the offspring, as follows.
-    + Case 1: If **both the parent and offspring carry the cRV** we sample the inherited gamete from the two possible parental gametes that carry the cRV.
-    + Case 2: If the **parent carries the cRV but the offspring does not**, we sample the inherited gamete from the two possible parental gametes that do not carry the cRV.
-    + Case 3: If the **parent is not a carrier of the cRV**, then the cRV status of the offspring is irrelevant for this parent's transmission because the offspring cannot inherit it from this parent.  In this scenario, we sample the inherited gamete from the four parental gametes with equal probability.
+    + Case 1: If **both the parent and offspring carry the cRV** we sample the inherited gamete from the two possible parental gametes that carry the cRV. For example, in the father to offspring transmission in Figure 1, we choose from the paternal gametes that the top two recombinant chromatids reside in.
+    + Case 2: If the **parent carries the cRV but the offspring does not**, we sample the inherited gamete from the two possible parental gametes that do not carry the cRV. For example, in the father to offspring transmission in Figure 1, we choose from the paternal gametes that the bottom two recombinant chromatids reside in.
+    + Case 3: If the **parent is not a carrier of the cRV**, then the cRV status of the offspring is irrelevant for this parent's transmission because the offspring cannot inherit it from this parent.  In this scenario, we sample the inherited gamete from the four parental gametes with equal probability.  For example, in the mother to offspring transmission in Figure 1, we sample one of the four gametes with equal probability.
 
+
+![A family trio with possible paternal and maternal recombinant chromatids displayed for a single chromosome.  The cRV locus is indicated by a dashed vertical line, and the cRV is indicated by a black vertical bar.  The top two recombinant chromatids of the father contain the only copies of the cRV.](C:/Users/cnieuwoudt/Documents/SimRVSequences/vignettes/singlechromgametes.png)
+
+**What we don't do**
+**alternate less obvious uses**
 
 
 # 3. Exon-Only Data with SLiM 2.0 <a name="SlimMap"></a>
 
-SLiM 2.0 allows users to specify a recombination map to simulate recombination hot spots.  Additionally, the recombination map can be used to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  The `create_slimMap` function may be used to create a recombination map to simulate exon-only data with SLiM.  We will illustrate this process using the `hg_exons` data set.
+The Eidos program SLiM 2.0 **3.0** may be used to simulate exon-only data.  SLiM allows users to specify a recombination map to simulate recombination hot spots.  The recombination map may be utilized to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  
+
+The `R` function `create_slimMap`, included in the `SimRVSequences` package, is provided to users to simplify the task of creating the recombination map required to simulate exon-only SNV data in SLiM.  The `create_slimMap` function has three arguments:
+
+1. `exon_df`: A data frame that contains the positions of each exon to simulate.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.   *We expect that `exon_df` does not contain any overlapping segments.  Prior to supplying exon data to `create_slimMap` users must combine overlapping exons into a single observation.  The `combine_exons` function may be used to accomplish this task (see section 3.1).*  The variable `NCBIref`, as seen in `hg_exons`, is not required.
+2. `mutation_rate`: the per site per generation mutation rate, assumed to be constant across the genome. By default, `mutation_rate= 1E-8`, as in Harris and Nielsen (2016).
+3. `recomb_rate`: the per site per generation recombination rate, assumed to be constant across the genome.   By default, `recomb_rate= 1E-8`, as in Harris and Nielsen (2016).  
+
+We will illustrate usage of `create_slimMap` using the `hg_exons` data set.
 
 ```{r}
 # load the SimRVSequences library
@@ -70,34 +83,6 @@ head(hg_exons, n = 4)
 
 As seen in the output above, the `hg_exons` data set catalogs the position of each exon in the 22 human autosomes. The data contained in `hg_exons` was collected from the UCSC Genome Browser [5, 6]. The variable `chrom` is the chromosome on which the exon resides, `exonStart` is the position of the first base pair in the exon, and `exonEnd` is the position of the last base pair in the exon.  The variable `NCBIref` is the NCBI reference sequence accession numbers for the coding region in which the exon resides.  In `hg_exons` overlapping exons have been combined into a single observation. When exons from genes with different NCBI accession numbers have been combined the variable `NCBIref` will contain multiple accession numbers, each separated by a comma.  We note that different accession numbers may exist for transcript variants of the same gene.
 
-The `create_slimMap` function has three arguments:
-
-1. `exon_df`: A data frame that contains the positions of each exon to simulate.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.   *We expect that `exon_df` does not contain any overlapping segments.  Prior to supplying exon data to `create_slimMap` users must combine overlapping exons into a single observation.  The `combine_exons` function may be used to accomplish this task.*  The variable `NCBIref`, as seen in `hg_exons`, is not required.
-2. `mutation_rate`: the per site per generation mutation rate. By default, `mutation_rate= 1E-8`, as in Harris (2016).
-3. `recomb_rate`: the per site per generation recombination rate.  By default, `recomb_rate= 1E-8`, as in Harris (2016).  
-
-Usage of the `combine_exons` function is illustrated below.
-
-```{r}
-#create an example data frame that contains the 
-#the variables: chrom, exonStart, and exonEnd
-exDat <- data.frame(chrom     = c(1, 1, 1, 2, 2, 2),
-                    exonStart = c(1, 2, 5, 1, 3, 3),
-                    exonEnd   = c(3, 4, 7, 4, 5, 6))
-
-#View exDat data set
-exDat
-```
-
-From the output above, we see that the first two exons in chromosome one overlap (i.e. the exons with ranges [1, 3] and [2, 4]), as do all three exons in chromosome two.
-
-```{r}
-#supply exDat to combine exons
-#and view the results
-combine_exons(exDat)
-```
-
-After supplying the data to `combine_exons` we see that the segments [1, 3] and [2, 4] on chromosome one have been combined in to a single segment: [1, 4].  Similarly, the three overlapping exons from chromosome two: [1, 4], [3, 5], and [3, 6], have now been combined into the segment [1, 6].
 
 Since the exons in `hg_exons` have already been combined into non-overlapping segments, we simply supply this data frame to `create_slimMap`.
 
@@ -145,6 +130,31 @@ head(slimMap)
 
 We used SLiM 2.0 to generate neutral mutations in exons and allowed them to accumulate over 44,000 generations, as in Harris (2016).  However, SLiM is incredibly versatile and can accommodate many different types of simulations.  The creators of SLiM provide excellent resources and documentation to simulate forwards-in-time evolutionary data, which can be found at the SLiM website: https://messerlab.org/slim/.
 
+## 3.1 The `combine_exons` function
+
+Usage of the `combine_exons` function is illustrated below.
+
+```{r}
+#create an example data frame that contains the 
+#the variables: chrom, exonStart, and exonEnd
+exDat <- data.frame(chrom     = c(1, 1, 1, 2, 2, 2),
+                    exonStart = c(1, 2, 5, 1, 3, 3),
+                    exonEnd   = c(3, 4, 7, 4, 5, 6))
+
+#View exDat data set
+exDat
+```
+
+From the output above, we see that the first two exons in chromosome one overlap (i.e. the exons with ranges [1, 3] and [2, 4]), as do all three exons in chromosome two.
+
+```{r}
+#supply exDat to combine exons
+#and view the results
+combine_exons(exDat)
+```
+
+After supplying the data to `combine_exons` we see that the segments [1, 3] and [2, 4] on chromosome one have been combined in to a single segment: [1, 4].  Similarly, the three overlapping exons from chromosome two: [1, 4], [3, 5], and [3, 6], have now been combined into the segment [1, 6].
+
 # 4. Import SLiM 2.0 Data <a name="SlimDat"></a>
 
 To import data simulated by SLiM, we provide the `read_slim` function.  Presently, the `read_slim` function is only appropriate for data produced by SLiM's outputFull() method. We do not support output in MS or VCF data format (i.e. produced by outputVCFsample() or outputMSSample() in SLiM 2.0).
@@ -156,7 +166,7 @@ The `read_slim` function has four arguments:
 1. `file_path`: The file path of the .txt output file created by the outputFull() method in SLiM 2.0.
 2. `keep_maf`: The largest allele frequency for retained SNVs. All variants with allele frequency greater than `keep_maf` will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R.
 3. `recomb_map`: (Optional) A recombination map of the same format as the data frame returned by `create_slimMap`.  Users who followed the instructions in Section 2, may simply supply the output from `create_slimMap` as `recomb_map`. 
-4. `pathway_df`: (Optional) A data frame that contains the positions for each exon in the pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.  All overlapping exons MUST be combined into a single observation. Please execute the command `help(combine_exons)` for more details.*
+4. `pathway_df`: (Optional) A data frame that contains the positions for each exon in the pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with the `combine_exons` function may be used to accomplish this task (see section 3.1).*
 
 To clarify, the argument `recomb_map` is used to remap mutations to their actual locations and chromosomes.  This is necessary when data has been simulated over non-contiguous regions such as exon-only data.
 
