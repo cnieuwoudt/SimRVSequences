@@ -7,7 +7,7 @@
 combine_exons(exon_data)
 }
 \arguments{
-\item{exon_data}{The exon data to combine.  This data must unclude named variables: 'chrom', a chromosome identifer; 'exonStart', the first position of the exon in base pairs; and 'exonEnd', the last position of the exon in base pairs.}
+\item{exon_data}{data.frame. This data.frame must include named variables: 'chrom', a chromosome identifer; 'exonStart', the first position of the exon in base pairs; and 'exonEnd', the last position of the exon in base pairs.}
 }
 \value{
 A matrix of exon unions, i.e. non-overlapping observations, by chromosome.
