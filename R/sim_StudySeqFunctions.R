@@ -139,7 +139,7 @@ remove_allWild <- function(f_haps, SNV_map){
 
 #' Simulate sequence data for a study
 #'
-#' @inheritParams sim_RVseq
+#' @inheritParams sim_seq
 #' @param ped_files Data frame. Must match format of pedigree simulated by sim_RVped
 #' @param SNV_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
 #' @param haplos sparseMatrix. The genomes matrix returned by \code{read_slim}.  Mutations in haplos are described in \code{SNV_map}.
@@ -242,7 +242,7 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
 
   #simulate non-founder haploypes via conditional gene drop
   ped_seqs <- lapply(c(1:length(FamIDs)), function(x){
-    sim_RVseq(ped_file = ped_files[ped_files$FamID == FamIDs[x], ],
+    sim_seq(ped_file = ped_files[ped_files$FamID == FamIDs[x], ],
               founder_genos = f_genos[[x]],
               SNV_map, chrom_map,
               RV_marker = Fam_RVs[x],
