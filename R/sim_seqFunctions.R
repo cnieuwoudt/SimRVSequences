@@ -89,7 +89,7 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #' @examples
 #' #FIND SHORT WORKING EXAMPLE
 #'
-sim_RVseq <- function(ped_file, founder_genos,
+sim_seq <- function(ped_file, founder_genos,
                       SNV_map, chrom_map, RV_marker,
                       burn_in = 1000, gamma_params = c(2.63, 2.63/0.5)){
 
