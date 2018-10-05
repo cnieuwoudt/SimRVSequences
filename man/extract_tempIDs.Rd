@@ -10,8 +10,6 @@ extract_tempIDs(mutString, rarePos)
 \item{mutString}{character. String containing mutations}
 
 \item{rarePos}{numeric vector. position of variations}
-
-\item{indPos}{numeric. row number of individual}
 }
 \value{
 data.frame with x and y positions of mutations

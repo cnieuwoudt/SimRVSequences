@@ -186,9 +186,13 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' #FIND WORKING EXAMPLE
 #'
 #' \dontrun{
-#' sout = read_slim(file_path = "C:/Data/Slim/SlimFullFix_out.txt",
+#' a = Sys.time()
+#' sout = read_slim(file_path = "C:/Data/Slim/SlimFINALout.txt",
 #'                  keep_maf = 0.01,
-#'                  recomb_map = create_slimMap(hg_exons))
+#'                  recomb_map = create_slimMap(hg_exons),
+#'                  pathway_df = hg_apopPath)
+#' b = Sys.time()
+#' difftime(b, a, units = "mins")
 #'
 #' sout = read_slim(file_path = "C:/Data/Slim/SLiMtest_output.txt",
 #'                  keep_maf = 0.01)
@@ -196,6 +200,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 read_slim <- function(file_path, keep_maf = 0.01,
                       recomb_map = NULL,
                       pathway_df = NULL){
+  #NOTE: Time to read file ~19 secs
   print("Reading Slim File")
   exDat = readLines(file_path)
 
@@ -232,9 +237,11 @@ read_slim <- function(file_path, keep_maf = 0.01,
   GenHead <- which(exDat == "Genomes:")
 
   popCount <- as.numeric(unlist(strsplit(exDat[PopHead + 1], split = " "))[2])
+
   #-----------#
   # Mutations #
   #-----------#
+  #NOTE: time to create Mutations data set ~4 secs
   print("Creating Mutations Dataset")
   #create mutation dataset from slim's Mutation output
   #only retaining the tempID, position, and prevalence of each mutation
@@ -259,14 +266,22 @@ read_slim <- function(file_path, keep_maf = 0.01,
   #order Mutation dataset by tempID, so that (later) we can order
   #the mutations in each haplotypes by increasing genomic position
   MutData <- MutData[order(MutData$tempID), ]
+
+  #Identify the future sparseMatrix column ID of variants with <= keep_maf.
+  #Variants with large maf are assigned column ID 0, i.e. thrown away.
+  #Variants with sufficiently small maf are assigned increasing colIDs.
+  #These are like new tempIDs, they do not reflect genomic position, yet.
   MutData$colID <- cumsum(MutData$afreq <= keep_maf)*(MutData$afreq <= keep_maf)
 
-  #create dataframe of rare mutations only
+  #Using the identified colID, create dataframe of rare mutations only
   RareMutData <- MutData[MutData$colID > 0, ]
 
   #-----------#
   # Genotypes #
   #-----------#
+  #NOTE: jpos is the computationally expensive task (uses strsplit)
+  #this chuck takes ~2.2 minutes to run (for complete exon-only data)
+  #This is an improvement from the old time: ~ 6 mins
   print("Creating Sparse Genotypes Matrix")
   #determine future row and column position of each mutation listed in genomes
   #row will correspond to person, column will correspond to the tempID of the
@@ -295,6 +310,9 @@ read_slim <- function(file_path, keep_maf = 0.01,
   RareMutData$colID <- 1:nrow(RareMutData)
   RareMutData <- RareMutData[, c(5, 2, 4)]
 
+  #------------------#
+  # Re-map Mutations #
+  #------------------#
   if (!is.null(recomb_map)) {
     print("Remapping Mutations")
     RareMutData <- reMap_mutations(mutationDF = RareMutData,
@@ -302,7 +320,6 @@ read_slim <- function(file_path, keep_maf = 0.01,
   } else {
     RareMutData$chrom <- 1
   }
-
 
   row.names(RareMutData) = NULL
 
@@ -313,12 +330,16 @@ read_slim <- function(file_path, keep_maf = 0.01,
   RareMutData <- RareMutData[, c(1, 4, 2, 3, 5)]
 
 
+  #----------------------#
+  # Identify Pathway RVs #
+  #----------------------#
   #if pathway data has been supplied, identify pathway SNVs
   if (!is.null(pathway_df)) {
     print("Identifying Pathway SNVs")
     RareMutData <- identify_pathwaySNVs(markerDF = RareMutData,
                                         pathwayDF = pathway_df)
   }
+
 
   return(list(Mutations = RareMutData, Haplotypes = GenoData))
 }
@@ -328,13 +349,12 @@ read_slim <- function(file_path, keep_maf = 0.01,
 #' Determine i and j positions of mutations for sparse matrix
 #'
 #' @param mutString character. String containing mutations
-#' @param indPos numeric. row number of individual
 #' @param rarePos numeric vector. position of variations
 #'
 #' @return data.frame with x and y positions of mutations
 #' @keywords internal
 extract_tempIDs <- function(mutString, rarePos){
-  tids <- as.numeric(unlist(strsplit(mutString, split = " "))[-c(1:2)]) + 1
+  tids <- as.numeric(strsplit(mutString, split = " ", fixed = TRUE)[[1]][-c(1:2)]) + 1
   #Subset colID by tids (tempID) and retain the colIDs that are non-zero,
   #i.e. the rare varaints
   rarePos[tids][rarePos[tids] > 0]

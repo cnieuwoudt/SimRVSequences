@@ -47,9 +47,13 @@ NOTE TO SELF:
 #FIND WORKING EXAMPLE
 
 \dontrun{
-sout = read_slim(file_path = "C:/Data/Slim/SlimFullFix_out.txt",
+a = Sys.time()
+sout = read_slim(file_path = "C:/Data/Slim/SlimFINALout.txt",
                  keep_maf = 0.01,
-                 recomb_map = create_slimMap(hg_exons))
+                 recomb_map = create_slimMap(hg_exons),
+                 pathway_df = hg_apopPath)
+b = Sys.time()
+difftime(b, a, units = "mins")
 
 sout = read_slim(file_path = "C:/Data/Slim/SLiMtest_output.txt",
                  keep_maf = 0.01)
