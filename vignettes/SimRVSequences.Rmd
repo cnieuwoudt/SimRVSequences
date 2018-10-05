@@ -2,7 +2,7 @@
 title: "SimRVSequences"
 author: "Christina Nieuwoudt and Jinko Graham"
 date: "`r Sys.Date()`"
-output: rmarkdown::pdf_document
+output: rmarkdown::html_document
 setspace: doublespacing
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
@@ -34,7 +34,7 @@ body{ /* Normal  */
 
 Family-based studies are more attractive than case-control studies because they have more power to detect causal rare variants, require smaller sample sizes, and can more accurately detect sequencing errors [4].  However, data collection for these studies is both time consuming and expensive. Furthermore, evaluating methodology to identify causal rare variants requires simulated data. 
 
-`SimRVSequences` provides methods to simulate sequence data for family-based studies.  To accomplish this we require: (1) single-nucleotide variant (SNV) data from a sample of unrelated individuals and (2) a sample of ascertained pedigrees.  Presently, we streamline this process for pedigrees simulated by `SimRVPedigree` [3] and exon-only SNV data produced by SLiM 2.0 [1]. **UPDATE TO SLiM 3.0**  In this vignette we illustrate how the methods provided by `SimRVSequences` may be used to accomplish this task.
+`SimRVSequences` provides methods to simulate sequence data for family-based studies.  To accomplish this we require: (1) single-nucleotide variant (SNV) data from a sample of unrelated individuals and (2) a sample of ascertained pedigrees.  Presently, we streamline this process for pedigrees simulated by `SimRVPedigree` [3] and exon-only SNV data produced by SLiM [1]. **UPDATED TO SLiM 3.0, but reference same**  In this vignette we illustrate how the methods provided by `SimRVSequences` may be used to accomplish this task.
 
 # 2. `SimRVSequences` Assumptions <a name="Assumptions"></a>
 
@@ -42,7 +42,7 @@ Family-based studies are more attractive than case-control studies because they 
 2. We assume that the cRV status of every pedigree member is known.  The `R` package `SimRVPedigree` [3] may be used to simulate pedigrees that meet this criteria.
 3. Founder haplotypes are sampled from a user-specified, population distribution of haplotypes conditioned on their cRV status.
 4. We use a conditional gene-drop algorithm to model inheritance from parent to offspring, which can be described as follows.
-  * Simulation of gametes.
+  * Simulation of Gametes
     1. Following Voorrips and Maliepaard (2012), we model the distance between chiasmata by a gamma distribution.  The default parameter settings, `shape = 2.63` and `rate = 2*2.63`, are used to model genetic recombination with chiasmata interference.  To model recombination without chiasmata interference, i.e. according to Haldane's model, set `shape = 1` and `rate = 2`.
     2. We assume no chromatid interference so that non-sister chromatids are equally likely to participate in a crossover event.
     3. To simulate the formation of gametes we assume that homologous chromatids are assigned to one of four gamete cells with equal probability.  This assignment occurs independently for non-homologous chromosomes.
@@ -52,15 +52,19 @@ Family-based studies are more attractive than case-control studies because they 
     + Case 3: If the **parent is not a carrier of the cRV**, then the cRV status of the offspring is irrelevant for this parent's transmission because the offspring cannot inherit it from this parent.  In this scenario, we sample the inherited gamete from the four parental gametes with equal probability.  For example, in the mother to offspring transmission in Figure 1, we sample one of the four gametes with equal probability.
 
 
-![A family trio with possible paternal and maternal recombinant chromatids displayed for a single chromosome.  The cRV locus is indicated by a dashed vertical line, and the cRV is indicated by a black vertical bar.  The top two recombinant chromatids of the father contain the only copies of the cRV.](C:/Users/cnieuwoudt/Documents/SimRVSequences/vignettes/singlechromgametes.png)
-
-**What we don't do**
-**alternate less obvious uses**
+![**Figure 1.** A family trio with possible paternal and maternal recombinant chromatids displayed for a single chromosome.  The cRV locus is indicated by a dashed vertical line, and the cRV is indicated by a black vertical bar.  The top two recombinant chromatids of the father contain the only copies of the cRV.](C:/Users/cnieuwoudt/Documents/SimRVSequences/vignettes/singlechromgametes.png)
 
 
-# 3. Exon-Only Data with SLiM 2.0 <a name="SlimMap"></a>
+Please note: `SimRVSequences` is NOT appropriate for users who wish to:  
 
-The Eidos program SLiM 2.0 **3.0** may be used to simulate exon-only data.  SLiM allows users to specify a recombination map to simulate recombination hot spots.  The recombination map may be utilized to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  
+1. simulate genotype conditional on phenotype, or
+2. simulate inheritance of multiple causal rare variants in the same family.
+
+However, though not immediately apparent, users may use other programs in conjunction with `SimRVSequences` to accomplish one or both of these tasks. For example, `SimRVSequences` can be used to perform a standard gene drop (check on this, give setting that allows this). Users could then use another program to simulate phenotype given a multilocus genotype (i.e, OpenMendel, RarePedSim??? check on this.)  
+
+# 3. Exon-Only Data with SLiM <a name="SlimMap"></a>
+
+The Eidos program SLiM (Haller and Messer) may be used to simulate exon-only data.  SLiM allows users to specify a recombination map to simulate recombination hot spots.  The recombination map may be utilized to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  
 
 The `R` function `create_slimMap`, included in the `SimRVSequences` package, is provided to users to simplify the task of creating the recombination map required to simulate exon-only SNV data in SLiM.  The `create_slimMap` function has three arguments:
 
@@ -81,7 +85,7 @@ data("hg_exons")
 head(hg_exons, n = 4)
 ```
 
-As seen in the output above, the `hg_exons` data set catalogs the position of each exon in the 22 human autosomes. The data contained in `hg_exons` was collected from the UCSC Genome Browser [5, 6]. The variable `chrom` is the chromosome on which the exon resides, `exonStart` is the position of the first base pair in the exon, and `exonEnd` is the position of the last base pair in the exon.  The variable `NCBIref` is the NCBI reference sequence accession numbers for the coding region in which the exon resides.  In `hg_exons` overlapping exons have been combined into a single observation. When exons from genes with different NCBI accession numbers have been combined the variable `NCBIref` will contain multiple accession numbers, each separated by a comma.  We note that different accession numbers may exist for transcript variants of the same gene.
+As seen in the output above, the `hg_exons` data set catalogs the position of each exon in the 22 human autosomes. The data contained in `hg_exons` was collected from hg 38 reference genome provided by the UCSC Genome Browser [5, 6] (Do we need to cite hg 38 as well?). The variable `chrom` is the chromosome on which the exon resides, `exonStart` is the position of the first base pair in the exon, and `exonEnd` is the position of the last base pair in the exon.  The variable `NCBIref` is the NCBI reference sequence accession numbers for the coding region in which the exon resides.  In `hg_exons` overlapping exons have been combined into a single observation. When exons from genes with different NCBI accession numbers have been combined the variable `NCBIref` will contain multiple accession numbers, each separated by a comma.  We note that different accession numbers may exist for transcript variants of the same gene.
 
 
 Since the exons in `hg_exons` have already been combined into non-overlapping segments, we simply supply this data frame to `create_slimMap`.
@@ -159,7 +163,7 @@ After supplying the data to `combine_exons` we see that the segments [1, 3] and 
 
 To import data simulated by SLiM, we provide the `read_slim` function.  Presently, the `read_slim` function is only appropriate for data produced by SLiM's outputFull() method. We do not support output in MS or VCF data format (i.e. produced by outputVCFsample() or outputMSSample() in SLiM 2.0).
 
-Please also note that we currently only permit for SNV data(i.e. 0/1 mutations).
+Please also note that we currently only permit for SNV data (i.e. 0/1 mutations).
 
 The `read_slim` function has four arguments:
 
@@ -200,7 +204,7 @@ s_out <- read_slim(file_path  = "slimOut.txt",
 
 Though not displayed here, the `read_slim` function returns a list with 2 items. The first is a data frame named `Mutations`, which catalogs SNV information.  The second item is a sparse matrix named `Haplotypes`, which contains the haplotype data for diploid individuals.  
 
-We note that importing SLiM data can be time-consuming; importing exon-only mutation data simulated over the 22 human autosomes for a sample of 10,000 individuals on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM took approximately 7 mins.  For the purpose of demonstration, we use the `EXmuts` and `EXhaps` data sets provided by `SimRVsequences`.
+We note that importing SLiM data can be time-consuming; importing exon-only mutation data simulated over the 22 human autosomes for a sample of 10,000 individuals on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM took approximately 3 mins (down from 7mins!!).  For the purpose of demonstration, we use the `EXmuts` and `EXhaps` data sets provided by `SimRVsequences`.
 
 The `EXmuts` data set represents the `Mutations` data set returned by `read_slim,` and the `EXhaps` data set represents the sparse matrix `Haplotypes` returned by `read_slim`.
 
@@ -323,22 +327,22 @@ study_peds = foreach(i = seq(npeds), .combine = rbind,
             GRR = 50, FamID = i,
             RVfounder = TRUE,
             founder_byears = c(1900, 1920),
-            ascertain_span = c(1980, 2018),
+            ascertain_span = c(1980, 2010),
             stop_year = 2018,
             recall_probs = c(1, 0.5, 0),
             num_affected = 3)[[2]]}
 
 stopCluster(cl) #shut down cluster
 ```
-```{r, fig.height = 6.5, fig.width = 7}
-# Plot the pedigree with FamID 1
-plot(study_peds[study_peds$FamID == 1, ],
+```{r, fig.height = 8, fig.width = 8.6}
+# Plot the pedigree with FamID 4
+plot(study_peds[study_peds$FamID == 3, ],
      ref_year = 2018)
 ```
 
-According to the legend, disease-affected individuals (IDs 1, 4, and 12) are indicated by a solid shading in the upper left third of their symbol.  The proband (ID 12) is indicated by shading in the lower portion of her symbol. Individuals who have inherited the cRV (IDs 1, 4, 12) are indicated by shading in the upper right portion of their symbol.
+According to the legend, disease-affected individuals (IDs 1, 3, 8, and 21) are indicated by a solid shading in the upper left third of their symbol.  The proband (ID 21) is indicated by shading in the lower portion of his symbol. Individuals who have inherited the cRV (IDs 1, 3, 5, 6, 7, 8, 21 and 42) are indicated by shading in the upper right portion of their symbol.
 
-The seed founder (ID 1) and all of her descendants have age data relative to the reference year, which are displayed below their symbols.  If a descendant has died by the reference year (IDs 1 and 4) their year of birth and death are displayed in parentheses, and their symbol will have a diagonal line over it. Descendants who are still alive at the reference year have an age identifier.  Descendants who have experienced disease-onset by the reference year will have a disease onset age identifier.
+The seed founder (ID 1) and all of his descendants have age data relative to the reference year, which is displayed below their symbols.  If a descendant has died by the reference year (IDs 1, 3, 5, 6, etc.) their year of birth and death are displayed in parentheses, and their symbol will have a diagonal line over it. Descendants who are still alive at the reference year have an age identifier.  Descendants who have experienced disease-onset by the reference year will have a disease onset age identifier.
 
 
 ```{r}
@@ -436,21 +440,21 @@ summarize_study(study_seq)
 ```
 
 
-```{r, fig.height = 4, fig.width = 4}
+```{r, fig.height = 5, fig.width = 4}
 #plot the pedigree for family 1, after sequence data simulation
 #Since the affected_only option was used the pedigree will now contain 
 #only the affected relatives and the relatives who connect them.
-plot(study_seq$ped_files[study_seq$ped_files$FamID == 1, ],
-     location = "bottomleft")
+plot(study_seq$ped_files[study_seq$ped_files$FamID == 3, ],
+     location = "topright")
 
 #haplotype data for family 1, appended with IDs
-cbind(study_seq$haplo_map$ID[study_seq$haplo_map$FamID == 1],
-      study_seq$ped_haplos[study_seq$haplo_map$FamID == 1, ])
+cbind(study_seq$haplo_map$ID[study_seq$haplo_map$FamID == 3],
+      study_seq$ped_haplos[study_seq$haplo_map$FamID == 3, ])
 ```
 
 ```{r}
-hap_at_path <- cbind(study_seq$haplo_map$ID[study_seq$haplo_map$FamID == 1],
-                     study_seq$ped_haplos[study_seq$haplo_map$FamID == 1,
+hap_at_path <- cbind(study_seq$haplo_map$ID[study_seq$haplo_map$FamID == 3],
+                     study_seq$ped_haplos[study_seq$haplo_map$FamID == 3,
                                           study_seq$SNV_map$possibleSNV])
 colnames(hap_at_path) <- c("ID", study_seq$SNV_map$marker[study_seq$SNV_map$possibleSNV])
 
@@ -460,11 +464,11 @@ hap_at_path
 # 8. Timing <a name="Time"></a>
 **All of the following timing estimates were performed on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM.**
 
-Importing exon-only sequence data from the text file produced by slim's outputFull() method slim output took approximately 6.9 minutes.
+Importing exon-only sequence data from the text file produced by slim's outputFull() method (see section 4) took approximately 3 minutes.
 
 To time simulation of sequence data with the `sim_RVstudy` function, we explore the effects of the `affected_only` and `remove_wild` arguments on a sample of 200 fully-ascertained pedigrees which contained at least 2 disease-affected relatives.
 
-When `affected_only = TRUE`, data is simulated only for the affected individuals and the family members that connect them, otherwise if `affected_only = FALSE` sequence data is simulated for the entire pedigree.  When `remove_wild = TRUE` the size of the data is reduced by removing SNVs not carried by any member of the study from the data; otherwise if `remove_wild = FALSE` they are not.
+When `affected_only = TRUE`, sequence data is only simulated for disease-affected relatives and the family members that connect them, otherwise if `affected_only = FALSE` sequence data is simulated for the entire pedigree.  When `remove_wild = TRUE` the size of the data is reduced by removing SNVs not carried by any member of the study from the data; otherwise if `remove_wild = FALSE` they are not.
 
 Number of Pedigrees|`affected_only`|`remove_wild`|time (in minutes)
 ---------|--------|------|--------------
