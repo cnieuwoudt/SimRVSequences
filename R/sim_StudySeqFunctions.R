@@ -159,8 +159,8 @@ remove_allWild <- function(f_haps, SNV_map){
 #' data(EXhaps)
 #'
 #' markers = EXmuts
-#' markers$possibleSNV = FALSE
-#' markers$possibleSNV[1] = TRUE
+#' markers$is_CRV = FALSE
+#' markers$is_CRV[1] = TRUE
 #'
 #' seqDat = sim_RVstudy(ped_files = EgPeds,
 #'                      SNV_map = markers,
@@ -193,13 +193,17 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
   #to determine familial RV locus
   #NOTE: IF POSSIBLE SNV NOT SPECIFIED A SINGLE SNV IS CHOSEN AS
   #      CAUSAL FOR ALL FAMILIES IN STUDY.  DOES NOT CONSIDER ALLELE FREQUENCY.
-  if (is.null(SNV_map$possibleSNV)) {
-    SNV_map$possibleSNV = FALSE
-    SNV_map$possibleSNV[sample(1:nrow(SNV_map), size = 1)] = TRUE
+  if (is.null(SNV_map$is_CRV)) {
+    SNV_map$is_CRV = FALSE
+    SNV_map$is_CRV[sample(1:nrow(SNV_map), size = 1)] = TRUE
   }
 
+  #--------------------#
+  #      FIX THIS      #
+  #--------------------#
+  #NOTE WILL BREAK IF ONLY ONE CRV IN POOL#
   #sample the familial cSV from the pool of potential cRVs with replacement.
-  Fam_RVs <- sample(x = SNV_map$marker[SNV_map$possibleSNV],
+  Fam_RVs <- sample(x = SNV_map$marker[SNV_map$is_CRV],
                     size = length(FamIDs),
                     replace = TRUE)
 
@@ -216,7 +220,7 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
                                                    & is.na(ped_files$dadID)
                                                    & (ped_files$DA1 + ped_files$DA2) == 1)],
                haplos, RV_col_loc = which(SNV_map$marker == Fam_RVs[x]),
-               RV_pool_loc = SNV_map$colID[SNV_map$possibleSNV])
+               RV_pool_loc = SNV_map$colID[SNV_map$is_CRV])
   })
 
   #If desired by user, we now reduce the size of the data by removing
