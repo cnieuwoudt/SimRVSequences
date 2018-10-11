@@ -150,9 +150,9 @@ reMap_mutations <- function(mutationDF, recomb_map){
   return(mut_dat[, c(1:4)])
 }
 
-#' Read SLiM 2.0 Output
+#' Import SLiM Data to R
 #'
-#' Extract SNV data from SLiM output.
+#' Import SNV data from txt file produced by SLiM's outputFull() method
 #'
 #' The \code{read_slim} function is used to extract SNV (single nucleotide variant) data from the text file produced by SLiM's outputFull() method. Currently, we do not support output in MS or VCF format (i.e. output produced by SLiM's outputMSSample() or outputVCFSample() methods).
 #'

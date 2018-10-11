@@ -2,7 +2,7 @@
 % Please edit documentation in R/SlimFunctions.R
 \name{read_slim}
 \alias{read_slim}
-\title{Read SLiM 2.0 Output}
+\title{Import SLiM Data to R}
 \usage{
 read_slim(file_path, keep_maf = 0.01, recomb_map = NULL,
   pathway_df = NULL)
@@ -24,7 +24,7 @@ A list containing:
 \item{\code{Genomes} }{A sparse matrix of haplotypes, see details.}
 }
 \description{
-Extract SNV data from SLiM output.
+Import SNV data from txt file produced by SLiM's outputFull() method
 }
 \details{
 The \code{read_slim} function is used to extract SNV (single nucleotide variant) data from the text file produced by SLiM's outputFull() method. Currently, we do not support output in MS or VCF format (i.e. output produced by SLiM's outputMSSample() or outputVCFSample() methods).
