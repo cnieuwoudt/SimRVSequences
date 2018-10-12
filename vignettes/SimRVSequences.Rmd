@@ -3,7 +3,7 @@ title: "SimRVSequences"
 author: "Christina Nieuwoudt and Jinko Graham"
 date: "`r Sys.Date()`"
 output:
-  html_document:
+  pdf_document:
     toc: true
     toc_depth: 2
 setspace: doublespacing
@@ -19,7 +19,6 @@ body{ /* Normal  */
    font-size: 12px;
 }
 </style>
-
 
 # 1. Introduction
 
@@ -387,6 +386,18 @@ From the output above we see that `sim_RVstudy` returns four items:
  - a data frame named `SNV_map`, 
  - and a data frame named `ped_files`. 
  
+The dataframe `ped_files` returned by `sim_RVstudy` is a potentially reduced set of pedigree files for the original families. Recall that, by default `affected_only = TRUE`, so the pedigrees supplied to this function are reduced to contain only the affected individuals and the individuals who connect them along a line of descent. 
+
+```{r, fig.height = 5, fig.width = 4}
+#plot the pedigree for family 3, after sequence data simulation
+#Since the affected_only option was used the pedigree will now contain 
+#only the affected relatives and the relatives who connect them.
+plot(study_seq$ped_files[study_seq$ped_files$FamID == 3, ],
+     location = "bottomleft")
+```
+
+Comparing the plot above to the plot of the same family in section 5, we can see that the number of relatives for whom we simulate SNV data is far less that the total number of relatives in the ascertained pedigree.
+
 ```{r}
 #View the first 15 haplotypes in ped_haplos
 study_seq$ped_haplos[1:15, ]
@@ -416,31 +427,50 @@ The output `SNV_map` catalogs the SNVs, i.e. columns,  in `ped_haplos`.  For exa
 head(study_seq$haplo_map)
 ```
 
-The `haplo_map` data frame is used to map the haplotypes (i.e. rows) in `ped_haplos` to the individuals in `ped_files`.  Notice that in the output above individual 1 from family 1 is listed in rows 1 and 2, and individual 2 from family 1 is listed in rows 3 and 4.  This is because the genetic material inherited from each parent is stored in its own row.  The first row represents the material inherited from the father, while the second row represents the material inherited from the mother.  Additionally, note that `haplo_map` provideds a variable `FamRV`, which is used to identify the marker name of the familial causal RV. 
-
-Finally, the dataframe `ped_files` returned by `sim_RVstudy` is a set of pedigree files for families included in the study. Recall, when `affected_only = TRUE` the pedigrees supplied to this function are reduced to contain affected individuals and the individuals who connect them along a line of descent. 
-
-```{r, fig.height = 5, fig.width = 4}
-#plot the pedigree for family 3, after sequence data simulation
-#Since the affected_only option was used the pedigree will now contain 
-#only the affected relatives and the relatives who connect them.
-plot(study_seq$ped_files[study_seq$ped_files$FamID == 3, ],
-     location = "topright")
-```
-
-Comparing the plot above to the plot of the same family in section 5, we can see that the number of relatives for whom we simulate sequence data is far less that the total number of relatives in the ascertained pedigree.
-
-This function is counting the total number of SNVs sharded by the affected relatives in the pedigrees. NOTE: may share more than number of affected
+The `haplo_map` data frame is used to map the haplotypes (i.e. rows) in `ped_haplos` to the individuals in `ped_files`.  Notice that in the output above individual 1 from family 1 is listed in rows 1 and 2, and individual 2 from family 1 is listed in rows 3 and 4.  This is because the genetic material inherited from each parent is stored in its own row.  The first row represents the material inherited from the father, while the second row represents the material inherited from the mother.  Additionally, note the variable `FamRV` contained in `haplo_map`, which identifies each family's causal rare variant by marker name. 
 
 ```{r}
-summarize_study(study_seq)
+# to quickly view the causal rare variant for 
+# each family we supply the appropriate columns of 
+# haplo_map to unique
+unique(study_seq$haplo_map[, c("FamID", "FamRV")])
 ```
 
+From the output above, we see that only families 1 and 4 are segregating the same causal rare variant. 
+
+To count the total number of SVNs shared among affected relatives in each pedigree we use the `count_affectedRV` function.  To use this funtion we supply the output returned by `sim_RVstudy` to `count_affectedRV`.
+
+```{r}
+# count number of SNVs shared by the affected
+# relatives in each pedigree
+count_affectedRV(study_seq)
+```
+
+Looking at the output above, we see that only one affected relative in family 5 carries a copy of the first marker, 1_23084822.   
+
+```{r}
+# caluculate the total number of SNVs 
+# shared across families
+count_SNVshare <- colSums(count_affectedRV(study_seq)[, -1])
+count_SNVshare
+```
+
+```{r}
+# count number of affected ped pedigree
+num_aff <- summary(study_seq$ped_files)$family_info$numAffected
+
+
+# calculate weighted mean the total number of SNVs 
+# shared across families
+w_mat <- matrix(1/num_aff, ncol = 5) %*% count_affectedRV(study_seq)[, -1]
+
+data.frame(marker = colnames(w_mat), p_share = as.numeric(w_mat[1, ]))
+```
 
 # 7. Timing
 **All of the following timing estimates were performed on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM.**
 
-Importing exon-only sequence data from the text file produced by slim's outputFull() method (see section 4) took approximately 3 minutes.
+Importing exon-only sequence data from the text file produced by slim's outputFull() method (see section 4.2) required approximately 3 minutes.
 
 To time simulation of sequence data with the `sim_RVstudy` function, we explore the effects of the `affected_only` and `remove_wild` arguments on a sample of 200 fully-ascertained pedigrees each of which contained at least 2 disease-affected relatives.
 
