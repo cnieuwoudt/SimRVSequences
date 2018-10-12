@@ -7,7 +7,7 @@
 #'
 #' @examples
 #' #create example
-summarize_study <- function(fam_study){
+count_affectedRV <- function(fam_study){
   Fids <- sort(unique(fam_study$ped_files$FamID))
 
   aff_allele_counts <- lapply(Fids, function(x){
@@ -18,7 +18,7 @@ summarize_study <- function(fam_study){
 
   allele_count_dat <- do.call(rbind, aff_allele_counts)
   allele_count_dat <- cbind(Fids, allele_count_dat)
-  colnames(allele_count_dat) <- c("FamID", paste0("SNV", sep = "_", seq(1:ncol(fam_study$ped_haplos))))
+  colnames(allele_count_dat) <- c("FamID", fam_study$SNV_map$marker)
   return(allele_count_dat)
 }
 
