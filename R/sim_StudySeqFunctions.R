@@ -33,61 +33,52 @@ condition_haplos_no_cSNV <- function(haplos, RV_pool_loc){
 sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
                        haplos, RV_col_loc, RV_pool_loc) {
 
+  #reduce haplos to contain only haplotypes that do
+  #not carry any of the cRVs in our pool of possible SNVs
+  no_CRVhaps <- condition_haplos_no_cSNV(haplos, RV_pool_loc)
+
   #here we handle the fully sporatic families
   #i.e. families that do not segregate any cSNVs
+  #In this case, the haplotypes for ALL founders
+  #is sampled from no_CRVhaps
   if(is.null(RV_founder)){
 
-    #reduce haplos to contain only haplotypes that do
-    #not carry any of the cRVs in our pool of possible SNVs
-    noRV_haps <- condition_haplos_no_cSNV(haplos, RV_pool_loc)
-
     #sample all founder data from this pool
-    founder_genos <- noRV_haps[c(sample(x = 1:nrow(noRV_haps),
+    founder_genos <- no_CRVhaps[c(sample(x = 1:nrow(no_CRVhaps),
                                        size = (2*length(founder_ids) + 2),
                                        replace = TRUE)), ]
-
-    #create IDs to associate founders to rows in founder_genos
-    founder_genos_ID <- rep(c(RV_founder, founder_ids), each = 2)
-
   } else {
 
-    #Determine which haplotypes carry the familial rare variant and which so not
+    #Determine which haplotypes carry the familial rare variant and which do not
     RV_hap_loc <- which(haplos[, RV_col_loc] == 1)
-    noRV_hap_loc <- which(haplos[, RV_col_loc] == 0)
 
     #NOTE: Under this scheme, marry-ins may NOT introduce any SNV
     #from our pool of causal rare variants
-
-    #NOTE: Under this scheme, marry-ins may introduce SNVs from our pool of causal
-    #rare variants, just not the one that is the familial cRV
-
 
     #for the seed founder: sample one haplotype from those that carry the RV
     #and one haplotype from those that DO NOT carry the RV
     #for all other founders: sample 2 haplotypes that do not carry the RV
     if(length(RV_hap_loc) == 1){
-      founder_genos <- haplos[c(RV_hap_loc,
-                               sample(x = noRV_hap_loc,
-                                      size = (2*length(founder_ids) + 1),
-                                      replace = TRUE)), ]
+      founder_genos <- rbind(haplos[RV_hap_loc, ],
+                             no_CRVhaps[c(sample(x = 1:nrow(no_CRVhaps),
+                                                 size = (2*length(founder_ids) + 1),
+                                                 replace = TRUE)), ])
     } else {
-      founder_genos <- haplos[c(sample(x = RV_hap_loc, size = 1),
-                               sample(x = noRV_hap_loc,
-                                      size = (2*length(founder_ids) + 1),
-                                      replace = TRUE)), ]
+      founder_genos <- rbind(haplos[sample(x = RV_hap_loc, size = 1), ],
+                             no_CRVhaps[c(sample(x = 1:nrow(no_CRVhaps),
+                                                 size = (2*length(founder_ids) + 1),
+                                                 replace = TRUE)), ])
     }
 
-
-
-    #Asscociate RV to row 1, if paternally inherited OR row 2 if maternally inherited.
+    #Asscociate CRV to row 1, if paternally inherited OR row 2 if maternally inherited.
     if(RV_founder_pat == 0){
       founder_genos[c(1,2), ] <- founder_genos[c(2, 1), ]
     }
 
-
-    #create IDs to associate founders to rows in founder_genos
-    founder_genos_ID <- rep(c(RV_founder, founder_ids), each = 2)
   }
+
+  #create IDs to associate founders to rows in founder_genos
+  founder_genos_ID <- rep(c(RV_founder, founder_ids), each = 2)
 
   return(list(founder_genos, founder_genos_ID))
 }
@@ -196,12 +187,10 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
   if (is.null(SNV_map$is_CRV)) {
     SNV_map$is_CRV = FALSE
     SNV_map$is_CRV[sample(1:nrow(SNV_map), size = 1)] = TRUE
+    warning("The variable is_CRV is missing from SNV_map.
+            ...Randomly selecting an SNV to be the causal rare variant for all pedigrees")
   }
 
-  #--------------------#
-  #      FIX THIS      #
-  #--------------------#
-  #NOTE WILL BREAK IF ONLY ONE CRV IN POOL#
   #sample the familial cSV from the pool of potential cRVs with replacement.
   Fam_RVs <- sample(x = SNV_map$marker[SNV_map$is_CRV],
                     size = length(FamIDs),
