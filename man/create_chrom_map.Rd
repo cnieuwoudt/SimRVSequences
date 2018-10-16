@@ -13,5 +13,5 @@ create_chrom_map(SNV_map)
 a dataframe catalouging the start and stop positions, in base pairs, for each chromosome.  We use this information to determine what regions to simulate recombination over.
 }
 \description{
-Create chromosome map from marker map
+INTENDED FOR INTERNAL USE ONLY
 }

@@ -132,8 +132,7 @@ affected_onlyPed = function(ped_file){
   retA_ped <- ped_file[ped_file$affected, ]
 
   if (nrow(retA_ped) == 0) {
-    warning(paste0("Disease-affected relatives are not present in pedigree with FamID ",
-                   sep = "", ped_file$FamID[1]))
+    #warning(paste0("Removing pedigree with with FamID ", sep = "", ped_file$FamID[1],  ": No disease-affected relatives. \n"))
     return(retA_ped)
   } else {
     d <- 0
@@ -163,6 +162,7 @@ affected_onlyPed = function(ped_file){
       }
     }
   }
+
   return(retA_ped)
 }
 
