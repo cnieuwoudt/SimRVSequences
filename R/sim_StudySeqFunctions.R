@@ -169,15 +169,44 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
   #check SNV_map for possible issues
   check_SNV_map(SNV_map)
 
+  #check ped_files for possible issues
+  check_peds(ped_files)
+
+  #check to see that the sample contains affected relatives when the
+  #affected_only setting is used
+  if (affected_only & sum(ped_files$affected) == 0) {
+    stop("\n There are no disease-affected relatives in this study. \n To simulate data for pedigrees without disease-affected relatives use affected_only = FALSE.")
+  }
+
+  #collect list of FamIDs
   FamIDs <- unique(ped_files$FamID)
 
-  #reduce to affected only pedigrees unless otherwise specified
+  #check for pedigree formatting issues
+  for (i in FamIDs){
+    check_peds(ped_files[ped_files$FamID == i, ])
+  }
+
+  #Reduce to affected-only pedigrees when desired
   if (affected_only) {
+    #reduce pedigrees to contain only disease-affected relative and
+    #the individuals who connect them along a line of descent.
     Afams <- lapply(FamIDs, function(x){
       affected_onlyPed(ped_file = ped_files[which(ped_files$FamID == x),])
       })
 
+    #combine the reduced pedigrees
     ped_files <- do.call("rbind", Afams)
+
+    #check to see if any pedigrees were removed due to lack of
+    #disease affected relatives and issue warning for removed pedigrees
+    removed_peds <- setdiff(FamIDs, unique(ped_files$FamID))
+
+    if (length(removed_peds) > 0){
+      FamIDs <- unique(ped_files$FamID)
+      warning("\n There are no disease-affected relatives in the pedigrees with FamID: ",
+              paste0(removed_peds, collapse = ", "), "\n These pedigrees have been removed from the simulation.")
+    }
+
   }
 
   #sampling from RV markers
@@ -213,7 +242,7 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
   })
 
   #If desired by user, we now reduce the size of the data by removing
-  #markers at which no member of our study carries a mutated allele.
+  #markers not carried by any member of our study.
   if (remove_wild) {
     reduced_dat <- remove_allWild(f_haps = f_genos, SNV_map)
     f_genos <- reduced_dat[[1]]
