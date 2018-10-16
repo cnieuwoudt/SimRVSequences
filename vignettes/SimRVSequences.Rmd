@@ -448,8 +448,8 @@ count_affectedRV(study_seq)
 Looking at the output above, we see that only one affected relative in family 5 carries a copy of the first marker, 1_23084822.   
 
 ```{r}
-# caluculate the total number of SNVs 
-# shared across families
+# caluculate the total number of SNVs shared
+# by affected relatives across all families
 count_SNVshare <- colSums(count_affectedRV(study_seq)[, -1])
 count_SNVshare
 ```
@@ -458,12 +458,14 @@ count_SNVshare
 # count number of affected ped pedigree
 num_aff <- summary(study_seq$ped_files)$family_info$numAffected
 
+#compute family weight based on number of affected per family
+f_weight <- (1/num_aff)/sum(1/num_aff)
 
-# calculate weighted mean the total number of SNVs 
-# shared across families
-w_mat <- matrix(1/num_aff, ncol = 5) %*% count_affectedRV(study_seq)[, -1]
+# calculate weighted average of number of 
+# SNVs shared by affecteds across families
+w_mat <- matrix(f_weight, ncol = 5) %*% count_affectedRV(study_seq)[, -1]
 
-data.frame(marker = colnames(w_mat), p_share = as.numeric(w_mat[1, ]))
+data.frame(marker = colnames(w_mat), f_share = as.numeric(w_mat[1, ]))
 ```
 
 # 7. Timing
