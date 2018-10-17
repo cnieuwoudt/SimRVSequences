@@ -58,9 +58,6 @@ check_SNV_map <- function(SNV_map){
 #' \strong{For internal use.} Checks individual pedigrees for formatting (i.e. mom/dad properly specified, etc.)
 #'
 #' @param ped_file data.frame The pedigree.
-#' @importFrom SimRVPedigree ped2pedigree
-#' @importFrom kinship2 kinship
-#' @importFrom kinship2 align.pedigree
 #'
 #' @export
 #'
