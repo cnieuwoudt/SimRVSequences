@@ -45,7 +45,7 @@ sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
 
     #sample all founder data from this pool
     founder_genos <- no_CRVhaps[c(sample(x = 1:nrow(no_CRVhaps),
-                                       size = (2*length(founder_ids) + 2),
+                                       size = 2*length(founder_ids),
                                        replace = TRUE)), ]
   } else {
 
