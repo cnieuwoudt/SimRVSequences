@@ -167,7 +167,7 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
                         gamma_params = c(2.63, 2.63/0.5)){
 
   #check SNV_map for possible issues
-  check_SNV_map(SNV_map)
+  check_SNV_map(SNV_map, haplos)
 
   #check ped_files for possible issues
   check_peds(ped_files)
@@ -221,8 +221,8 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
   if (is.null(SNV_map$is_CRV)) {
     SNV_map$is_CRV = FALSE
     SNV_map$is_CRV[sample(1:nrow(SNV_map), size = 1)] = TRUE
-    warning("The variable is_CRV is missing from SNV_map.
-            ...Randomly selecting an SNV to be the causal rare variant for all pedigrees")
+    warning("The variable is_CRV is missing from SNV_map.",
+            "\n ...Randomly selecting one SNV to be the causal rare variant for all pedigrees")
   }
 
   #sample the familial cSV from the pool of potential cRVs with replacement.

@@ -10,35 +10,45 @@ check_SNV_map <- function(SNV_map){
   # and check to see if we have any missing values.
 
   ## Check colID variable
-  if(!c("colID") %in% colnames(SNV_map)){
+  if (!c("colID") %in% colnames(SNV_map)) {
     stop("The variable 'colID' is missing from SNV_map.")
   }
-  if(any(is.na(SNV_map$colID))){
+  if (any(is.na(SNV_map$colID))) {
     stop("The variable 'colID' in the SNV_map dataset contains missing values.")
   }
 
   ## Check chrom variable
-  if(!c("chrom") %in% colnames(SNV_map)){
+  if (!c("chrom") %in% colnames(SNV_map)) {
     stop("The variable 'chrom' is missing from SNV_map.")
   }
-  if(any(is.na(SNV_map$chrom))){
+  if (any(is.na(SNV_map$chrom))) {
     stop("The variable 'chrom' in the SNV_map dataset contains missing values.")
   }
 
   ## Check position variable
-  if(!c("position") %in% colnames(SNV_map)){
+  if (!c("position") %in% colnames(SNV_map)) {
     stop("The variable 'position' is missing from SNV_map.")
   }
-  if(any(is.na(SNV_map$position))){
+
+  if (any(is.na(SNV_map$position))) {
     stop("The variable 'position' in the SNV_map dataset contains missing values.")
   }
 
   ## Check marker variable
-  if(!c("marker") %in% colnames(SNV_map)){
+  if (!c("marker") %in% colnames(SNV_map)) {
     stop("The variable 'marker' is missing from SNV_map.")
   }
-  if(any(is.na(SNV_map$marker))){
+  if (any(is.na(SNV_map$marker))) {
     stop("The variable 'marker' in the SNV_map dataset contains missing values.")
+  }
+
+  #when is_CRV is specified, check to see that it is TRUE for
+  #at least one marker, and that there are haplotypes that carry
+  #the SNV
+  if (!is.null(SNV_map$is_CRV)) {
+    if (sum(SNV_map$is_CRV) == 0) {
+      stop("In SNV_map: is_CRV is FALSE for all markers.")
+    }
   }
 
 }
@@ -85,16 +95,17 @@ check_ped <- function(ped_file){
     stop("Non-founders must have both a mother and a father, while founders have neither.")
   }
 
+
   #check to see that when founders do not introduce a cRV at the familial
   #disease locus that offspring do not carry it.
   #Essentially, this is a check for de novo mutations between founders
   #and non-founders. This will NOT catch a
 
   #dadIDs of the non-founders who inherited a cRV from dad
-  inhrt_fromDad <- ped_file$dadID[ped_file$DA1 == 1 & !is.na(ped_file$dadID)]
+  inhrt_fromDad <- unique(ped_file$dadID[ped_file$DA1 == 1 & !is.na(ped_file$dadID)])
 
   #momIDs of the non-founders who inherited a cRV from mom
-  inhrt_fromMom <- ped_file$momID[ped_file$DA2 == 1 & !is.na(ped_file$dadID)]
+  inhrt_fromMom <- unique(ped_file$momID[ped_file$DA2 == 1 & !is.na(ped_file$dadID)])
 
   if (length(inhrt_fromDad) > 0) {
     #count the number of cRVs held by each dad from whom a non-founder inherited a cRV
@@ -102,7 +113,7 @@ check_ped <- function(ped_file){
       sum(ped_file[ped_file$ID == x, c("DA1", "DA2")])
     })
 
-    if (dadRVcounts != rep(1, length(inhrt_fromDad))) {
+    if (any(dadRVcounts != rep(1, length(inhrt_fromDad)))) {
       stop("\n Detecting de novo mutation. \n Please check that variable DA1, which represents the \n paternally inherited allele, is properly specified in ped_files.")
     }
   }
@@ -113,7 +124,7 @@ check_ped <- function(ped_file){
       sum(ped_file[ped_file$ID == x, c("DA1", "DA2")])
     })
 
-    if (momRVcounts != rep(1, length(inhrt_fromMom))) {
+    if (any(momRVcounts != rep(1, length(inhrt_fromMom)))) {
       stop("\n Detecting de novo mutation. \n Please check that variable DA2, which represents the \n maternally inherited allele, is properly specified in ped_files.")
     }
   }
