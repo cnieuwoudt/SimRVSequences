@@ -269,9 +269,6 @@ The `sim_RVstudy` function (discussed in section 6) will sample a causal variant
 
 The R package `SimRVPedigree` [6] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  The following example demonstrates how users could use `SimRVPedigree` to simulate five pedigrees ascertained for multiple disease-affected relatives.  
 
-```{r, echo=FALSE, eval=TRUE}
-data("study_peds")
-```
 ```{r, echo = TRUE, eval = FALSE}
 # load the SimRVPedigree library
 library(SimRVPedigree)
@@ -310,7 +307,12 @@ study_peds = foreach(i = seq(npeds), .combine = rbind,
 
 stopCluster(cl) #shut down cluster
 ```
+
+For the purpose of demonstration, we will use the `study_peds` dataset.  
 ```{r, fig.height = 8, fig.width = 8.6}
+#import study peds
+data("study_peds")
+
 # Plot the pedigree with FamID 3
 plot(study_peds[study_peds$FamID == 3, ],
      ref_year = 2018)
