@@ -58,6 +58,9 @@ check_SNV_map <- function(SNV_map){
 #' \strong{For internal use.} Checks individual pedigrees for formatting (i.e. mom/dad properly specified, etc.)
 #'
 #' @param ped_file data.frame The pedigree.
+#' @importFrom SimRVPedigree ped2pedigree
+#' @importFrom kinship2 kinship
+#' @importFrom kinship2 align.pedigree
 #'
 #' @export
 #'
@@ -74,7 +77,7 @@ check_ped <- function(ped_file){
     wrong_sex <- c(ped_file$ID[which(ped_file$sex[which(ped_file$ID %in% dads)] != 0)],
                    ped_file$ID[which(ped_file$sex[which(ped_file$ID %in% moms)] != 1)])
 
-    stop(paste0('Sex improperly specifed ID: ', sep = '', wrong_sex,
+    stop(paste0('\n Sex improperly specifed ID: ', sep = '', wrong_sex,
                 '. \n Please ensure that for males: sex = 0; and for females: sex = 1.'))
   }
 
@@ -85,8 +88,7 @@ check_ped <- function(ped_file){
     wrong_par <- c(ped_file$ID[which(ped_file$momID == moms[which(!moms %in% ped_file$ID)])],
                    ped_file$ID[which(ped_file$dadID == dads[which(!dads %in% ped_file$ID)])])
 
-    stop(paste0('ID: ', sep = '', wrong_par,
-                '.  Non-founders must have a mother and a father. Founders have neither.'))
+    stop(paste0('\n Relatives with ID: ', sep = '', wrong_par, ' are missing.'))
   }
 
   #check to see that both parents are missing for founders
@@ -96,10 +98,7 @@ check_ped <- function(ped_file){
   }
 
 
-  #check to see that when founders do not introduce a cRV at the familial
-  #disease locus that offspring do not carry it.
-  #Essentially, this is a check for de novo mutations between founders
-  #and non-founders. This will NOT catch a
+  #Check for de novo mutations
 
   #dadIDs of the non-founders who inherited a cRV from dad
   inhrt_fromDad <- unique(ped_file$dadID[ped_file$DA1 == 1 & !is.na(ped_file$dadID)])
@@ -131,9 +130,10 @@ check_ped <- function(ped_file){
 
   #check to make sure that only 1 founder introduced the causal rare variant
   if (sum(ped_file[is.na(ped_file$dadID), c("DA1", "DA2")]) > 1) {
-    stop("Assumption violated.",
+    stop("\n Assumption violated.",
          "\n Reformat ped_files so that only one cRV is introduced per pedigree.")
   }
+
 }
 
 
