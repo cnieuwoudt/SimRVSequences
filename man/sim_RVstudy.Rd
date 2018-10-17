@@ -29,7 +29,10 @@ sim_RVstudy(ped_files, SNV_map, haplos, affected_only = TRUE,
 study_sequences
 }
 \description{
-Simulate sequence data for a study
+Simulate SNV data for a sample of ascertained pedigrees
+}
+\details{
+NOTE: Due to a forwards-in-time model, certain type of inbreeding/loop may cause sim_RVstudy to crash.
 }
 \examples{
 library(SimRVPedigree)

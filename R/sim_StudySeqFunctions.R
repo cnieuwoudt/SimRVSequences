@@ -130,6 +130,10 @@ remove_allWild <- function(f_haps, SNV_map){
 
 #' Simulate sequence data for a study
 #'
+#' Simulate SNV data for a sample of ascertained pedigrees
+#'
+#' NOTE: Due to a forwards-in-time model, certain type of inbreeding/loop may cause sim_RVstudy to crash.
+#'
 #' @inheritParams sim_seq
 #' @param ped_files Data frame. Must match format of pedigree simulated by sim_RVped
 #' @param SNV_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
@@ -173,7 +177,7 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
   check_peds(ped_files)
 
   if (nrow(SNV_map) != ncol(haplos)) {
-    stop("Expecting nrow(SNV_map) to be equal to ncol(haplos).")
+    stop("\n nrow(SNV_map) != ncol(haplos).")
   }
 
   #check to see that the sample contains affected relatives when the
