@@ -1,9 +1,9 @@
 #' Check SNV_map for possible issues
 #'
-#' INTENDED FOR INTERNAL USE ONLY
+#' \strong{For internal use.}
 #'
 #' @inheritParams sim_RVstudy
-#' @keywords internal
+#' @export
 #'
 check_SNV_map <- function(SNV_map){
   #check to see if SNV_map contains the column information we expect
@@ -45,44 +45,88 @@ check_SNV_map <- function(SNV_map){
 
 #' Checks individual pedigrees for proper format.
 #'
+#' \strong{For internal use.} Checks individual pedigrees for formatting (i.e. mom/dad properly specified, etc.)
+#'
 #' @param ped_file data.frame The pedigree.
 #'
-#' @keywords internal
+#' @export
 #'
 check_ped <- function(ped_file){
 
+  #gather all mom and dad IDs for non-founders
   moms <- unique(ped_file$momID[!is.na(ped_file$momID)])
   dads <- unique(ped_file$dadID[!is.na(ped_file$dadID)])
 
+  #check to see if moms are female and dadas are male
   if (any(ped_file$sex[which(ped_file$ID %in% moms)] != 1) |
       any(ped_file$sex[which(ped_file$ID %in% dads)] != 0)){
 
     wrong_sex <- c(ped_file$ID[which(ped_file$sex[which(ped_file$ID %in% dads)] != 0)],
                    ped_file$ID[which(ped_file$sex[which(ped_file$ID %in% moms)] != 1)])
 
-    stop(paste0('Sex improperly specifed ID: ', sep = '', wrong_sex, '. \nPlease ensure that for males: sex = 0; and for females: sex = 1.'))
+    stop(paste0('Sex improperly specifed ID: ', sep = '', wrong_sex,
+                '. \n Please ensure that for males: sex = 0; and for females: sex = 1.'))
   }
 
+  #check to see that the moms and dads are actually included in the pedigree
+  #that is check to see that the IDs of moms and dads are properly specified
   if (any(!moms %in% ped_file$ID) | any(!dads %in% ped_file$ID)) {
 
     wrong_par <- c(ped_file$ID[which(ped_file$momID == moms[which(!moms %in% ped_file$ID)])],
                    ped_file$ID[which(ped_file$dadID == dads[which(!dads %in% ped_file$ID)])])
 
-    stop(paste0('ID: ', sep = '', wrong_par, '.  Non-founders must have a mother and a father. Founders have neither.'))
+    stop(paste0('ID: ', sep = '', wrong_par,
+                '.  Non-founders must have a mother and a father. Founders have neither.'))
   }
 
+  #check to see that both parents are missing for founders
   if (any(!is.na(ped_file$momID[is.na(ped_file$dadID)])) |
       any(!is.na(ped_file$dadID[is.na(ped_file$momID)]))) {
     stop("Non-founders must have both a mother and a father, while founders have neither.")
+  }
+
+  #check to see that when founders do not introduce a cRV at the familial
+  #disease locus that offspring do not carry it.
+  #Essentially, this is a check for de novo mutations between founders
+  #and non-founders. This will NOT catch a
+
+  #dadIDs of the non-founders who inherited a cRV from dad
+  inhrt_fromDad <- ped_file$dadID[ped_file$DA1 == 1 & !is.na(ped_file$dadID)]
+
+  #momIDs of the non-founders who inherited a cRV from mom
+  inhrt_fromMom <- ped_file$momID[ped_file$DA2 == 1 & !is.na(ped_file$dadID)]
+
+  if (length(inhrt_fromDad) > 0) {
+    #count the number of cRVs held by each dad from whom a non-founder inherited a cRV
+    dadRVcounts <- sapply(inhrt_fromDad, function(x){
+      sum(ped_file[ped_file$ID == x, c("DA1", "DA2")])
+    })
+
+    if (dadRVcounts != rep(1, length(inhrt_fromDad))) {
+      stop("\n Detecting de novo mutation. \n Please check that variable DA1, which represents the \n paternally inherited allele, is properly specified in ped_files.")
+    }
+  }
+
+  if (length(inhrt_fromMom) > 0) {
+    #count the number of cRVs held by each dad from whom a non-founder inherited a cRV
+    momRVcounts <- sapply(inhrt_fromMom, function(x){
+      sum(ped_file[ped_file$ID == x, c("DA1", "DA2")])
+    })
+
+    if (momRVcounts != rep(1, length(inhrt_fromMom))) {
+      stop("\n Detecting de novo mutation. \n Please check that variable DA2, which represents the \n maternally inherited allele, is properly specified in ped_files.")
+    }
   }
 }
 
 
 #' Checks ped_files for expected info and format.
 #'
+#' \strong{For internal use.}
+#'
 #' @inheritParams sim_RVstudy
 #'
-#' @keywords internal
+#' @export
 #'
 check_peds <- function(ped_files){
 

@@ -10,6 +10,5 @@ check_ped(ped_file)
 \item{ped_file}{data.frame The pedigree.}
 }
 \description{
-Checks individual pedigrees for proper format.
+\strong{For internal use.} Checks individual pedigrees for formatting (i.e. mom/dad properly specified, etc.)
 }
-\keyword{internal}
