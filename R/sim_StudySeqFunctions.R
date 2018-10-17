@@ -167,7 +167,7 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
                         gamma_params = c(2.63, 2.63/0.5)){
 
   #check SNV_map for possible issues
-  check_SNV_map(SNV_map, haplos)
+  check_SNV_map(SNV_map)
 
   #check ped_files for possible issues
   check_peds(ped_files)
@@ -190,7 +190,7 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
     check_ped(ped_files[ped_files$FamID == i, ])
   }
 
-  #Reduce to affected-only pedigrees when desired
+  #Reduce to affected-only pedigrees
   if (affected_only) {
     #reduce pedigrees to contain only disease-affected relative and
     #the individuals who connect them along a line of descent.
