@@ -10,6 +10,5 @@ check_SNV_map(SNV_map)
 \item{SNV_map}{Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.}
 }
 \description{
-INTENDED FOR INTERNAL USE ONLY
+\strong{For internal use.}
 }
-\keyword{internal}

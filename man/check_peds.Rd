@@ -10,6 +10,5 @@ check_peds(ped_files)
 \item{ped_files}{Data frame. Must match format of pedigree simulated by sim_RVped}
 }
 \description{
-Checks ped_files for expected info and format.
+\strong{For internal use.}
 }
-\keyword{internal}
