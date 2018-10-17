@@ -16,7 +16,7 @@ sim_FGenos(founder_ids, RV_founder, RV_founder_pat, haplos, RV_col_loc,
 
 \item{haplos}{sparseMatrix.  The sparseMatrix of genomes returned by \code{read_slimOut}.}
 
-\item{RV_col_loc}{Nueric. The column location of the familial RV in haplos.}
+\item{RV_col_loc}{Numeric. The column location of the familial RV in haplos.}
 
 \item{RV_pool_loc}{The column locations of each SNV in the pool of candidate SNVs.}
 }

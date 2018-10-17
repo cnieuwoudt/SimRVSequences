@@ -7,7 +7,7 @@
 remove_allWild(f_haps, SNV_map)
 }
 \arguments{
-\item{f_haps}{The founder haplotypes data. This is a list of lists (by family). By family, this contains the haplotypes for each founder (first item), and a list of ID numbers (second item) which is used to map the haplotype to the person to whom it belongs.}
+\item{f_haps}{The founder haplotypes data. This is a list of family lists. By family, this contains the haplotypes for each founder (first item), and a list of ID numbers (second item) which is used to map the haplotype to the person to whom it belongs.}
 
 \item{SNV_map}{data.frame. Catalogs the SNV data contained in the familial haplotypes.}
 }

@@ -24,7 +24,7 @@ condition_haplos_no_cSNV <- function(haplos, RV_pool_loc){
 #' @param RV_founder Numeric. The ID number of the seed founder.
 #' @param RV_founder_pat Numeric. RV_founder_pat == 1 if RV founder inherited the RV from dad, and 0 if inherited RV from mom.
 #' @param haplos sparseMatrix.  The sparseMatrix of genomes returned by \code{read_slimOut}.
-#' @param RV_col_loc Nueric. The column location of the familial RV in haplos.
+#' @param RV_col_loc Numeric. The column location of the familial RV in haplos.
 #' @param RV_pool_loc The column locations of each SNV in the pool of candidate SNVs.
 #'
 #' @return list of familial founder genotypes
@@ -41,7 +41,7 @@ sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
   #i.e. families that do not segregate any cSNVs
   #In this case, the haplotypes for ALL founders
   #is sampled from no_CRVhaps
-  if(is.null(RV_founder)){
+  if(length(RV_founder) == 0){
 
     #sample all founder data from this pool
     founder_genos <- no_CRVhaps[c(sample(x = 1:nrow(no_CRVhaps),
@@ -87,7 +87,7 @@ sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
 #'
 #' Remove any markers for which all founders, in the study, are homozygous for the wild-type allele.  Since we do not model de novo mutations, it is not possible for non-founders to develop mutations at these loci.
 #'
-#' @param f_haps The founder haplotypes data. This is a list of lists (by family). By family, this contains the haplotypes for each founder (first item), and a list of ID numbers (second item) which is used to map the haplotype to the person to whom it belongs.
+#' @param f_haps The founder haplotypes data. This is a list of family lists. By family, this contains the haplotypes for each founder (first item), and a list of ID numbers (second item) which is used to map the haplotype to the person to whom it belongs.
 #' @param SNV_map data.frame. Catalogs the SNV data contained in the familial haplotypes.
 #'
 #' @return A list (by family) of haplotype matrices and ID vectors and the reduce marker data set.
@@ -105,12 +105,12 @@ remove_allWild <- function(f_haps, SNV_map){
   #founders have mutated alleles to pass on.
   #We will reduce the size of the data by removing these superfluous
 
-  #Determine all wild columns by family
+  #Determine all-wild columns by family
   wild_col <- lapply(f_haps, function(x){
     which(colSums(x[[1]]) == 0)
   })
 
-  #determine all wild columns overall - by study
+  #determine all wild columns overall, i.e. for the study
   remove_cols <- Reduce(intersect, wild_col)
 
   #remove all wild columns from founder haplotypes
@@ -172,6 +172,10 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
   #check ped_files for possible issues
   check_peds(ped_files)
 
+  if (nrow(SNV_map) != ncol(haplos)) {
+    stop("Expecting nrow(SNV_map) to be equal to ncol(haplos).")
+  }
+
   #check to see that the sample contains affected relatives when the
   #affected_only setting is used
   if (affected_only & sum(ped_files$affected) == 0) {
@@ -183,7 +187,7 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
 
   #check for pedigree formatting issues
   for (i in FamIDs){
-    check_peds(ped_files[ped_files$FamID == i, ])
+    check_ped(ped_files[ped_files$FamID == i, ])
   }
 
   #Reduce to affected-only pedigrees when desired
@@ -204,7 +208,8 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
     if (length(removed_peds) > 0){
       FamIDs <- unique(ped_files$FamID)
       warning("\n There are no disease-affected relatives in the pedigrees with FamID: ",
-              paste0(removed_peds, collapse = ", "), "\n These pedigrees have been removed from the simulation.")
+              paste0(removed_peds, collapse = ", "),
+              "\n These pedigrees have been removed from ped_files.")
     }
 
   }
