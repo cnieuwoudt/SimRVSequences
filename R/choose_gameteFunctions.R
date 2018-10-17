@@ -62,7 +62,7 @@ sim_gameteInheritance <- function(RV_locus, parent_RValleles,
     }
 
     #determine which gamete groups contain the appropriate
-    # RV, given the offsprings RV status
+    # RV, given the offspring's RV status
     inherited_Ggrp <- sample(1, x = RV_chromHaps[which(RV_chromHaps[, col_loc] == RV_allele),
                                                  ncol(RV_chromHaps)])
   }
