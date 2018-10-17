@@ -67,7 +67,7 @@ check_ped <- function(ped_file){
   moms <- unique(ped_file$momID[!is.na(ped_file$momID)])
   dads <- unique(ped_file$dadID[!is.na(ped_file$dadID)])
 
-  #check to see if moms are female and dadas are male
+  #check to see if moms are female and dads are male
   if (any(ped_file$sex[which(ped_file$ID %in% moms)] != 1) |
       any(ped_file$sex[which(ped_file$ID %in% dads)] != 0)){
 
@@ -113,7 +113,7 @@ check_ped <- function(ped_file){
       sum(ped_file[ped_file$ID == x, c("DA1", "DA2")])
     })
 
-    if (any(dadRVcounts != rep(1, length(inhrt_fromDad)))) {
+    if (any(dadRVcounts == rep(0, length(inhrt_fromDad)))) {
       stop("\n Detecting de novo mutation. \n Please check that variable DA1, which represents the \n paternally inherited allele, is properly specified in ped_files.")
     }
   }
@@ -124,9 +124,15 @@ check_ped <- function(ped_file){
       sum(ped_file[ped_file$ID == x, c("DA1", "DA2")])
     })
 
-    if (any(momRVcounts != rep(1, length(inhrt_fromMom)))) {
+    if (any(momRVcounts == rep(0, length(inhrt_fromMom)))) {
       stop("\n Detecting de novo mutation. \n Please check that variable DA2, which represents the \n maternally inherited allele, is properly specified in ped_files.")
     }
+  }
+
+  #check to make sure that only 1 founder introduced the causal rare variant
+  if (sum(ped_file[is.na(ped_file$dadID), c("DA1", "DA2")]) > 1) {
+    stop("Assumption violated.",
+         "\n Reformat ped_files so that only one cRV is introduced per pedigree.")
   }
 }
 
