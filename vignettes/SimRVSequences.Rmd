@@ -207,22 +207,24 @@ From the output above, we see that `EXhaps` is a sparse matrix of class dgCMatri
 
 ## Select Pool of Causal Variants
 
-Our next task is to decide which mutations will be modeled as causal variants.  We will focus on a pathway approach, which allows for causal variation in a pathway, or a set of related genes, but note that implementation of a single causal variant is equivalent to a pathway containing a single gene with a single mutation.
+Our next task is to decide which mutations will be modeled as causal variants.  We will focus on a pathway approach, which allows for causal variation in a pathway, or a set of related genes.  This approach may also be used to model families who segregate different rare variants in the same gene.  Furthermore, we note that implementation of a single causal variant is equivalent to a pathway containing a single gene with a single mutation.  
 
-For `SimRVpedigree`'s ascertainment process to be valid we require the probability that a random individual carries a risk allele to be small, i.e $\le$ 0.002 [10].
+For `SimRVpedigree`'s ascertainment process to be valid we require that the probability that a random individual carries a risk allele to be small, i.e $\le$ 0.002 [10].
 
 Consider a set of $n$ causal SNVs with derived allele frequencies $p_1, p_2, ..., p_n$, and let $p_{tot} = \sum_{i=1}^n p_i$.  For sufficiently rare SNVs, we may compute the cumulative carrier probability as $p_{tot}^2 + 2*p_{tot}(1-p_{tot})$.
 
-To satisfy the condition $p_{carrier} \le 0.002$, we require that $1 - (1 - p{tot})^2 \le 0.002$, or that $p_{tot} \le 0.001$.
+To satisfy the condition $p_{carrier} \le 0.002$, we require that $1 - (1 - p_{tot})^2 \le 0.002$, or that $p_{tot} \le 0.001$.
 
 We now demonstrate how users may create a new variable that identifies causal SNVs.
 ```{r}
-# tabulate the derived allele frequencies 
-# of the SNVs located in our pathway
+# Recall that the variable pathwaySNV, which was created in 
+# section 3.2, is TRUE for any SNVs in the pathway of interest.
+# Here we tabulate the derived allele frequencies 
+# of the SNVs located in our pathway.
 table(EXmuts$afreq[EXmuts$pathwaySNV == TRUE])
 ```
 
-The output above tabulates variants in our pathway by their derived allele frequencies,  For example, our pathway contains 12 SNVs with derived allele frequency 5e-05, 4 SNVs with derived allele frequency 1e-04, 6 SNVs with derived allele frequency 0.00015, and so on.  In total, we can see that there are a variety of SNVs in our pathway to choose from.
+The output above tabulates variants in our pathway by their derived allele frequencies.  For example, our pathway contains 12 SNVs with derived allele frequency 5e-05, 4 SNVs with derived allele frequency 1e-04, 6 SNVs with derived allele frequency 0.00015, and so on.
 
 To obtain a pool of variants with $p_{tot} \sim 0.001$, let's choose the 12 SNVs with derived allele frequency 5e-05, and 4 SNVs with derived allele frequency 1e-4 to be our causal SNVs, so that $p_{tot} = 12(5\times10^{-5}) + 4(1\times10^{-4}) = 0.001$.
 
@@ -247,12 +249,12 @@ From the output above we see that we have selected a pool of 16 causal variants 
 head(EXmuts, n = 4)
 ```
 
-The `sim_RVstudy` function (discussed in section XX) will sample a causal variant for each family in the study from the SNVs for which `is_CRV = TRUE`, so that different families may segregate different rare variants. Upon identifying the familial cRV we then sample haplotypes for each founder from the distribution of haplotypes conditioned on the founder's cRV status.  This ensures that the cRV is introduced by the correct founder.
+Observe from the output above that `EXmuts` now contains the variable `is_CRV`.  The `sim_RVstudy` function (discussed in section XX) will sample a causal variant for each family in the study from the SNVs for which `is_CRV = TRUE`, so that different families may segregate different rare variants. Upon identifying the familial cRV we then sample haplotypes for each founder from the distribution of haplotypes conditioned on the founder's cRV status.  This ensures that the cRV is introduced by the correct founder.
  
 
 # Prepare Pedigree Data <a name="PedSample"></a>
 
-The R package `SimRVPedigree` [6] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  The following example demonstrates how users could use `SimRVPedigree` to simulate five pedigrees ascertained for multiple disease-affected relatives.  
+The R package `SimRVPedigree` [6] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  The following example demonstrates how users could use `SimRVPedigree` to simulate five pedigrees ascertained for three or more disease-affected relatives in parallel with `doParallel`[11] and `doRNG`[12] packages.  
 
 ```{r, echo = TRUE, eval = FALSE}
 # load the SimRVPedigree library
@@ -279,7 +281,7 @@ study_peds = foreach(i = seq(npeds), .combine = rbind,
 ) %dorng% {
   # Simulate pedigrees ascertained for at least three disese-affected individuals,
   # according to the age-specific hazard rates in the `AgeSpecific_Hazards` data
-  # set, ascertained from 1980 to 2010, with seed-founder birth year spanning
+  # set, ascertained from 1980 to 2010, with start year spanning
   # from 1900 to 1920, stop year set to 2018, and with genetic relative-risk 50.
   sim_RVped(hazard_rates = my_HR,
             GRR = 50, FamID = i,
@@ -321,17 +323,17 @@ The columns displayed in the output above are described as follows:
  4. `dadID`: identification number of father
  5. `momID`: identification number of mother
  6. `affected`: affection status: `affected = TRUE` if individual has developed disease, and `FALSE` otherwise.
- 7. `DA1`: paternally inherited allele at the cRV locus: `DA1 = 1` if the cRV is present, and `0` otherwise.
- 8. `DA2`: maternally inherited allele at the cRV locus: `DA2 = 1` if the cRV is present, and `0` otherwise.
+ 7. `DA1`: paternally inherited allele at the cRV locus: `DA1 = 1` if the cRV is inherited, and `0` otherwise.
+ 8. `DA2`: maternally inherited allele at the cRV locus: `DA2 = 1` if the cRV is inherited, and `0` otherwise.
  9. `birthYr`: the individual's birth year.
  10. `onsetYr`: the individual's year of disease onset, when applicable, and `NA` otherwise.
  11. `deathYr`: the individual's year of death, when applicable, and `NA` otherwise.
  12. `RR`: the individual's relative-risk of disease.
- 13. `available`: availability status: `available = TRUE` if individual is recalled by proband, and `FALSE` otherwise.  We note that, by default, all marry-ins are unavailable since we do not simulate life events for marry-ins.
+ 13. `available`: availability status: `available = TRUE` if individual is recalled by the proband, and `FALSE` if not recalled or a marry-in.
  14. `Gen`: the individual's generation number relative to the eldest pedigree founder.  That is, the seed founder will have `Gen = 1`, his or her offspring will have `Gen = 2`, etc. 
  15. `proband`: a proband identifier: `proband = TRUE` if the individual is the proband, and `FALSE` otherwise.
 
-Not all of the variables above are required to simulate SNV data; the required variables are: `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.  Please note, if `DA` and `DA2` are not provided, a standard gene drop is performed instead of the condition gene drop described in section XX.
+Not all of the variables above are required to simulate SNV data; the required variables are: `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.  Please note, if `DA` and `DA2` are not provided, the pedigree is assumed to be fully-sporadic. 
 
 To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette.
 
@@ -341,16 +343,16 @@ Simulating SNV data for a sample of ascertained pedigrees is achieved with `sim_
 Required Arguments:
 
 1. `ped_files` A data frame of pedigrees.  This data frame must contain the variables:  `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`. See section XX for more details.
-2. `haplos` A sparse matrix of haplotype data, which contains the haplotype data for a sample of unrelated individuals.  Rows are assumed to be haplotypes, while columns represent SNVs.  If `read_slim` was used to import data, users may supply the sparse matrix `Haplotypes` returned by `read_slim`.   
-3. `SNV_map` A data frame cataloging the SNV data in `haplos`. The rows of `SNV_map` provide information on the SNVs in `haplos.`  If `read_slim` was used to import data, the data frame `Mutations` returned by this function is of the proper format (see section XX).  We note that users must add the variable `is_CRV` to this data frame, as discussed in section XX.  If the variable `is_CRV` is not included a standard gene drop is performed in lieu of the conditional gene drop described in section XX.
+2. `haplos` A sparse matrix of haplotype data, which contains the haplotype data for a sample of unrelated individuals.  Rows are assumed to be haplotypes, while columns represent SNVs.  If `read_slim` was used to import data, users may supply the sparse matrix `Haplotypes` returned by `read_slim`.
+3. `SNV_map` The rows of the data frame `SNV_map` provide information on the SNVs in `haplos.`  If `read_slim` was used to import data, the data frame `Mutations` returned by this function is of the proper format (see section XX).  We note that users must add the variable `is_CRV` to this data frame, as discussed in section XX.
 
 Optional Arguments:
 
 4. `affected_only` A logical argument.  When `affected_only = TRUE`, data is simulated only for affected individuals and the family members that connect them on a line of descent.  When `affected_only = FALSE` SNV data is simulated for the entire pedigree. By default, `affected_only = TRUE`.
-5. `remove_wild` A logical argument that determines if SNVs not carried by any member of the study should be removed from the data.  By default, `remove_wild = TRUE` so that such SNVs are removed from the data.
-6.  `pos_in_bp` is a logical variable which indicates if the positions in `SNV_map` are listed in base pairs.  Set `pos_in_bp = TRUE`, if the the positions in `SNV_map` are specified in base pairs. If the positions in `SNV_map` are listed in centiMorgan set `pos_in_bp = FALSE` instead.
+5. `remove_wild` A logical argument that determines if SNVs not carried by any member of the study should be removed from the data.  By default, `remove_wild = TRUE`.
+6.  `pos_in_bp` is a logical variable which indicates if the positions in `SNV_map` are listed in base pairs.  By default, `pos_in_bp = TRUE`. If the positions in `SNV_map` are listed in centiMorgan set `pos_in_bp = FALSE` instead.
 7. `gamma_params` The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, `gamma_params = c(2.63, 2*2.63)`, as in [8].
-8. `burn-in` The burn in distance in centiMorgan, used to simulate the location of the first chiasmata. By default, `burn_in = 1000`, as in [8** cite software** ??].
+8. `burn-in` The "burn-in" distance in centiMorgan, as defined by [8], which is required to simulate the location of the first chiasmata with interference. By default, `burn_in = 1000`.
 
 Assuming readers have followed the steps outlined in sections XX and XX, we may execute the `sim_RVstudy` function as follows.
 
@@ -399,7 +401,7 @@ dim(study_seq$ped_haplos)
 dim(EXhaps)
 ```
 
-Notice that the number of columns (i.e. mutations) in `ped_haplos` is far less than the number of columns in `EXhaps` (which was supplied to `sim_RVstudy`).  This is because the `remove_wild` setting was used to remove superfluous SNVs from our data.  That is, when no one in the study carries a mutated allele at a SNV locus, that marker is removed from the data.  Since we are focused on rare variation, and since `study_peds` is a very small study containing only five families the reduction in data is quite significant.
+Notice that `ped_haplos` only has 24 columns (i.e. mutations), while `EXhaps`, which was supplied to `sim_RVstudy`, has a total of 500 columns.  This is because the `remove_wild` setting was used to remove superfluous SNVs from our data.  That is, when no one in the study carries a mutated allele at a SNV locus, that marker is removed from the data.  Since we are focused on rare variation, and since `EVhaps` and `study_peds` are small toy data sets the reduction in data is quite significant.
 
 ```{r}
 #View the first 4 observations in SNV_map
@@ -413,34 +415,18 @@ The output `SNV_map` catalogs the SNVs, i.e. columns,  in `ped_haplos`.  For exa
 head(study_seq$haplo_map)
 ```
 
-The `haplo_map` data frame is used to map the haplotypes (i.e. rows) in `ped_haplos` to the individuals in `ped_files`.  Notice that in the output above individual 1 from family 1 is listed in rows 1 and 2, and individual 2 from family 1 is listed in rows 3 and 4.  This is because the genetic material inherited from each parent is stored in its own row.  The first row represents the material inherited from the father, while the second row represents the material inherited from the mother.  Additionally, note the variable `FamRV` contained in `haplo_map`, which identifies each family's causal rare variant by marker name. 
+The `haplo_map` data frame is used to map the haplotypes (i.e. rows) in `ped_haplos` to the individuals in `ped_files`.  Notice that in the output above individual 1 from family 1 is listed in rows 1 and 2, and individual 2 from family 1 is listed in rows 3 and 4.  This is because the genetic material inherited from each parent is stored in its own row.  The first row represents the material inherited from the father, while the second row represents the material inherited from the mother.  Additionally, note the variable `FamCRV` contained in `haplo_map`, which identifies each family's causal rare variant by marker name. 
 
 ```{r}
 # to quickly view the causal rare variant for 
 # each family we supply the appropriate columns of 
 # haplo_map to unique
-unique(study_seq$haplo_map[, c("FamID", "FamRV")])
+unique(study_seq$haplo_map[, c("FamID", "FamCRV")])
 ```
 
-From the output above, we see that only families 1 and 4 are segregating the same causal rare variant.  Additionally, we see that family 2 is not segregating any of the SNVs in our pool of causal rare variants.  This action is taken for any fully sporadic pedigrees, which are pedigrees in which all maternally and paternally inherited alleles at the familial disease locus are the wild type.
+From the output above, we see that families 1 and 4 segregate variant `2_201284953`, family 2 does not segregate any SNV in the pool of causal rare variants, family 3 segregates variant `10_89016102`,  and family 5 segregates variant `10_89015798`.   Family 2 does not segregate any of the SNVs in our pool of causal rare variants, because this is a fully sporadic pedigree.  Fully sporadic families are pedigrees in which all maternally and paternally inherited alleles at the familial disease locus are the wild type.
 
-```{r}
-#check to see if pedigree 2 is NOT segregating a cRV
-#i.e. check to see if all of the paternally 
-#and maternally inherited alleles are 0, which 
-#represent the wild-type allele.
-
-#store pedigree 2
-ped2 <- study_seq$ped_files[study_seq$ped_files$FamID == 2, ]
-#check if all paternally and maternally inherited alleles are 0
-all(ped2[, c("DA1", "DA2")] == 0)
-```
-
-```{r}
-plot(study_seq$ped_files[study_seq$ped_files$FamID == 2, ])
-```
-
-To count the total number of SVNs shared among affected relatives in each pedigree we use the `count_affectedRV` function.  To use this function we supply the output returned by `sim_RVstudy` to `count_affectedRV`.
+To count the total number of SNVs shared among affected relatives in each pedigree we use the `count_affectedRV` function.  To use this function we supply the output returned by `sim_RVstudy` to `count_affectedRV`.
 
 ```{r}
 # count number of SNVs shared by the affected
@@ -448,28 +434,18 @@ To count the total number of SVNs shared among affected relatives in each pedigr
 count_affectedRV(study_seq)
 ```
 
-Looking at the output above, we see that only one affected relative in family 5 carries a copy of the first marker, 1_23084822.   
+Looking at the output above, we see that only one affected relative in family 1 carries a copy of the first marker, `1_236566020`.  It is noteworthy that families 1 and 4 carry so many copies of SNV `2_201284953`.  Not surprisingly, this is the causal rare variant for these two families.
 
 ```{r}
-# caluculate the total number of SNVs shared
-# by affected relatives across all families
+# To caluculate the total number of SNVs shared
+# by affected relatives across all families we 
+# use colSums, from the Matrix package
+library(Matrix)
 count_SNVshare <- colSums(count_affectedRV(study_seq)[, -1])
 count_SNVshare
 ```
 
-```{r}
-# count number of affected ped pedigree
-num_aff <- summary(study_seq$ped_files)$family_info$numAffected
-
-#compute family weight based on number of affected per family
-f_weight <- (1/num_aff)/sum(1/num_aff)
-
-# calculate weighted average of number of 
-# SNVs shared by affecteds across families
-w_mat <- matrix(f_weight, ncol = 5) %*% count_affectedRV(study_seq)[, -1]
-
-data.frame(marker = colnames(w_mat), f_share = as.numeric(w_mat[1, ]))
-```
+From the output above, we see that there are several SNVs carried by more than 1 disease-affected relative in the study. 
 
 # `SimRVSequences` Model Assumptions
 
@@ -556,10 +532,18 @@ Source Code for Biology and Medicine, 13:2.
 [9] Ellen M. Wijsman (2012). 
   *The role of large pedigrees in an era of high-throughput sequencing*. 
   Human Genetics 131, pp. 1555-1563.
+  
+[11] Microsoft Corporation and Steve Weston (2017).
+  **doParallel: Foreach Parallel Adaptor for the 'parallel' Package.** 
+  *R package version 1.0.11.*
+  https://CRAN.R-project.org/package=doParallel.
+  
+[12] Renaud Gaujoux (2017). 
+  **doRNG: Generic Reproducible Parallel Backend for 'foreach' Loops.** 
+  *R package version 1.6.6*
+  https://CRAN.R-project.org/package=doRNG.
 
 # Appendix
-
-## Standard Gene Drop
 
 ## The `combine_exons` function
 
