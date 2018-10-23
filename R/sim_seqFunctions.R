@@ -102,18 +102,17 @@ sim_seq <- function(ped_file, founder_genos,
   ped_genos <- founder_genos[[1]]
   ped_geno_IDs <- founder_genos[[2]]
 
+  #determine the chromosome number and location of the familial RV locus
+  #then store as a dataframe with chrom in the first column
+  RVL <- SNV_map[which(SNV_map$marker == RV_marker),
+                 which(colnames(SNV_map) %in% c("chrom", "position"))]
+
+  if(colnames(RVL[1]) != "chrom"){
+    RVL <- RVL[, c(2, 1)]
+  }
 
   #for each offspring simulate transmission of parental data
   for (i in 1:nrow(PO_info)) {
-    #determine the chromosome number and location of the familial RV locus
-    #then store as a dataframe with chrom in the first column
-    RVL <- SNV_map[which(SNV_map$marker == RV_marker),
-                      which(colnames(SNV_map) %in% c("chrom", "position"))]
-
-    if(colnames(RVL[1]) != "chrom"){
-      RVL <- RVL[, c(2, 1)]
-    }
-
     #simulate recombination events for this parent offspring pair
     loop_gams <- sim_gameteInheritance(RV_locus = RVL,
                                        parent_RValleles = PO_info[i, c(6, 7)],
@@ -137,6 +136,7 @@ sim_seq <- function(ped_file, founder_genos,
     #append ID for this haplotype to the list of IDs
     ped_geno_IDs <- c(ped_geno_IDs, PO_info[i, 1])
 
+    #TODO: preallocate rows in ped_genos based on number of non-founders
     #append this haplotype to the other familial haplotypes
     ped_genos <- rbind(ped_genos, unlist(loop_seq))
   }
