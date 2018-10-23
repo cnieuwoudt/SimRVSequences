@@ -177,7 +177,7 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
   check_peds(ped_files)
 
   if (nrow(SNV_map) != ncol(haplos)) {
-    stop("\n nrow(SNV_map) != ncol(haplos).")
+    stop("\n nrow(SNV_map) != ncol(haplos). \n The rows of SNV_map should describe the columns (i.e. mutations) in haplos.")
   }
 
   #check to see that the sample contains affected relatives when the
