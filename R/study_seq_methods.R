@@ -19,6 +19,9 @@ count_affectedRV <- function(fam_study){
   allele_count_dat <- do.call(rbind, aff_allele_counts)
   allele_count_dat <- cbind(Fids, allele_count_dat)
   colnames(allele_count_dat) <- c("FamID", fam_study$SNV_map$marker)
+
+  #remove SNVs not carried by affecteds
+  allele_count_dat <- allele_count_dat[, which(colSums(allele_count_dat) != 0)]
   return(allele_count_dat)
 }
 
