@@ -59,3 +59,6 @@ sout = read_slim(file_path = "C:/Data/Slim/SLiMtest_output.txt",
                  keep_maf = 0.01)
 }
 }
+\references{
+Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
+}

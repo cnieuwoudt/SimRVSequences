@@ -19,7 +19,8 @@
 #' @param mutation_rate Numeric.  The per site per generation mutation rate, by default \code{mutation_rate} = 1E-8.
 #' @param recomb_rate Numeric.  The per site per generation mutation rate, by default \code{recomb_rate} = 1E-8.
 #'
-#' @return rc_map A recombination map that may be used in conjunction with SLiM 2.0 (cite Messer), provided that the end position is shifted forward by one position.  See details and example.
+#' @return rc_map A recombination map that may be used in conjunction with SLiM (Haller and Messer 2017), provided that the end position is shifted forward by one position.  See details and example.
+#' @references Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
 #' @export
 #'
 #' @examples
@@ -181,6 +182,8 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' @return \item{\code{Genomes} }{A sparse matrix of haplotypes, see details.}
 #' @importFrom Matrix sparseMatrix
 #' @export
+#'
+#' @references Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
 #'
 #' @examples
 #' #FIND WORKING EXAMPLE

@@ -14,7 +14,7 @@ create_slimMap(exon_df, mutation_rate = 1e-08, recomb_rate = 1e-08)
 \item{recomb_rate}{Numeric.  The per site per generation mutation rate, by default \code{recomb_rate} = 1E-8.}
 }
 \value{
-rc_map A recombination map that may be used in conjunction with SLiM 2.0 (cite Messer), provided that the end position is shifted forward by one position.  See details and example.
+rc_map A recombination map that may be used in conjunction with SLiM (Haller and Messer 2017), provided that the end position is shifted forward by one position.  See details and example.
 }
 \description{
 Create a recombination map for use with SLiM 2.0 (Messer)
@@ -43,4 +43,7 @@ head(smap)
 smap$endPos <- smap$endPos - 1
 head(smap)
 
+}
+\references{
+Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
 }
