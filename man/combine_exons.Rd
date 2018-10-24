@@ -16,7 +16,7 @@ A matrix of exon unions, i.e. non-overlapping observations, by chromosome.
 Combine overlapping exons into a single observation
 }
 \examples{
-# create an example data frame that contains the
+# create a data frame that contains the
 # the variables: chrom, exonStart, and exonEnd
 exDat <- data.frame(chrom     = c(1, 1, 1, 2, 2, 2),
                     exonStart = c(1, 2, 5, 1, 3, 3),

@@ -44,9 +44,18 @@ NOTE TO SELF:
 }
 }
 \examples{
-#FIND WORKING EXAMPLE
+
+#please see vignette for example usage of read_slim.
+
+#Assuming that the .txt file returned by SLiM's outputFull() method is
+#titled SlimData, and is stored in a file named Data the following
+#code represents how read_slim would be executed.
 
 \dontrun{
+sout = read_slim(file_path = "Data/SlimData.txt",
+                 recomb_map = create_slimMap(hg_exons),
+                 pathway_df = hg_apopPath)
+
 a = Sys.time()
 sout = read_slim(file_path = "C:/Data/Slim/SlimFINALout.txt",
                  keep_maf = 0.01,

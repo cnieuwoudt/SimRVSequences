@@ -35,19 +35,21 @@ Simulate SNV data for a sample of ascertained pedigrees
 NOTE: Due to a forwards-in-time model, certain type of inbreeding/loop may cause sim_RVstudy to crash.
 }
 \examples{
-library(SimRVPedigree)
-data(EgPeds)
-
 library(SimRVSequences)
+
+#load pedigree, haplotype, and mutation data
+data(study_peds)
 data(EXmuts)
 data(EXhaps)
 
-markers = EXmuts
-markers$is_CRV = FALSE
-markers$is_CRV[1] = TRUE
+#create variable is_CRV in EXmuts to identify causal
+#rare variants, from which to sample familial variants.
+EXmuts$is_CRV = FALSE
+EXmuts$is_CRV[c(2, 3, 12, 24)] = TRUE
 
-seqDat = sim_RVstudy(ped_files = EgPeds,
-                     SNV_map = markers,
+#supply required inputs to the sim_RVstudy function
+seqDat = sim_RVstudy(ped_files = study_peds,
+                     SNV_map = EXmuts,
                      haplos = EXhaps)
 
 summary(seqDat)

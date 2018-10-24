@@ -25,16 +25,20 @@
 #'
 #' @export
 #'
+#' @seealso \code{\link{combine_exons}}
+#'
 #' @examples
+#' #load hg_exons data
 #' data(hg_exons)
+#'
+#' #since the exons in hg_exons have already been combined into
+#' #overlapping exons, we supply hg_exons to create_slimMap
 #' smap <- create_slimMap(hg_exons)
 #' head(smap)
 #'
-#' # NOTE: The first position in an eidos array begins at zero, not one.
-#' # Therefore, users must shift endPos up one unit before supplying to Slim
+#' #For additional information regarding the output of create_slimMap
+#' #please refer to the vignette (see section ).
 #'
-#' smap$endPos <- smap$endPos - 1
-#' head(smap)
 #'
 create_slimMap <- function(exon_df, mutation_rate = 1E-8, recomb_rate = 1E-8){
   #split into dataset for each chromosome
@@ -188,9 +192,18 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' @references Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
 #'
 #' @examples
-#' #FIND WORKING EXAMPLE
+#'
+#' #please see vignette for example usage of read_slim.
+#'
+#' #Assuming that the .txt file returned by SLiM's outputFull() method is
+#' #titled SlimData, and is stored in a file named Data the following
+#' #code represents how read_slim would be executed.
 #'
 #' \dontrun{
+#' sout = read_slim(file_path = "Data/SlimData.txt",
+#'                  recomb_map = create_slimMap(hg_exons),
+#'                  pathway_df = hg_apopPath)
+#'
 #' a = Sys.time()
 #' sout = read_slim(file_path = "C:/Data/Slim/SlimFINALout.txt",
 #'                  keep_maf = 0.01,

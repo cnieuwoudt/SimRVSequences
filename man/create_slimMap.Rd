@@ -33,19 +33,24 @@ The argument \code{exon_df} must contain the following variables:
 The returned data frame, \code{rc_map}, contains the information required by slim as well as information that is used to remap mutations to their correct positions after simulation.  The variables \code{recRate}, \code{mutRate}, and \code{endPos} are the only variables that are required by SLiM.
 }
 \examples{
+#load hg_exons data
 data(hg_exons)
+
+#since the exons in hg_exons have already been combined into
+#overlapping exons, we supply hg_exons to create_slimMap
 smap <- create_slimMap(hg_exons)
 head(smap)
 
-# NOTE: The first position in an eidos array begins at zero, not one.
-# Therefore, users must shift endPos up one unit before supplying to Slim
+#For additional information regarding the output of create_slimMap
+#please refer to the vignette (see section ).
 
-smap$endPos <- smap$endPos - 1
-head(smap)
 
 }
 \references{
 Benjamin Haller and Phillip W. Messer (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
 
 Kelly Harris and Rasmus Nielsen (2016). \emph{The genetic cost of neanderthal introgression}. Genetics, 203(2): pp. 881-891.
+}
+\seealso{
+\code{\link{combine_exons}}
 }

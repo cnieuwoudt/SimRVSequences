@@ -6,7 +6,29 @@
 #' @export
 #'
 #' @examples
-#' #create example
+#' library(SimRVSequences)
+#'
+#' #load pedigree, haplotype, and mutation data
+#' data(study_peds)
+#' data(EXmuts)
+#' data(EXhaps)
+#'
+#' #create variable is_CRV in EXmuts to identify causal
+#' #rare variants, from which to sample familial variants.
+#' EXmuts$is_CRV = FALSE
+#' EXmuts$is_CRV[c(2, 3, 12, 24)] = TRUE
+#'
+#' #supply required inputs to the sim_RVstudy function
+#' seqDat = sim_RVstudy(ped_files = study_peds,
+#'                      SNV_map = EXmuts,
+#'                      haplos = EXhaps)
+#'
+#' #to count the number of SNVs shared by the disease-affected
+#' #relatives in each pedigree, supply the output returned by
+#' #sim_RVstudy to count_affectedRV
+#' count_affectedRV(seqDat)
+#'
+#'
 count_affectedRV <- function(fam_study){
   Fids <- sort(unique(fam_study$ped_files$FamID))
 
