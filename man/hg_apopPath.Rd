@@ -22,7 +22,7 @@ This data set cataloges the positions of the exons residing in the 25 genes that
 In this data set, any overlapping exonshave been combined into a single observation.  When exons from genes with different NCBI accession numbers have been combined the variable \code{NCBIref} will contain multiple NCBI reference sequence accession numbers, each separated by a comma.  We note that different NCBI reference sequence accession numbers may exist for isoforms or transcript variants of the same gene.
 }
 \references{
-Karolchik, D., Hinrichs, A. S., Furey, T. S., Roskin, K. M., Sugnet, C. W., Haussler, D., and Ken, W. J. (2004). The UCSC Table Browser data retrieval tool. \emph{Nucleic Acids Res}.
+Karolchik, D., Hinrichs, A. S., Furey, T. S., Roskin, K. M., Sugnet, C. W., Haussler, D., and Ken, W. J. (2004). The UCSC Table Browser data retrieval tool. \emph{Nucleic Acids Res}. Accessed on 20 February 2018.
 
 Kent, W. J., Sugnet, C. W., Furey, T. S., Roskin, K. M., Pringle, T. H., Zahler, A. M., and Haussler, D. (2002). The human genome browser at UCSC. \emph{Genome Res}, 12(6):996-1006.
 

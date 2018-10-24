@@ -21,7 +21,7 @@ This data set catalouges the positions, in base pairs, of the exons residing on 
 In \code{hg_exons} overlapping exons are combined into a single observation. When exons from genes with different NCBI accession numbers have been combined the variable \code{NCBIref} will contain multiple accession numbers, each separated by a comma.  We note that different accession numbers may exist for isoforms or transcript variants of the same gene.
 }
 \references{
-Karolchik, D., Hinrichs, A. S., Furey, T. S., Roskin, K. M., Sugnet, C. W., Haussler, D., and Ken, W. J. (2004). The UCSC Table Browser data retrieval tool. \emph{Nucleic Acids Res}.
+Karolchik, D., Hinrichs, A. S., Furey, T. S., Roskin, K. M., Sugnet, C. W., Haussler, D., and Ken, W. J. (2004). The UCSC Table Browser data retrieval tool. \emph{Nucleic Acids Res}. Accessed on 6 February 2018.
 
 Kent, W. J., Sugnet, C. W., Furey, T. S., Roskin, K. M., Pringle, T. H., Zahler, A. M., and Haussler, D. (2002). The human genome browser at UCSC. \emph{Genome Res}, 12(6):996-1006.
 }

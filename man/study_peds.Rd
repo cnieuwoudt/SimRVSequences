@@ -28,4 +28,7 @@ data(study_peds)
 \description{
 This data set contains data for five pedigrees, which were acsertained to contain three disease-affected family members.
 }
+\references{
+Christina Nieuwoudt and Jinko Graham (2018). \strong{SimRVPedigree: Simulate Pedigrees Ascertained for a Rare Disease.} \emph{R package version 0.1.0}. https://CRAN.R-project.org/package=SimRVPedigree.
+}
 \keyword{datasets}

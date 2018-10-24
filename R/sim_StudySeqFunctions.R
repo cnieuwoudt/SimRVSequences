@@ -142,6 +142,9 @@ remove_allWild <- function(f_haps, SNV_map){
 #' @param pos_in_bp Logical. The setting \code{pos_in_bp = TRUE} must be used if genomic positions are given in base pairs.  If the genomic postions in \code{SNV_map} are listed in centiMorgan, please set \code{pos_in_bp = FALSE}.  By default, \code{pos_in_bp = TRUE}.
 #' @param remove_wild Logical. Should markers at which no member of study carry a mutated allele be removed from the data. By default, \code{remove_wild = TRUE}.
 #'
+#' @references Roeland E. Voorrips and Chris A Maliepaard. (2012). \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
+#' @references Christina Nieuwoudt and Jinko Graham. (??) Future bioRxiv article.
+#'
 #' @return study_sequences
 #' @export
 #'

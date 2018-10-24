@@ -53,3 +53,8 @@ seqDat = sim_RVstudy(ped_files = EgPeds,
 summary(seqDat)
 
 }
+\references{
+Roeland E. Voorrips and Chris A Maliepaard. (2012). \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
+
+Christina Nieuwoudt and Jinko Graham. (??) Future bioRxiv article.
+}

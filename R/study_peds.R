@@ -25,4 +25,6 @@
 #' \item{proband}{Proband identification variable, \code{proband = TRUE} if the individual is the proband, and \code{FALSE} otherwise.}
 #' }
 #'
+#' @references Christina Nieuwoudt and Jinko Graham (2018). \strong{SimRVPedigree: Simulate Pedigrees Ascertained for a Rare Disease.} \emph{R package version 0.1.0}. https://CRAN.R-project.org/package=SimRVPedigree.
+#'
 "study_peds"

@@ -45,5 +45,7 @@ head(smap)
 
 }
 \references{
-Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
+Benjamin Haller and Phillip W. Messer (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
+
+Kelly Harris and Rasmus Nielsen (2016). \emph{The genetic cost of neanderthal introgression}. Genetics, 203(2): pp. 881-891.
 }

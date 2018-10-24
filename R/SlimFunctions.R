@@ -20,7 +20,9 @@
 #' @param recomb_rate Numeric.  The per site per generation mutation rate, by default \code{recomb_rate} = 1E-8.
 #'
 #' @return rc_map A recombination map that may be used in conjunction with SLiM (Haller and Messer 2017), provided that the end position is shifted forward by one position.  See details and example.
-#' @references Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
+#' @references Benjamin Haller and Phillip W. Messer (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
+#' @references Kelly Harris and Rasmus Nielsen (2016). \emph{The genetic cost of neanderthal introgression}. Genetics, 203(2): pp. 881-891.
+#'
 #' @export
 #'
 #' @examples
