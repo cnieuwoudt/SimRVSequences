@@ -178,6 +178,14 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
   #check SNV_map for possible issues
   check_SNV_map(SNV_map)
 
+  #check to see if DA1 and DA2 are both missing, if so
+  #assume fully sporadic and issue warning
+  if (is.null(ped_files$DA1) & is.null(ped_files$DA2)) {
+    ped_files$DA1 <- 0
+    ped_files$DA2 <- 0
+    warning("\n ped_files does not contain the variables DA1 and DA2. \n Assuming fully sporadic famlies ... \n...setting DA1 = DA2 = 0 for all pedigree members.")
+  }
+
   #check ped_files for possible issues
   check_peds(ped_files)
 

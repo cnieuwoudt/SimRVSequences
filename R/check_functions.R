@@ -10,7 +10,7 @@ check_SNV_map <- function(SNV_map){
   # and check to see if we have any missing values.
 
   ## Check colID variable
-  if (!c("colID") %in% colnames(SNV_map)) {
+  if (!"colID" %in% colnames(SNV_map)) {
     stop("The variable 'colID' is missing from SNV_map.")
   }
   if (any(is.na(SNV_map$colID))) {
@@ -18,7 +18,7 @@ check_SNV_map <- function(SNV_map){
   }
 
   ## Check chrom variable
-  if (!c("chrom") %in% colnames(SNV_map)) {
+  if (!"chrom" %in% colnames(SNV_map)) {
     stop("The variable 'chrom' is missing from SNV_map.")
   }
   if (any(is.na(SNV_map$chrom))) {
@@ -26,7 +26,7 @@ check_SNV_map <- function(SNV_map){
   }
 
   ## Check position variable
-  if (!c("position") %in% colnames(SNV_map)) {
+  if (!"position" %in% colnames(SNV_map)) {
     stop("The variable 'position' is missing from SNV_map.")
   }
 
@@ -35,7 +35,7 @@ check_SNV_map <- function(SNV_map){
   }
 
   ## Check marker variable
-  if (!c("marker") %in% colnames(SNV_map)) {
+  if (!"marker" %in% colnames(SNV_map)) {
     stop("The variable 'marker' is missing from SNV_map.")
   }
   if (any(is.na(SNV_map$marker))) {
@@ -47,7 +47,7 @@ check_SNV_map <- function(SNV_map){
   #the SNV
   if (!is.null(SNV_map$is_CRV)) {
     if (sum(SNV_map$is_CRV) == 0) {
-      stop("In SNV_map: is_CRV is FALSE for all markers.")
+      stop("In SNV_map: is_CRV exists, but is FALSE for all markers.")
     }
   }
 
@@ -149,18 +149,21 @@ check_peds <- function(ped_files){
       !"dadID" %in% colnames(ped_files) |
       !"momID" %in% colnames(ped_files) |
       !"sex" %in% colnames(ped_files) |
-      !"affected" %in% colnames(ped_files) |
-      !"DA1" %in% colnames(ped_files) |
-      !"DA2" %in% colnames(ped_files)) {
-    stop('ped_files must contain the following variables: FamID, ID, dadID, momID, sex, affected, DA1, DA2')
+      !"affected" %in% colnames(ped_files)) {
+    stop('\n ped_files must contain the following variables: FamID, ID, dadID, momID, sex, affected')
+  }
+
+  if (is.null(ped_files$DA1) & !is.null(ped_files$DA2) |
+      !is.null(ped_files$DA1) & is.null(ped_files$DA2)) {
+    stop("\n One of the variables DA1 or DA2 is missing from ped_files.")
   }
 
   if (any(is.na(ped_files$ID))) {
-    stop('ID contains missing values.  Please ensure all individuals have a valid ID.')
+    stop('\n ID contains missing values.  Please ensure all individuals have a valid ID in ped_files.')
   }
 
   if (!is.logical(ped_files$affected)) {
-    stop('In ped_files: expecting affected to be a logical variable.')
+    stop('\n In ped_files: expecting affected to be a logical variable.')
   }
 
 }
