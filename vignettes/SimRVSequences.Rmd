@@ -25,6 +25,7 @@ body{ /* Normal  */
 
 Family-based studies are more attractive than case-control studies because they have more power to detect causal rare variants, require smaller sample sizes, and can more accurately detect sequencing errors [9].  However, data collection for these studies is both time consuming and expensive. Furthermore, evaluating methodology to identify causal rare variants requires simulated data. In this vignette we illustrate how the methods provided by `SimRVSequences` may be used to to simulate single-nucleotide variant (SNV) data for family-based studies of diploid organisms.  
 
+**OPTION 1**  
 DESCRIBE THE MODEL WE USE... OR IS THIS ASSUMPTIONS??
 
 Please note that `SimRVSequences` is NOT appropriate for users who wish to:  
@@ -32,8 +33,12 @@ Please note that `SimRVSequences` is NOT appropriate for users who wish to:
 1. simulate genotype conditional on phenotype, or
 2. simulate inheritance of multiple causal rare variants in the same family.
 
+*Remove this next bit altogether?*  
 However, one could use other programs in conjunction with `SimRVSequences` to accomplish one or both of these tasks. For example, `SimRVSequences` can be used to perform a standard gene drop (see appendix), and then simulate phenotype given a multilocus genotype with other software (i.e, OpenMendel, RarePedSim).  
 
+
+**OPTION 2**  
+Please note that `SimRVSequences` is NOT appropriate for users who wish to (1) simulate genotype conditional on phenotype, or (2) simulate inheritance of multiple causal rare variants in the same family.  Instead, `SimRVSequences` employs a single causal variant model and conditionally simulates genotype given rare variant status.  Additional information regarding the model and assumptions applied by `SimRVSequences` please refer to section 6. 
 
 # User Requirements
 To simulate sequence data for family based studies users are expected to provide:
@@ -105,7 +110,7 @@ The `create_slimMap` function returns a data frame with several variables:
 
 The first row in the output above contains information about the genetic segment **before the first exon** on chromosome 1.  Referring back to the `hg_exons` data we see that the first exon begins at position 11,874.  Since the region before the first exon contains 11,873 base pairs `segLength = 11873` for this region.  To avoid unnecessary computation in SLiM, `simDist = 1` so that this non-exonic region is simulated as a single base pair. The recombination rate for this segment is set to zero.  However, the first non-exon segment for the next chromosome will be 0.5 so that chromosomes are unlinked.  The mutation rate for this non-exon segment is set to zero since we are interested in exon-only data.   
 
-The second row of the output catalogs information for the first exon on chromosome 1.  This exon contains 354 base pairs, hence `simDist` for this segment is 354.  The per site per generation mutation and recombination rates for this exon are both 1E-08.
+The second row of the output catalogs information for the first exon on chromosome 1.  This exon contains 354 base pairs, hence `simDist = 354` for this segment.  The per site per generation mutation and recombination rates for this exon are both 1E-08.
 
 The third row contains the information for the second non-exon segment on chromosome 1. This segment contains 385 base pairs. Notice that like the first non-exon segment (i.e. row 1) we simulate this segment as a single site, i.e. `simDist = 1`.  However, we set the recombination rate to `segLength` multiplied by the argument `recomb_rate` (i.e. 385*1E-8 = 3.85E-6).
 
@@ -168,9 +173,9 @@ s_out <- read_slim(file_path  = "slimOut.txt",
 
 Though not displayed here, the `read_slim` function returns a list with 2 items. The first is a data frame named `Mutations`, which catalogs SNV information.  The second item is a sparse matrix named `Haplotypes`, which contains the haplotype data for unrelated, diploid individuals.  
 
-We note that importing SLiM data can be time-consuming; importing exon-only mutation data simulated over the 22 human autosomes for a sample of 10,000 individuals on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM took approximately 3 mins.  For the purpose of demonstration, we use the `EXmuts` and `EXhaps` data sets provided by `SimRVsequences`.
+We note that importing SLiM data can be time-consuming; importing exon-only mutation data simulated over the 22 human autosomes for a sample of 10,000 individuals on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM took approximately 3 mins.  For the purpose of demonstration, we use the `EXmuts` and `EXhaps` data sets provided by `SimRVsequences`.  
 
-For a small simulation, over restricted regions of the human genome, the `EXmuts` data set represents the `Mutations` data frame returned by `read_slim,` and the `EXhaps` data set represents the sparse matrix `Haplotypes` returned by `read_slim`.
+The `EXmuts` data set represents the `Mutations` data frame returned by `read_slim,` and the `EXhaps` data set represents the sparse matrix `Haplotypes` returned by `read_slim`.  We note that these toy data sets contain SNV data from a small portion of the human genome are are not representative of exon-only data over the entire human genome.
 
 ```{r}
 #import the EXmuts dataset
@@ -202,7 +207,7 @@ Since `EXmuts` catalogs the SNVs in `EXhaps`, `EXmuts` will have 500 rows.
 EXhaps[1:15, 1:30]
 ```
 
-From the output above, we see that `EXhaps` is a sparse matrix of class dgCMatrix.  The `Matrix` package [1] is used to create sparse matrices.  Entries of `1` represent a mutated allele, while the wild type is represented as '`.`'.  Recall that we retain SNVs with derived allele frequency less than or equal to `keep_maf`; hence, the majority of entries represent the wild type allele.  
+From the output above, we see that `EXhaps` is a sparse matrix of class dgCMatrix.  The `Matrix` package [1] is used to create objects of this class.  Entries of `1` represent a mutated allele, while the wild type is represented as '`.`'.  Recall that we retain SNVs with derived allele frequency less than or equal to `keep_maf`; hence, the majority of entries represent the wild type allele.  
 
 
 ## Select Pool of Causal Variants
@@ -254,7 +259,7 @@ Observe from the output above that `EXmuts` now contains the variable `is_CRV`. 
 
 # Prepare Pedigree Data <a name="PedSample"></a>
 
-The R package `SimRVPedigree` [6] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  The following example demonstrates how users could use `SimRVPedigree` to simulate five pedigrees ascertained for three or more disease-affected relatives in parallel with `doParallel`[11] and `doRNG`[12] packages.  
+The R package `SimRVPedigree` [6] is used to simulate pedigrees ascertained for multiple disease-affected relatives.  The following example demonstrates how users could use `SimRVPedigree` to simulate five pedigrees ascertained for three or more disease-affected relatives in parallel with the `doParallel`[11] and `doRNG`[12] packages.  
 
 ```{r, echo = TRUE, eval = FALSE}
 # load the SimRVPedigree library
@@ -333,7 +338,7 @@ The columns displayed in the output above are described as follows:
  14. `Gen`: the individual's generation number relative to the eldest pedigree founder.  That is, the seed founder will have `Gen = 1`, his or her offspring will have `Gen = 2`, etc. 
  15. `proband`: a proband identifier: `proband = TRUE` if the individual is the proband, and `FALSE` otherwise.
 
-Not all of the variables above are required to simulate SNV data; the required variables are: `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.  Please note, if `DA` and `DA2` are not provided, the pedigree is assumed to be fully-sporadic. 
+Not all of the variables above are required to simulate SNV data; the required variables are: `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.  Please note, if `DA` and `DA2` are not provided, the pedigree is assumed to be fully-sporadic, i.e. `DA1 = DA2 = 0` for all members. 
 
 To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette.
 
@@ -342,13 +347,13 @@ Simulating SNV data for a sample of ascertained pedigrees is achieved with `sim_
 
 Required Arguments:
 
-1. `ped_files` A data frame of pedigrees.  This data frame must contain the variables:  `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`. See section XX for more details.
+1. `ped_files` A data frame of pedigrees.  This data frame must contain the variables:  `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.  If `DA` and `DA2` are not provided we assume the pedigrees are fully sporadic.  See section XX for more details.
 2. `haplos` A sparse matrix of haplotype data, which contains the haplotype data for a sample of unrelated individuals.  Rows are assumed to be haplotypes, while columns represent SNVs.  If `read_slim` was used to import data, users may supply the sparse matrix `Haplotypes` returned by `read_slim`.
 3. `SNV_map` The rows of the data frame `SNV_map` provide information on the SNVs in `haplos.`  If `read_slim` was used to import data, the data frame `Mutations` returned by this function is of the proper format (see section XX).  We note that users must add the variable `is_CRV` to this data frame, as discussed in section XX.
 
 Optional Arguments:
 
-4. `affected_only` A logical argument.  When `affected_only = TRUE`, data is simulated only for affected individuals and the family members that connect them on a line of descent.  When `affected_only = FALSE` SNV data is simulated for the entire pedigree. By default, `affected_only = TRUE`.
+4. `affected_only` A logical argument.  When `affected_only = TRUE` we only simulate SNV data for the affected individuals and the family members that connect them on a line of descent.  When `affected_only = FALSE` SNV data is simulated for the entire pedigree. By default, `affected_only = TRUE`.
 5. `remove_wild` A logical argument that determines if SNVs not carried by any member of the study should be removed from the data.  By default, `remove_wild = TRUE`.
 6.  `pos_in_bp` is a logical variable which indicates if the positions in `SNV_map` are listed in base pairs.  By default, `pos_in_bp = TRUE`. If the positions in `SNV_map` are listed in centiMorgan set `pos_in_bp = FALSE` instead.
 7. `gamma_params` The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, `gamma_params = c(2.63, 2*2.63)`, as in [8].
@@ -401,7 +406,7 @@ dim(study_seq$ped_haplos)
 dim(EXhaps)
 ```
 
-Notice that `ped_haplos` only has 24 columns (i.e. mutations), while `EXhaps`, which was supplied to `sim_RVstudy`, has a total of 500 columns.  This is because the `remove_wild` setting was used to remove superfluous SNVs from our data.  That is, when no one in the study carries a mutated allele at a SNV locus, that marker is removed from the data.  Since we are focused on rare variation, and since `EVhaps` and `study_peds` are small toy data sets the reduction in data is quite significant.
+Notice that `ped_haplos` only has 25 columns (i.e. mutations), while `EXhaps`, which was supplied to `sim_RVstudy`, has a total of 500 columns.  This occurs when the `remove_wild` setting is used to remove superfluous SNVs from our data.  That is, when no one in the study carries a mutated allele at a SNV locus, that marker is removed from the data.  Since we are focused on rare variation, and since `EXhaps` and `study_peds` are small toy data sets the reduction in data is quite significant.
 
 ```{r}
 #View the first 4 observations in SNV_map
@@ -424,7 +429,7 @@ The `haplo_map` data frame is used to map the haplotypes (i.e. rows) in `ped_hap
 unique(study_seq$haplo_map[, c("FamID", "FamCRV")])
 ```
 
-From the output above, we see that families 1 and 4 segregate variant `2_201284953`, family 2 does not segregate any SNV in the pool of causal rare variants, family 3 segregates variant `10_89016102`,  and family 5 segregates variant `10_89015798`.   Family 2 does not segregate any of the SNVs in our pool of causal rare variants, because this is a fully sporadic pedigree.  Fully sporadic families are pedigrees in which all maternally and paternally inherited alleles at the familial disease locus are the wild type.
+From the output above, we see that families 1 and 4 segregate variant `2_201284953`, family 2 does not segregate any SNV in the pool of causal rare variants, family 3 segregates variant `10_89016102`,  and family 5 segregates variant `10_89015798`.   Family 2 does not segregate any of the SNVs in our pool of causal rare variants because it is a fully sporadic pedigree, i.e. there is no genetic predisposition to disease in this pedigree.
 
 To count the total number of SNVs shared among affected relatives in each pedigree we use the `count_affectedRV` function.  To use this function we supply the output returned by `sim_RVstudy` to `count_affectedRV`.
 
@@ -434,7 +439,7 @@ To count the total number of SNVs shared among affected relatives in each pedigr
 count_affectedRV(study_seq)
 ```
 
-Looking at the output above, we see that only one affected relative in family 1 carries a copy of the first marker, `1_236566020`.  It is noteworthy that families 1 and 4 carry so many copies of SNV `2_201284953`.  Not surprisingly, this is the causal rare variant for these two families.
+Looking at the output above, we see that only one affected relative in family 1 carries a copy of the first marker, `1_236566020`.  It is noteworthy that the disease-affected relative in families 1 and 4 carry so many copies of SNV `2_201284953`.  Not too surprisingly, this is the causal rare variant for these two families.
 
 ```{r}
 # To caluculate the total number of SNVs shared
@@ -453,12 +458,12 @@ In this section we describe the model assumptions employed by `SimRVSequences` a
 
 ## Assumptions 
 1. Given a sample of ascertained pedigrees we allow families to segregate different rare variants, but assume that within a family genetic cases are due to a single, **causal rare variant (cRV)** that increases disease susceptibility.  We assume that only one copy of the familial cRV is introduced to the pedigree and that the cRV status of every pedigree member is known.  The `R` package `SimRVPedigree` [6] may be used to simulate pedigrees that meet these criteria (see section XX).
-2. Founder haplotypes are sampled from a user-specified, population distribution of haplotypes conditioned on their cRV status.  
-    + For founders who introduce the cRV: sample from haplotypes that carry the cRV (if cRVs are common or linked the RV founder may introduce multiple cRVs by chance). (**Test and add warning?**)  
-    + For founders who do NOT introduce the cRV: sample from the haplotypes that do not carry ANY of the cRVs in our pool of causal cRVs. Hence, fully sporadic families will not segregate any cRVs, nor will the non-carrier marry-ins in our genetic families.  
+2. Founder haplotypes are sampled from a user-specified, population distribution of haplotypes conditioned on their cRV status.
+    + For the founder who introduce the cRV we sample one haplotype from haplotypes that carry the familial cRV and another from the haplotypes that do not carry ANY of the cRVs in our pool of causal cRVs.  Hence, this founder may introduce only a single copy of the familial cRV.
+    + For the founders who do NOT introduce a cRV we sample their haplotypes from the haplotypes that do not carry ANY of the cRVs in our pool of causal cRVs. Hence, fully sporadic families will not segregate any cRVs, nor will any non-carrier, marry-ins in our genetic families.  
 3. We use a conditional gene-drop algorithm to model inheritance from parent to offspring, which can be described as follows.
   * Simulation of Gametes
-    1. Following [8], we model the distance between chiasmata by a gamma distribution.  The default parameter settings, `shape = 2.63` and `rate = 2*2.63`, are used to model genetic recombination with chiasmata interference.  To model recombination without chiasmata interference, i.e. according to Haldane's model, set `shape = 1` and `rate = 2`.
+    1. Following [8], we model genetic recombination with chiasmata interference.  To accomplish this the distance between chiasmata is modeled by a gamma distribution.  Additionally, we use a "burn-in" process  before the start of the chromosome to simulate the location of the first chiasmata.  The default parameter settings for the gamma distribution are `shape = 2.63` and `rate = 2*2.63`, and `burn_in = 1000`.  To model recombination without chiasmata interference, i.e. according to Haldane's model, set `shape = 1` and `rate = 2` and `burn_in = 0`.
     2. We assume no chromatid interference so that non-sister chromatids are equally likely to participate in a crossover event.
     3. To simulate the formation of gametes we assume that homologous chromatids are assigned to one of four gamete cells with equal probability.  This assignment occurs independently for non-homologous chromosomes.
   * We use a conditional gene drop algorithm to determine which of the four gametes is transmitted from parent to offspring by considering the cRV status of the parent and the offspring, as follows.
@@ -547,6 +552,14 @@ Source Code for Biology and Medicine, 13:2.
 
 ## The `combine_exons` function
 
+The `combine_exons` function is used to combine overlapping exons into single segments.
+
+This function has only one argument called `exon_data`, which is a data frame that includes the following variables 
+
+  1. `chrom` a chromosome identifier,
+  2. `exonStart` the first position of the exon in base pairs, and
+  3. `exonEnd` the last position of the exon in base pairs.
+
 Usage of the `combine_exons` function is illustrated below.
 
 ```{r}
@@ -563,7 +576,7 @@ exDat
 From the output above, we see that the first two exons in chromosome one overlap (i.e. the exons with ranges [1, 3] and [2, 4]), as do all three exons in chromosome two.
 
 ```{r}
-#supply exDat to combine exons
+#supply exDat to combine_exons
 #and view the results
 combine_exons(exDat)
 ```
