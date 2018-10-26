@@ -36,8 +36,8 @@
 #' smap <- create_slimMap(hg_exons)
 #' head(smap)
 #'
-#' #For additional information regarding the output of create_slimMap
-#' #please refer to the vignette (see section ).
+#' #For detailed information regarding the output of create_slimMap
+#' #please refer to section 3.1 of the vignette.
 #'
 #'
 create_slimMap <- function(exon_df, mutation_rate = 1E-8, recomb_rate = 1E-8){
