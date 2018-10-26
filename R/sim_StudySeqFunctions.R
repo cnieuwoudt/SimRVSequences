@@ -134,13 +134,14 @@ remove_allWild <- function(f_haps, SNV_map){
 #'
 #' NOTE: Due to a forwards-in-time model, certain type of inbreeding/loop may cause sim_RVstudy to crash.
 #'
-#' @inheritParams sim_seq
 #' @param ped_files Data frame. Must match format of pedigree simulated by sim_RVped
 #' @param SNV_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
 #' @param haplos sparseMatrix. The genomes matrix returned by \code{read_slim}.  Mutations in haplos are described in \code{SNV_map}.
 #' @param affected_only Logical. When \code{affected_only = TRUE} pedigrees are reduced contain only diesease-affected relatives, their parents, and any obligate carriers or founders; sequence data is simulated only for retained family memebres. When \code{affected_only = FALSE} sequence data is simulated for all.  By default, \code{affected_only = TRUE}.
 #' @param pos_in_bp Logical. The setting \code{pos_in_bp = TRUE} must be used if genomic positions are given in base pairs.  If the genomic postions in \code{SNV_map} are listed in centiMorgan, please set \code{pos_in_bp = FALSE}.  By default, \code{pos_in_bp = TRUE}.
 #' @param remove_wild Logical. Should markers at which no member of study carry a mutated allele be removed from the data. By default, \code{remove_wild = TRUE}.
+#' @param gamma_params Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).
+#' @param burn_in Numeric. The burn in distance in cM. By default, \code{burn_in = 1000}.
 #'
 #' @references Roeland E. Voorrips and Chris A Maliepaard. (2012). \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
 #' @references Christina Nieuwoudt and Jinko Graham. (??) Future bioRxiv article.

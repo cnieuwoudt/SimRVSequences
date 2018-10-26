@@ -12,6 +12,7 @@
 #' }
 #'}
 #'
+#' @inheritParams sim_RVstudy
 #' @inheritParams sim_gameteFormation
 #' @param RV_locus Numeric list of length 2. A list containing (1) the chromosome upon which the rare variant resides (2) the position in cM where the rare variant resides.
 #' @param parent_RValleles Numeric list of length 2. The paternal and maternal alleles at the disease locus (1 = RV inherited, 0 otherwise)

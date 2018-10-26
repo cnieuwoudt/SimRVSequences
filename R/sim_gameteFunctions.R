@@ -15,9 +15,8 @@
 #'
 #' @references Roeland E. Voorrips, Chris A Maliepaard. (2012), \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
 #'
+#' @inheritParams sim_RVstudy
 #' @param chrom_map Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.
-#' @param gamma_params Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).
-#' @param burn_in Numeric. The burn in distance in cM. By default, \code{burn_in = 1000}.
 #'
 #' @return A list of chiasmata postions.
 #' @export
@@ -143,6 +142,7 @@ sim_haploidFormation <- function(num_chiasmata,
 #'
 #' @inheritParams sim_haploidFormation
 #' @inheritParams sim_chiasmataPositions
+#' @inheritParams sim_RVstudy
 #'
 #' @param chrom_map Data.frame.  A data.frame consisting of three columns: column 1 contains the chromosome numbers, column 2 start postion of chromosome (in cM), column 3 end position of chromosome (in cM).
 #'
