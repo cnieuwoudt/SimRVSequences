@@ -457,15 +457,15 @@ From the output above, we see that there are several SNVs carried by more than 1
 In this section we describe the model assumptions employed by `SimRVSequences` and outline the algorithm used to simulate SNV data after all required user-inputs have been obtained. 
 
 ## Assumptions 
-1. Given a sample of ascertained pedigrees we allow families to segregate different rare variants, but assume that within a family genetic cases are due to a single, **causal rare variant (cRV)** that increases disease susceptibility.  We assume that only one copy of the familial cRV is introduced to the pedigree and that the cRV status of every pedigree member is known.  The `R` package `SimRVPedigree` [6] may be used to simulate pedigrees that meet these criteria (see section XX).
+1. Given a sample of ascertained pedigrees we allow families to segregate different rare variants, but assume that within a family genetic cases are due to a single, **causal rare variant (cRV)** that increases disease susceptibility.  We assume that only one copy of the familial cRV is introduced to the pedigree and that the cRV status of every pedigree member is known.  The `R` package `SimRVPedigree` [6] may be used to simulate pedigrees that meet these criteria (see section XX).  
 2. Founder haplotypes are sampled from a user-specified, population distribution of haplotypes conditioned on their cRV status.
-    + For the founder who introduce the cRV we sample one haplotype from haplotypes that carry the familial cRV and another from the haplotypes that do not carry ANY of the cRVs in our pool of causal cRVs.  Hence, this founder may introduce only a single copy of the familial cRV.
-    + For the founders who do NOT introduce a cRV we sample their haplotypes from the haplotypes that do not carry ANY of the cRVs in our pool of causal cRVs. Hence, fully sporadic families will not segregate any cRVs, nor will any non-carrier, marry-ins in our genetic families.  
+    + For the founder who introduces the cRV we sample one haplotype from haplotypes that carry the familial cRV and the other from the haplotypes that do not carry ANY of the cRVs in our pool of causal cRVs.  Hence, this founder may introduce only a single copy of the familial cRV.
+    + For the pedigree founders who do NOT introduce a cRV we sample their haplotypes from the haplotypes that do not carry ANY of the cRVs in our pool of causal cRVs. Hence, fully sporadic families will not segregate any cRVs, nor will any non-carrier, marry-ins in our genetic families.  
 3. We use a conditional gene-drop algorithm to model inheritance from parent to offspring, which can be described as follows.
-  * Simulation of Gametes
+  * First, we simulate the formation of a parent's gametes.
     1. Following [8], we model genetic recombination with chiasmata interference.  To accomplish this the distance between chiasmata is modeled by a gamma distribution.  Additionally, we use a "burn-in" process  before the start of the chromosome to simulate the location of the first chiasmata.  The default parameter settings for the gamma distribution are `shape = 2.63` and `rate = 2*2.63`, and `burn_in = 1000`.  To model recombination without chiasmata interference, i.e. according to Haldane's model, set `shape = 1` and `rate = 2` and `burn_in = 0`.
     2. We assume no chromatid interference so that non-sister chromatids are equally likely to participate in a crossover event.
-    3. To simulate the formation of gametes we assume that homologous chromatids are assigned to one of four gamete cells with equal probability.  This assignment occurs independently for non-homologous chromosomes.
+    3. To simulate the formation of gametes we assume that homologous chromatids are assigned to one of four gamete cells with equal probability.  This assignment occurs independently for non-homologous chromosomes.  
   * We use a conditional gene drop algorithm to determine which of the four gametes is transmitted from parent to offspring by considering the cRV status of the parent and the offspring, as follows.
     + Case 1: If **both the parent and offspring carry the cRV** we sample the inherited gamete from the two possible parental gametes that carry the cRV. For example, in the father to offspring transmission in Figure 2, we choose from the paternal gametes represented by the top two chromatids.
     + Case 2: If the **parent carries the cRV but the offspring does not**, we sample the inherited gamete from the two possible parental gametes that do not carry the cRV. For example, in the father to offspring transmission in Figure 2, we choose from the paternal gametes represented by the bottom two chromatids.
@@ -481,12 +481,12 @@ Algorithm to Simulate Pedigree Data
 2. Draw pedigree founder haplotypes from SNV data conditioned on the founder's cRV status at the familial disease locus.
 3. (top-to-bottom/forwards-in-time approach) For each parent/offspring pair:
     1. Simulate recombination and formation of parental gametes
-    2. perform conditional gene drop 
-3. For each parent/offspring pair:
+    2. perform conditional gene drop (described in assumptions)
+3. (top-to-bottom/forwards-in-time approach) For each parent/offspring pair:
     1. simulate locations future chiasmata 
     2. sample chromatids to participate in crossover event
     3. simulate formation of gametes 
-    4. perform conditional gene drop (described in ...) 
+    4. perform conditional gene drop (described in assumptions) 
 
 # Timing
 
