@@ -18,6 +18,19 @@
 #' # into a single observation.
 #' combine_exons(exDat)
 #'
+#' data(hg_exons)
+#' head(hg_exons)
+#'
+#' hg2 <- combine_exons(hg_exons)
+#' # notice that the combine_exons function disregards all
+#' # variables other than 'chrom', 'exonStart', and 'exonEnd'
+#' head(hg2)
+#'
+#' # However, since the exons in hg_exons have already been
+#' # combined into non-overlapping segments, the relevant
+#' # variables remain unchanged
+#' all(hg_exons[, c(1:3)] == hg2)
+#'
 combine_exons <- function(exon_data){
 
   #check to see if exon_data contains the three named
