@@ -196,7 +196,7 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
 
   #check to see that the sample contains affected relatives when the
   #affected_only setting is used
-  if (affected_only & sum(ped_files$affected) == 0) {
+  if (affected_only & all(ped_files$affected  == FALSE)) {
     stop("\n There are no disease-affected relatives in this study. \n To simulate data for pedigrees without disease-affected relatives use affected_only = FALSE.")
   }
 
