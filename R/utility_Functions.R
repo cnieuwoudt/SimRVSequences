@@ -114,19 +114,24 @@ is_int <- function(x) {x %% 1 == 0}
 #' @export
 #'
 #' @examples
-#' library(SimRVPedigree)
-#' #Read in example pedigrees and create ped object
-#' data(EgPeds)
-#' ex_peds <- new.ped(EgPeds)
+#' data(study_peds)
 #'
 #' #plot full pedigree
-#' plot(ex_peds[which(ex_peds$FamID == 1), ])
+#' plot(study_peds[which(study_peds$FamID == 1), ])
 #'
 #' #reduce to affected only pedigree
-#' Apeds = affected_onlyPed(ex_peds[which(ex_peds$FamID == 1), ])
+#' Apeds = affected_onlyPed(study_peds[which(study_peds$FamID == 1), ])
 #' plot(Apeds)
 #'
 affected_onlyPed = function(ped_file){
+
+  #assign individuals with unknown affection status to FALSE,
+  #since we will not simulate sequence data for these
+  #individuals unless necessary
+
+  if (any(is.na(ped_file$affected))) {
+    ped_file$affected[which(is.na(ped_file$affected))] = FALSE
+  }
 
   #create new ped file with affecteds only
   retA_ped <- ped_file[ped_file$affected, ]

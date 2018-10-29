@@ -16,16 +16,13 @@ affected_onlyPed(ped_file)
 Remove unaffected relatives
 }
 \examples{
-library(SimRVPedigree)
-#Read in example pedigrees and create ped object
-data(EgPeds)
-ex_peds <- new.ped(EgPeds)
+data(study_peds)
 
 #plot full pedigree
-plot(ex_peds[which(ex_peds$FamID == 1), ])
+plot(study_peds[which(study_peds$FamID == 1), ])
 
 #reduce to affected only pedigree
-Apeds = affected_onlyPed(ex_peds[which(ex_peds$FamID == 1), ])
+Apeds = affected_onlyPed(study_peds[which(study_peds$FamID == 1), ])
 plot(Apeds)
 
 }
