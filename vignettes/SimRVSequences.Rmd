@@ -25,17 +25,17 @@ body{ /* Normal  */
 
 Family-based studies are more attractive than case-control studies because they have more power to detect causal rare variants, require smaller sample sizes, and can more accurately detect sequencing errors [12].  However, data collection for these studies is both time consuming and expensive. Furthermore, evaluating methodology to identify causal rare variants requires simulated data. In this vignette we illustrate how the methods provided by `SimRVSequences` may be used to to simulate single-nucleotide variant (SNV) data for family-based studies of diploid organisms.  
 
-Please note that `SimRVSequences` is NOT appropriate for users who wish to (1) simulate genotype conditional on phenotype, or (2) simulate inheritance of multiple **causal rare variants (cRVs)** in the same family.  Instead, `SimRVSequences` employs the following algorithm.
+Please note that `SimRVSequences` is NOT appropriate for users who wish to (1) simulate genotype conditional on phenotype, or (2) simulate inheritance of a multi-locus genotype.  Instead, `SimRVSequences` employs the following algorithm.
 
-1. For each pedigree, we sample a single familial cRV from a pool of causal SNVs specified by the user (see section 3.3).  The sampled cRV represents the underlying genetic contribution to disease-affection status.
+1. For each pedigree, we sample a single **causal rare variant (cRV)** from a pool of SNVs specified by the user (see section 3.3).  The sampled cRV represents the underlying genetic contribution to disease.
 2. After identifying the familial cRV we sample founder haplotypes from haplotype data conditional on the founder's cRV status at the familial cRV locus.
 3. Proceeding forward in time, from founders to more recent generations, for each parent/offspring pair we    
     1. simulate recombination and formation of parental gametes (see section 6), and then
-    2. perform a conditional gene drop to model inheritance of a cRV (see section 6).
+    2. perform a conditional gene drop to model inheritance of the cRV (see section 6).
 
 
 # User Requirements
-To simulate sequence data for family based studies users are expected to provide:
+To simulate sequence data for a family-based study users are expected to provide:
 
 1. a sample of ascertained pedigrees, and 
 2. single-nucleotide variant (SNV) data from a sample of unrelated individuals representing the population of pedigree founders.
@@ -448,10 +448,10 @@ From the output above, we see that there are several SNVs carried by more than 1
 
 # `SimRVSequences` Model Assumptions
 
-In this section we describe the model assumptions employed by `SimRVSequences` to simulate SNV data after all required user-inputs have been obtained. 
+In this section we describe the model assumptions employed by `SimRVSequences` to simulate single-nucleotide variant (SNV) data for pedigrees.  
 
 1. Given a sample of ascertained pedigrees we allow families to segregate different rare variants, but assume that within a family genetic cases are due to a single, **causal rare variant (cRV)** that increases disease susceptibility.  We assume that only one copy of the familial cRV is introduced to the pedigree and that the cRV status of every pedigree member is known.  The `R` package `SimRVPedigree` [8] may be used to simulate pedigrees that meet these criteria (see section 4).  
-2. Recall that users are expected to specify a pool of cRVs which may represent cRVs located in a pathway, or different cRVs in the same gene.  The size of the pool is entirely up to the user: it can contain many SNVs or only a single SNV.  We urge users who are using `SimRVPedigree` in conjuntion with `SimRVsequences` to choose cRVs so that their cumulative probability is approximately 0.001 (see section 3.3).  From this pool we sample a single cRV for each pedigree with replacement.  
+2. Recall that users are expected to specify a pool of cRVs which may represent cRVs located in a pathway, or different cRVs in the same gene.  The size of the pool is entirely up to the user: it can contain many SNVs or only a single SNV.  However, we those who are using `SimRVPedigree` in conjunction with `SimRVsequences` to choose cRVs so that their cumulative carrier probability is approximately 0.001 (see section 3.3).  From this pool we sample a single cRV for each pedigree with replacement.  
 3. Founder haplotypes are sampled from a user-specified, population distribution of haplotypes, conditional on their cRV status.
     + For the founder who introduces the cRV we sample one haplotype from haplotypes that carry the familial cRV and the other from the haplotypes that do not carry ANY of the cRVs in our pool.  Hence, this founder may introduce only a single copy of the familial cRV.
     + For the pedigree founders who do NOT introduce a cRV we sample their haplotypes from the haplotypes that do not carry ANY of the cRVs in our pool. Hence, fully sporadic families will not segregate any cRVs, nor will any non-carrier, marry-ins in our genetic families.  
@@ -467,29 +467,31 @@ In this section we describe the model assumptions employed by `SimRVSequences` t
 
 ![**Figure 2.**  A family trio with possible maternal and paternal recombinant chromatids for a diploid organism with a single set of homologous chromosomes. The cRV locus is indicated by a dashed vertical line over the chromatids, and the cRV is indicated by a black vertical bar within the chromatids.  The top two chromatids of the father contain the only copies of the cRV.](C:/Users/cnieuwoudt/Documents/SimRVSequences/vignettes/singlechromgametes.png)
 
-We use these assumptions in our algoritm to simulate sequence data for pedigrees (see introduction.)
+We use these assumptions in our algorithm to simulate sequence data for pedigrees (see introduction.)
 
 # Method Overview
 
 The methods provided by `SimRVSequences` are described as follows.
 
-* Methods to assist with simulating and importing SLiM [3] data:
+* Methods to assist with creating the recombination map for SLiM:
   1. `combine_exons` This function will be useful to users who would like to combine overlapping exon observations into a single observation. Upon supplying a data frame which contains overlapping exon segments, this function will return a data frame with combined segments (see appendix).  
-  2. `create_slimMap` This function is used both before and after simulating SLiM data. Prior to simulating the SNV data with SLiM, this function can be used to create the recombination map required by SLiM (see section 3.1). Additionally, if this function was used to create the recombination map users may then supply the output of this function to `read_slim` to remap mutations to their correct locations when importing SLiM data.
-  3. `read_slim` This function is used to import the .txt output produced by SLiM's outputfull() method (see section 3.3).
-* Methods to assist with simulation and basic investigation of SNV data for pedigrees
+  2. `create_slimMap` This function is used both before and after simulating SLiM data. Prior to simulating the SNV data with SLiM, this function can be used to create the recombination map required by SLiM to simulate exon-only SNV data (see section 3.1). Additionally, if this function was used to create the recombination map users may then supply the output of this function to `read_slim` to remap mutations to their correct locations when importing SLiM data to `R` (see section 3.2).
+* Method to assist with importing SLiM data to `R`.
+  3. `read_slim` This function is used to import to `R` data stored to a .txt file by SLiM's outputfull() method (see section 3.2).
+* Methods to assist with simulation and basic manipulation of SNV data for pedigrees
   4. `sim_RVstudy` This function is used to simulate the SNV data for a sample of pedigrees (see section 5).
-  5.  `count_affectedRV` This function counts how many copies of an SNV are shared among the disease-affected relatives in each pedigree contained in the sample.
+  5.  `count_affectedRV` This function counts the number of copies of an SNV shared among the disease-affected relatives in each pedigree (see section 5).
 
 # Timing
 
 **All of the following timing estimates were performed on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM.**
 
-Importing genome-wide, exon-only sequence data from a text file produced by SLiM's outputFull() method (see section 3.2) required approximately 3 minutes.
+Importing genome-wide, exon-only SNV data, from the .txt file produced by SLiM's outputfull() method, using the `read_slim` function required approximately 2.7 minutes.
 
-For timing of the `sim_RVstudy` function, we explore the effects of the `affected_only` and `remove_wild` arguments on a sample of 100 pedigrees each of which contained at least 3 disease-affected relatives.  The 100 pedigrees used to time `sim_RVstudy` were simulated using the same settings in parallel processing example of section 4.  For timing, we used genome-wide, exon-only data for 10,000 indivdiuals simulated by SLiM.  After reducing the data to contain SVNs with derived allele frequency less than or equal to 0.01, there were a total of 178,997 SNVs in our data.  We choose a cRV pool of 20 SNVs each with derived allele frequency of 5e-05 at random from the SNVs located in the pseudo-apoptosis pathway described by the `hg_apopPath` data set.
+For timing of `sim_RVstudy`, we explore the effects of the `affected_only` and `remove_wild` arguments.  When `affected_only = TRUE`, sequence data is only simulated for disease-affected relatives and the family members that connect them along a line of descent, otherwise if `affected_only = FALSE` sequence data is simulated for the entire pedigree.  When `remove_wild = TRUE` the size of the data is reduced by removing from the data SNVs not carried by any study participant; otherwise if `remove_wild = FALSE` no data reduction occurs.
 
-When `affected_only = TRUE`, sequence data is only simulated for disease-affected relatives and the family members that connect them along a line of descent, otherwise if `affected_only = FALSE` sequence data is simulated for the entire pedigree.  When `remove_wild = TRUE` the size of the data is reduced by removing from the data SNVs not carried by any study participant; otherwise if `remove_wild = FALSE` no data reduction occurs.
+The following timings were performed on a sample of 100 pedigrees, each of which contained at least 3 relatives affected by a lymphoid cancer.  To simulate these pedigrees we used the same settings as in the parallel processing example of section 4.  For timing, we used genome-wide, exon-only SNV data for 10,000 diploid individuals simulated by SLiM 3.1.  After reducing the SLiM data to contain SVNs with derived allele frequency less than or equal to 0.01, there were a total of 178,997 SNVs in our data.  We choose a cRV pool of size 20 at random from the SNVs with a derived allele frequency of 5e-05 located in the pseudo-apoptosis pathway described by the `hg_apopPath` data set.
+
 
 Number of Pedigrees|`affected_only`|`remove_wild`|time (in minutes)
 ---------|--------|------|--------------
