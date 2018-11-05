@@ -3,32 +3,32 @@
 \docType{data}
 \name{study_peds}
 \alias{study_peds}
-\title{Study pedigrees dataset}
-\format{A data frame with 77 rows and 14 variables:
+\title{Example pedigrees}
+\format{A data frame with 77 rows and 15 variables:
 \describe{
-\item{FamID}{Family identification number}
-\item{ID}{Individual identification number}
-\item{sex}{Gender identification variable: \code{sex = 0} for males, and \code{sex = 1} females. }
+\item{FamID}{Family identification number.}
+\item{ID}{Individual identification number.}
+\item{sex}{Sex identification variable: \code{sex = 0} for males, and \code{sex = 1} females. }
 \item{dadID}{Identification number of father}
 \item{momID}{Identification number of mother}
-\item{affected}{Affection status: \code{affected = TRUE} if individual has developed lymphoid cancer, and \code{FALSE} otherwise.}
-\item{DA1}{Paternally inherited allele at the assumed disease locus: \code{DA1 = 1} if rare variant is present, and 0 otherwise.}
-\item{DA2}{Maternally inherited allele at the assumed disease locus: \code{DA2 = 1} if rare variant is present, and 0 otherwise.}
-\item{birthYr}{Year of birth}
-\item{onsetYr}{Year of disease onset, when applicable.}
-\item{deathYr}{Year of death, when applicable.}
+\item{affected}{disease-affection status: \code{affected = TRUE} if individual has developed disease, and \code{FALSE} otherwise.}
+\item{DA1}{Paternally inherited allele at the familial disease locus: \code{DA1 = 1} if the casual variant is inherited, and \code{0} otherwise.}
+\item{DA2}{Maternally inherited allele at the familial disease locus: \code{DA2 = 1} if the casual variant is inherited, and \code{0} otherwise.}
+\item{birthYr}{The individual's birth year.}
+\item{onsetYr}{The individual's year of disease onset, when applicable, and \code{NA} otherwise.}
+\item{deathYr}{The individual's year of death, when applicable, and \code{NA} otherwise.}
 \item{RR}{The subject's relative-risk of disease}
-\item{available}{Availability status, \code{available  = TRUE} if the individual is unavailable, and \code{FALSE} 1 otherwise}
-\item{Gen}{The subject's generation number relative to the founder who introduced the rare variant.  That is, the founder who introduced the rare variant will have \code{Gen = 1}, his or her offspring will have \code{Gen = 2}, etc.}
-\item{proband}{Proband identification variable, \code{proband = TRUE} if the individual is the proband, and \code{FALSE} otherwise.}
+\item{available}{Availability status: \code{available = TRUE} if individual is recalled by the proband, and \code{FALSE} if not recalled or a marry-in.}
+\item{Gen}{The individual's generation number relative to the eldest pedigree founder.  That is, the seed founder will have \code{Gen = 1}, his or her offspring will have \code{Gen = 2}, etc. }
+\item{proband}{Proband identification variable: \code{proband = TRUE} if the individual is the proband, and \code{FALSE} otherwise.}
 }}
 \usage{
 data(study_peds)
 }
 \description{
-This data set contains data for five pedigrees, which were acsertained to contain three disease-affected family members.
+This data set contains ped data for five families.
 }
 \references{
-Christina Nieuwoudt and Jinko Graham (2018). \strong{SimRVPedigree: Simulate Pedigrees Ascertained for a Rare Disease.} \emph{R package version 0.1.0}. https://CRAN.R-project.org/package=SimRVPedigree.
+Christina Nieuwoudt and Jinko Graham (2018). \strong{SimRVPedigree: Simulate Pedigrees Ascertained for a Rare Disease.} \emph{R package version 0.3.0}. https://CRAN.R-project.org/package=SimRVPedigree.
 }
 \keyword{datasets}
