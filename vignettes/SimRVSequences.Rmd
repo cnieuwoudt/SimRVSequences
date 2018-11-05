@@ -23,11 +23,11 @@ body{ /* Normal  */
 
 # Introduction
 
-Family-based studies are more attractive than case-control studies because they have more power to detect causal rare variants, require smaller sample sizes, and can more accurately detect sequencing errors [12].  However, data collection for these studies is both time consuming and expensive. Furthermore, evaluating methodology to identify causal rare variants requires simulated data. In this vignette we illustrate how the methods provided by `SimRVSequences` may be used to to simulate single-nucleotide variant (SNV) data for family-based studies of diploid organisms.  
+Family-based studies are more attractive than case-control studies because they have more power to detect causal rare variants, require smaller sample sizes, and can more accurately detect sequencing errors [12].  However, data collection for these studies is both time consuming and expensive. Furthermore, evaluating methodology to identify causal rare variants requires simulated data. In this vignette we illustrate how the methods provided by `SimRVSequences` may be used to to simulate sequence data for family-based studies of diploid organisms.
 
-Please note that `SimRVSequences` is NOT appropriate for users who wish to (1) simulate genotype conditional on phenotype, or (2) simulate inheritance of a multi-locus genotype.  Instead, `SimRVSequences` employs the following algorithm.
+Please note that `SimRVSequences` is NOT appropriate for users who wish to simulate genotype conditional on phenotype.  Instead, `SimRVSequences` employs the following algorithm.
 
-1. For each pedigree, we sample a single **causal rare variant (cRV)** from a pool of SNVs specified by the user (see section 3.3).  The sampled cRV represents the underlying genetic contribution to disease.
+1. For each pedigree, we sample a single **causal rare variant (cRV)** from a pool of SNVs specified by the user (see section 3.3).
 2. After identifying the familial cRV we sample founder haplotypes from haplotype data conditional on the founder's cRV status at the familial cRV locus.
 3. Proceeding forward in time, from founders to more recent generations, for each parent/offspring pair we    
     1. simulate recombination and formation of parental gametes (see section 6), and then
@@ -60,9 +60,9 @@ Finally, in section 3.3 we demonstrate how users may implement a pathway approac
 
 The `SimRVSequences` function `create_slimMap` simplifies the task of creating the recombination map required by SLiM to simulate exon-only SNV data.  The `create_slimMap` function has three arguments:
 
-1. `exon_df`: A data frame that contains the positions of each exon to simulate.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.   *We expect that `exon_df` does not contain any overlapping segments.  Prior to supplying exon data to `create_slimMap` users must combine overlapping exons into a single observation.  The `combine_exons` function may be used to accomplish this task (see appendix for details).*
-2. `mutation_rate`: the per site per generation mutation rate, assumed to be constant across the genome. By default, `mutation_rate= 1E-8`, as in [4].
-3. `recomb_rate`: the per site per generation recombination rate, assumed to be constant across the genome.   By default, `recomb_rate= 1E-8`, as in [4].  
+1. `exon_df`: A data frame that contains the positions of each exon to simulate.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.   *We expect that `exon_df` does not contain any overlapping segments.  Prior to supplying the exon data to `create_slimMap` users must combine overlapping exons into a single observation.  Our `combine_exons` function may be used to accomplish this task (see appendix for details).*
+2. `mutation_rate`: the per-site per-generation mutation rate, assumed to be constant across the genome. By default, `mutation_rate= 1E-8`, as in [4].
+3. `recomb_rate`: the per-site per-generation recombination rate, assumed to be constant across the genome.   By default, `recomb_rate= 1E-8`, as in [4].  
 
 We will illustrate usage of `create_slimMap` using the `hg_exons` data set.
 
@@ -95,20 +95,20 @@ The `create_slimMap` function returns a data frame with several variables:
 
 1. `chrom`:  the chromosome number.
 2. `segLength`: the length of the segment in base pairs.  *We assume that segments contain the positions listed in `exonStart` and `exonEnd.`  Therefore, for a combined exon segment, `segLength` is calculated as `exonEnd - exonStart + 1.`*
-3. `recRate`: the per site per generation recombination rate.  Following [4], segments between exons on the same chromosome are simulated as a single base pair with `rec_rate` equal to recombination rate multiplied by the number of base pairs in the segment.  For each chromosome, a single site is created between the last exon on the previous chromosome and the first exon of the current chromosome.  This site will have recombination rate 0.5 to accommodate unlinked chromosomes.
-4. `mutRate`: the per site per generation mutation rate.  Since we are interested in exon-only data, the mutation rate outside exons is set to zero.
+3. `recRate`: the per-site per-generation recombination rate.  Following [4], segments between exons on the same chromosome are simulated as a single base pair with `rec_rate` equal to recombination rate multiplied by the number of base pairs in the segment.  For each chromosome, a single site is created between the last exon on the previous chromosome and the first exon of the current chromosome.  This site will have recombination rate 0.5 to accommodate unlinked chromosomes.
+4. `mutRate`: the per-site per-generation mutation rate.  Since we are interested in exon-only data, the mutation rate outside exons is set to zero.
 5. `exon`: logical variable, `TRUE` if segment is an exon and `FALSE` if not an exon. 
-6. `simDist`: the simulated exon length, in base pairs. When `exon = TRUE`, `simDist = segLength`; however, when `exon = FALSE`, `simDist = 1`.
+6. `simDist`: the simulated exon length, in base pairs. When `exon = TRUE`, `simDist = segLength`; however, when `exon = FALSE`, `simDist = 1` since segments between exons on the same chromosome are simulated as a single base pair.
 7. `endPos`: The simulated end position, in base pairs, of the segment.
 
 
 The first row in the output above contains information about the genetic segment **before the first exon** on chromosome 1.  Referring back to the `hg_exons` data we see that the first exon begins at position 11,874.  Since the region before the first exon contains 11,873 base pairs `segLength = 11873` for this region.  To avoid unnecessary computation in SLiM, `simDist = 1` so that this non-exonic region is simulated as a single base pair. The recombination rate for this segment is set to zero.  However, the first non-exon segment for the next chromosome will be 0.5 so that chromosomes are unlinked.  The mutation rate for this non-exon segment is set to zero since we are interested in exon-only data.   
 
-The second row of the output catalogs information for the first exon on chromosome 1.  This exon contains 354 base pairs, hence `simDist = 354` for this segment.  The per site per generation mutation and recombination rates for this exon are both 1E-08.
+The second row of the output catalogs information for the first exon on chromosome 1.  This exon contains 354 base pairs, hence `simDist = 354` for this segment.  The per-site per-generation mutation and recombination rates for this exon are both 1E-08.
 
 The third row contains the information for the second non-exon segment on chromosome 1. This segment contains 385 base pairs. Notice that like the first non-exon segment (i.e. row 1) we simulate this segment as a single site, i.e. `simDist = 1`.  However, we set the recombination rate to `segLength` multiplied by the argument `recomb_rate` (i.e. 385*1E-8 = 3.85E-6).
 
-Only three of the variables returned by `create_slimMap` are required by SLiM to simulate exon-only data: `recRate`, `mutRate`, and `endPos`.  The other variables seen in the output above are used by the `read_slim` function to remap mutations to their correct positions when importing SLiM data to `R` (see section 3.2). 
+Only three of the variables returned by `create_slimMap` are required by SLiM to simulate exon-only data: `recRate`, `mutRate`, and `endPos`.  The other variables seen in the output above are used by our `read_slim` function to remap mutations to their correct positions when importing SLiM data to `R` (see section 3.2). 
 
 SLiM is written in a scripting language called Eidos. Unlike an `R` array, the first position in an Eidos array is 0.  Therefore, we must shift the variable `endPos` forward 1 unit before supplying this data to SLiM.
 
@@ -127,22 +127,20 @@ We use SLiM to generate neutral mutations in exons and allowed them to accumulat
 
 ## Import SLiM Data to `R`
 
-To import SLiM data to `R`, we provide the `read_slim` function, which has been tested for SLiM versions 2.0-3.1.  Presently, the `read_slim` function is only appropriate for data produced by the outputFull() method in SLiM.  We do not support output in MS or VCF data format (i.e. produced by outputVCFsample() or outputMSSample()).
+To import SLiM data to `R`, we provide the `read_slim` function, which has been tested for SLiM versions 2.0-3.1.  Presently, the `read_slim` function is only appropriate for data produced by the outputFull() method in SLiM.  We do not support output in MS or VCF data format (i.e. produced by outputVCFsample() or outputMSSample() in SLiM).
 
-Please also note that we currently only permit for SNV data (i.e. 0/1 mutations).
-
-The `read_slim` function has four arguments:
+Our `read_slim` function has four arguments:
 
 1. `file_path`: The file path of the .txt output file created by the outputFull() method in SLiM.
 2. `recomb_map`: (Optional) A recombination map of the same format as the data frame returned by `create_slimMap`.  Users who followed the instructions in section 3.1, may supply the output from `create_slimMap` to this argument. 
 3. `keep_maf`: The largest allele frequency for retained SNVs, by default `keep_maf = 0.01`.  All variants with allele frequency greater than `keep_maf` will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R.
-4. `pathway_df`: (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with the `combine_exons` function (see appendix for details).*
+4. `pathway_df`: (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with our `combine_exons` function (see appendix for details).*
 
 To clarify, the argument `recomb_map` is used to remap mutations to their actual locations and chromosomes.  This is necessary when data has been simulated over non-contiguous regions such as exon-only data.  If `recomb_map` is not provided, we assume that the SNV data has been simulated over a contiguous segment starting with the first base pair on chromosome 1.
 
-In addition to reducing the size of the data, the argument `keep_maf` has practicable applicability as well.  In family-based studies, common SNVs are generally filtered out prior to analysis.  Users who intend to study common variants in addition to rare variants may need to run chromosome specific analyses to allow for allocation of large data sets in `R`.
+In addition to reducing the size of the data, the argument `keep_maf` has practicable applicability.  In family-based studies, common SNVs are generally filtered out prior to analysis.  Users who intend to study common variants in addition to rare variants may need to run chromosome specific analyses to allow for allocation of large data sets in `R`.
 
-The data frame `pathway_df` allows users to identify SNVs located within a pathway of interest when importing the data.  For example, consider a pseudo-apoptosis sub-pathway centered about the TNFSF10 gene based on the 25 genes that have the highest interaction with this gene in the UCSC Genome Browser's Gene Interaction Tool [5, 6, 10].  The data for this pseudo-pathway is contained in the `hg_apopPath` data set.
+The data frame `pathway_df` allows users to identify SNVs located within a pathway of interest when importing the data.  For example, consider the apoptosis sub-pathway centered about the *TNFSF10* gene based on the 25 genes that have the highest interaction with this gene in the UCSC Genome Browser's Gene Interaction Tool [5, 6, 10].  The data for this sub-pathway is contained in the `hg_apopPath` data set.
 
 ```{r}
 # load the hg_apopPath data
@@ -152,7 +150,7 @@ data("hg_apopPath")
 head(hg_apopPath, n = 4)
 ```
 
-The `hg_apopPath` data set is similar the `hg_exons` data set discussed in section 3.1.  However, `hg_apopPath` only catalogs the positions of exons contained in our pseudo-pathway.
+The `hg_apopPath` data set is similar the `hg_exons` data set discussed in section 3.1.  However, `hg_apopPath` only catalogs the positions of exons contained in our sub-pathway.
 
 The following code demonstrates how the `read_slim` function would be called if `create_slimMap` was used to create the recombination map for SLiM as in section 3.1.
 
@@ -165,9 +163,9 @@ s_out <- read_slim(file_path  = "slimOut.txt",
                    pathway_df = hg_apopPath)
 ```
 
-Though not displayed here, the `read_slim` function returns a list with 2 items. The first is a data frame named `Mutations`, which catalogs SNV information.  The second item is a sparse matrix named `Haplotypes`, which contains the haplotype data for unrelated, diploid individuals.  
+The `read_slim` function returns a list with 2 items. The first is a data frame named `Mutations`, which catalogs SNV information.  The second item is a sparse matrix named `Haplotypes`, which contains the haplotype data for unrelated, diploid individuals.  
 
-We note that importing SLiM data can be time-consuming; importing exon-only mutation data simulated over the 22 human autosomes for a sample of 10,000 individuals on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM took approximately 3 mins.  For the purpose of demonstration, we use the `EXmuts` and `EXhaps` data sets provided by `SimRVsequences`.  
+We note that importing SLiM data can be time-consuming; importing exon-only mutation data simulated over the 22 human autosomes for a sample of 10,000 individuals on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM took approximately 3 mins.  For the purpose of demonstration, we use the `EXmuts` and `EXhaps` data sets provided by `SimRVSequences`.  
 
 The `EXmuts` data set represents the `Mutations` data frame returned by `read_slim,` and the `EXhaps` data set represents the sparse matrix `Haplotypes` returned by `read_slim`.  We note that these toy data sets contain SNV data from a small portion of the human genome are are not representative of exon-only data over the entire human genome.
 
@@ -179,7 +177,7 @@ data(EXmuts)
 head(EXmuts, n = 4)
 ```
 
-The `EXmuts` data frame is used to catalog the SNVs in `EXhaps`.  Each row in `EXmuts` represents an SNV.  The variable `colID` associates the rows in `EXmuts` to the columns of `EXhaps`, `chrom` is the chromosome the SNV resides in, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of the SNV, `marker` is a unique character identifier for the SNV, and `pathwaySNV` identifies SNVs located within the pseudo-pathway as `TRUE`.
+The `EXmuts` data frame is used to catalog the SNVs in `EXhaps`.  Each row in `EXmuts` represents an SNV.  The variable `colID` associates the rows in `EXmuts` to the columns of `EXhaps`, `chrom` is the chromosome the SNV resides in, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of the SNV, `marker` is a unique character identifier for the SNV, and `pathwaySNV` identifies SNVs located within the sub-pathway as `TRUE`.
 
 ```{r}
 #import the EXhaps dataset
@@ -304,9 +302,9 @@ plot(study_peds[study_peds$FamID == 3, ],
      ref_year = 2018)
 ```
 
-According to the legend, disease-affected individuals (IDs 1, 3, 8, and 21) are indicated by a solid shading in the upper left third of their symbol.  The proband (ID 21) is indicated by shading in the lower portion of his symbol. Individuals who have inherited the cRV (IDs 1, 3, 5, 6, 7, 8, 21 and 42) are indicated by shading in the upper right portion of their symbol.
+According to the legend, disease-affected individuals (IDs 1, 3, 8, and 21) are indicated by a solid shading in the upper-left third of their symbol.  The proband (ID 21) is indicated by shading in the lower portion of his symbol. Individuals who have inherited the cRV (IDs 1, 3, 5, 6, 7, 8, 21 and 42) are indicated by shading in the upper-right portion of their symbol.
 
-The seed founder (ID 1) and all of his descendants have age data relative to the reference year, which is displayed below their symbols.  If a descendant has died by the reference year (IDs 1, 3, 5, 6, etc.) their year of birth and death are displayed in parentheses, and their symbol will have a diagonal line over it. Descendants who are still alive at the reference year have an age identifier.  Descendants who have experienced disease-onset by the reference year will have a disease onset age identifier.
+The seed founder (ID 1) and all of his descendants have age data relative to the reference year, which is displayed below their symbols.  If a descendant has died by the reference year (IDs 1, 3, 5, 6, etc.) their year of birth and death are displayed in parentheses, and their symbol will have a diagonal line over it. Descendants who are still alive at the reference year have an age identifier.  Descendants who have experienced disease-onset by the reference year will have a disease-onset age identifier.
 
 
 ```{r}
@@ -490,7 +488,7 @@ Importing genome-wide, exon-only SNV data, from the .txt file produced by SLiM's
 
 For timing of `sim_RVstudy`, we explore the effects of the `affected_only` and `remove_wild` arguments.  When `affected_only = TRUE`, sequence data is only simulated for disease-affected relatives and the family members that connect them along a line of descent, otherwise if `affected_only = FALSE` sequence data is simulated for the entire pedigree.  When `remove_wild = TRUE` the size of the data is reduced by removing from the data SNVs not carried by any study participant; otherwise if `remove_wild = FALSE` no data reduction occurs.
 
-The following timings were performed on a sample of 100 pedigrees, each of which contained at least 3 relatives affected by a lymphoid cancer.  To simulate these pedigrees we used the same settings as in the parallel processing example of section 4.  For timing, we used genome-wide, exon-only SNV data for 10,000 diploid individuals simulated by SLiM 3.1.  After reducing the SLiM data to contain SVNs with derived allele frequency less than or equal to 0.01, there were a total of 178,997 SNVs in our data.  We choose a cRV pool of size 20 at random from the SNVs with a derived allele frequency of 5e-05 located in the pseudo-apoptosis pathway described by the `hg_apopPath` data set.
+The following timings were performed on a sample of 100 pedigrees, each of which contained at least 3 relatives affected by a lymphoid cancer.  To simulate these pedigrees we used the same settings as in the parallel processing example of section 4.  For timing, we used genome-wide, exon-only SNV data for 10,000 diploid individuals simulated by SLiM 3.1.  After reducing the SLiM data to contain SVNs with derived allele frequency less than or equal to 0.01, there were a total of 178,997 SNVs in our data.  We choose a cRV pool of size 20 at random from the SNVs with a derived allele frequency of 5e-05 located in the sub-apoptosis pathway described by the `hg_apopPath` data set.
 
 
 Number of Pedigrees|`affected_only`|`remove_wild`|time (in minutes)
