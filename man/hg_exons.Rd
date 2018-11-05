@@ -4,21 +4,21 @@
 \name{hg_exons}
 \alias{hg_exons}
 \title{Human Exon Data}
-\format{A data set with 223289 rows and 4 variables:
+\format{A data set with 223565 rows and 4 variables:
 \describe{
   \item{chrom}{Numeric. The chromosome number.}
-  \item{exonStart}{Numeric. The exon's starting position, in base pairs.}
-  \item{exonStop}{Numeric. The exon's ending position, in base pairs.}
+  \item{exonStart}{Numeric. The position of the first base pair.}
+  \item{exonStop}{Numeric. The position of the last base pair.}
   \item{NCBIref}{Character. The NCBI reference seqence accession number of the gene(s) in which the exon(s) reside.}
 }}
 \usage{
 hg_exons
 }
 \description{
-This data set catalouges the positions, in base pairs, of the exons residing on human chromosomes 1-22.  The positions of the exons were obtained from the UCSC Genome Broswer, using the hg38 database and ncbiRefSeqCurated table.  In this dataset we have combined overlapping exons into a single entry.
+This data set catalouges combined exon segments from the 22 human autosomes.
 }
 \details{
-In \code{hg_exons} overlapping exons are combined into a single observation. When exons from genes with different NCBI accession numbers have been combined the variable \code{NCBIref} will contain multiple accession numbers, each separated by a comma.  We note that different accession numbers may exist for isoforms or transcript variants of the same gene.
+The \code{hg_exons} data set catalogs the positions of exons residing in the 22 human autosomes. The data contained in \code{hg_exons} was collected from the hg 38 reference genome with the UCSC Genome Browser. The variable \code{chrom} is the chromosome on which the exon resides, \code{exonStart} is the position of the first base pair in the exon, and \code{exonEnd} is the position of the last base pair in the exon.  The variable \code{NCBIref} is the NCBI reference sequence accession numbers for the coding region in which the exon resides.  In \code{hg_exons} overlapping exons have been combined into a single observation. When exons from genes with different NCBI accession numbers have been combined the variable \code{NCBIref} will contain multiple accession numbers separated by commas.  We note that different accession numbers may exist for transcript variants of the same gene.
 }
 \references{
 Karolchik, D., Hinrichs, A. S., Furey, T. S., Roskin, K. M., Sugnet, C. W., Haussler, D., and Ken, W. J. (2004). The UCSC Table Browser data retrieval tool. \emph{Nucleic Acids Res}. Accessed on 6 February 2018.
