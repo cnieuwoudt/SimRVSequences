@@ -10,7 +10,7 @@
   \item{exonStart}{Numeric. The position of the first base pair.}
   \item{exonStop}{Numeric. The position of the last base pair.}
   \item{NCBIref}{Character. The NCBI reference seqence accession number of the gene(s) in which the exon(s) reside.}
-  \item{gene}{Character. The name(s) of the gene.}
+  \item{gene}{Character. The name of the gene.}
 }}
 \usage{
 hg_apopPath
