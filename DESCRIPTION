@@ -1,10 +1,10 @@
 Package: SimRVSequences
 Type: Package
-Title: Simulate Sequence Data for Pedigrees Simulated by SimRVPedigree
+Title: Simulate Sequence Data for Pedigrees
 Version: 0.1.0
 Author: Christina Nieuwoudt, Jinko Graham
 Maintainer: Christina Nieuwoudt <cnieuwou@sfu.ca>
-Description: SimRVSequences provides methods to simulate single-nucleotide variant data for pedigrees.
+Description: SimRVSequences provides methods to simulate single-nucleotide variant data for pedigrees ascertained for family-based study.
 Depends:
     R (>= 3.2.5)
 Imports:
