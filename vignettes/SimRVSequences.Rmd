@@ -319,7 +319,7 @@ The columns displayed in the output above are described as follows:
  3. `sex`: sex identification variable: `sex = 0` for males, and `sex = 1` females. 
  4. `dadID`: identification number of father
  5. `momID`: identification number of mother
- 6. `affected`: affection status: `affected = TRUE` if individual has developed disease, and `FALSE` otherwise.
+ 6. `affected`: disease-affection status: `affected = TRUE` if individual has developed disease, and `FALSE` otherwise.
  7. `DA1`: paternally inherited allele at the cRV locus: `DA1 = 1` if the cRV is inherited, and `0` otherwise.
  8. `DA2`: maternally inherited allele at the cRV locus: `DA2 = 1` if the cRV is inherited, and `0` otherwise.
  9. `birthYr`: the individual's birth year.
