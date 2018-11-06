@@ -163,35 +163,37 @@ s_out <- read_slim(file_path  = "slimOut.txt",
                    pathway_df = hg_apopPath)
 ```
 
-The `read_slim` function returns a list with 2 items. The first is a data frame named `Mutations`, which catalogs SNV information.  The second item is a sparse matrix named `Haplotypes`, which contains the haplotype data for unrelated, diploid individuals.  
+The `read_slim` function returns a list with 2 items.  The first item is a sparse matrix named `Haplotypes`, which contains the haplotype data for unrelated, diploid individuals.  The second item is a data frame named `Mutations`, which catalogs the SNVs contained in `Haplotypes`.
 
-We note that importing SLiM data can be time-consuming; importing exon-only mutation data simulated over the 22 human autosomes for a sample of 10,000 individuals on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM took approximately 3 mins.  For the purpose of demonstration, we use the `EXmuts` and `EXhaps` data sets provided by `SimRVSequences`.  
+We note that importing SLiM data can be time-consuming; importing exon-only mutation data simulated over the 22 human autosomes for a sample of 10,000 individuals on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM took approximately 3 mins.  For the purpose of demonstration, we use the `EXhaps` and `EXmuts` and  data sets provided by `SimRVSequences`.  
 
-The `EXmuts` data set represents the `Mutations` data frame returned by `read_slim,` and the `EXhaps` data set represents the sparse matrix `Haplotypes` returned by `read_slim`.  We note that these toy data sets contain SNV data from a small portion of the human genome are are not representative of exon-only data over the entire human genome.
+The `EXhaps` data set represents the sparse matrix `Haplotypes` returned by `read_slim,` and the `EXmuts` data set represents the `Mutations` data frame returned by `read_slim`.  We note that these toy data sets contain SNV data from a small portion of the human genome are are not representative of exon-only data over the entire human genome.
 
 ```{r}
-#import the EXmuts dataset
+# import the EXmuts dataset
 data(EXmuts)
 
-#view the first 4 observations
+# view the first 4 observations of EXmuts
 head(EXmuts, n = 4)
 ```
 
-The `EXmuts` data frame is used to catalog the SNVs in `EXhaps`.  Each row in `EXmuts` represents an SNV.  The variable `colID` associates the rows in `EXmuts` to the columns of `EXhaps`, `chrom` is the chromosome the SNV resides in, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of the SNV, `marker` is a unique character identifier for the SNV, and `pathwaySNV` identifies SNVs located within the sub-pathway as `TRUE`.
+The `EXmuts` data frame is used to catalog the SNVs in `EXhaps`.  Each row in `EXmuts` represents an SNV. The variable `colID` associates the rows in `EXmuts` to the columns of `EXhaps`, `chrom` is the chromosome the SNV resides in, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of the SNV, `marker` is a unique character identifier for the SNV, and `pathwaySNV` identifies SNVs located within the sub-pathway as `TRUE`.
 
 ```{r}
-#import the EXhaps dataset
+# import the EXhaps dataset
 data(EXhaps)
 
-#dimensions of EXhaps
+# dimensions of EXhaps
 dim(EXhaps)
 ```
+
 Looking at the output above we see that there are 20,000 haplotypes which contain 500 mutations in `EXhaps`.
 
 ```{r}
-#number of rows in EXmuts
+# number of rows in EXmuts
 nrow(EXmuts)
 ```
+
 Since `EXmuts` catalogs the SNVs in `EXhaps`, `EXmuts` will have 500 rows.
 
 ```{r}
@@ -200,7 +202,6 @@ EXhaps[1:15, 1:30]
 ```
 
 From the output above, we see that `EXhaps` is a sparse matrix of class dgCMatrix.  The `Matrix` package [1] is used to create objects of this class.  Entries of `1` represent a mutated allele, while the wild type is represented as '`.`'.  Recall that we retain SNVs with derived allele frequency less than or equal to `keep_maf`; hence, the majority of entries represent the wild type allele.  
-
 
 ## Select Pool of Causal Variants
 
