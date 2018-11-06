@@ -179,62 +179,58 @@ reMap_mutations <- function(mutationDF, recomb_map){
 
 #' Import SLiM Data to R
 #'
-#' Import SNV data from txt file produced by SLiM's outputFull() method
+#'To import SLiM data into \code{R}, we provide the \code{read_slim} function, which has been tested for SLiM versions 2.0-3.1.  Presently, the \code{read_slim} function is only appropriate for single-nucleotide variant (SNV) data produced by SLiM's outputFull() method.  We do not support output in MS or VCF data format, i.e. produced by outputVCFsample() or outputMSSample() in SLiM.
 #'
-#' The \code{read_slim} function is used to extract SNV (single nucleotide variant) data from the text file produced by SLiM's outputFull() method. Currently, we do not support output in MS or VCF format (i.e. output produced by SLiM's outputMSSample() or outputVCFSample() methods).
+#' In addition to reducing the size of the data, the argument \code{keep_maf} has practicable applicability.  In family-based studies, common SNVs are generally filtered out prior to analysis.  Users who intend to study common variants in addition to rare variants may need to run chromosome specific analyses to allow for allocation of large data sets in \code{R}.
 #'
-#' When supplied, we expect that `pathwayDF` does not contain any overlapping segments.  *All overlapping exons MUST be combined into a single observation. Please execute the command `help(combine_exons)` for more details.*
+#' The argument \code{recomb_map} is used to remap mutations to their actual locations and chromosomes.  This is necessary when data has been simulated over non-contiguous regions such as exon-only data.  If \code{\link{create_slimMap}} was used to create the recombination map for SLiM, simply supply the output of \code{create_slimMap} to \code{recomb_map}.  If \code{recomb_map} is not provided we assume that the SNV data has been simulated over a contiguous segment starting with the first base pair on chromosome 1.
 #'
-#' In addition to allowing users to specify recombination hotspots, the recombination map provided to SLiM can be used to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  The \code{\link{create_slimMap}} function may be used to create a recombination map to simulate exon-only data with SLiM.  In this case, simply supply the data frame returned by \code{create_slimMap} to the \code{recomb_map} argument of \code{read_slim} to map mutations to their actual locations and/or their appropriate chromosomes.  If \code{create_slimMap} was not used to create the recombination map used with SLiM 2.0, users must take care to ensure that \code{recomb_map} is of the same form as the output produced by \code{\link{create_slimMap}}.
+#' The data frame \code{pathway_df} allows users to identify SNVs located within a pathway of interest.  When supplied, we expect that \code{pathwayDF} does not contain any overlapping segments.  \emph{All overlapping exons in \code{pathway_df} MUST be combined into a single observation.  Users may combine overlapping exons with the \code{\link{combine_exons}} function.}
 #'
-#' The first item returned by \code{read_slim} is a data frame named \code{Mutations}, which catalouges SNV ID, genomic position, chromosome, and derived allele frequency.  The variable \code{colID} references the SNV's ID which is also its column position in the sparse genotype matrix. The variable \code{position} is the genomic position of the SNV (in bp), and \code{afreq} is the derived allele frequency of the SNV, \code{chrom} identifies the chromosome, and \code{marker} is a unique character identifier.  When \code{recomb_map} is not provided, we assume that all mutations reside on the first chromosome so that \code{chrom} is 1 for every mutation.
+#' The \code{read_slim} function returns a list containing two items:
+#' \enumerate{
+#' \item \code{Haplotypes} A sparse matrix of class dgCMatrix. The columns in {Haplotypes} represent distinct SNVs, while the rows repesent individual haplotypes. We note that this matrix contains two rows of data for each diploid individual in the population: one row for the maternally ihnherited haplotype and the other for the paternally inherited haplotype.
+#' \item \code{Mutations} A data frame cataloging SNVs in \code{Haplotypes}. The variables in the \code{Mutations} data set are described as follows:
+#' \tabular{ll}{
+#' \code{colID} \tab Associates the rows, i.e. SNVs, in \code{Mutations} to the columns of \code{Haplotypes}. \cr
+#' \code{chrom} \tab The chromosome that the SNV resides on. \cr
+#' \code{position} \tab The position of the SNV in base pairs. \cr
+#' \code{afreq} \tab The derived allele frequency of the SNV. \cr
+#' \code{marker} \tab A unique character identifier for the SNV.\cr
+#' \code{pathwaySNV} \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. Note that this variable is omitted when users do not supply \code{pathway_df} to \code{read_slim}. \cr
+#' }}
 #'
-#' The second item returned is a sparse matrix named \code{Genomes}.  This matrix contains two rows for each diploid individual in the population. That is, each row is one of the haplotypes for a single individual in the population.  For example, the first individual's inherited haplotypes are stored in rows one and two, respectively. The third and fourth rows contain haplotypes for the second individual, fifth and sixth rows contain haplotypes for the third individual, and so on.
 #'
-#'
-#' NOTE TO SELF:
-#' \itemize{
-#'  \item For file extension internal check use: importFrom tools file_ext
-#'  \item If possible, add test: two rows for each person in genotypes matrix
-#' }
-#'
-#' @param file_path character.  The file path of the SLiM 2.0 output file.
-#' @param keep_maf numeric. The largest allele frequency for retained SNVs.  All variants with allele frequency greater than \code{keep_maf} will be removed.  Please note, removing common variants is recommended for large datasets due to the limitations of data allocation in \code{R}.
-#' @param recomb_map data frame. The recombination map provided to SLiM 2.0, see details.
-#' @param pathway_df data frame. A data frame that contains the positions for each exon in the pathway of interest.  This data frame must contain the variables \code{chrom}, \code{exonStart}, and \code{exonEnd}.  See details.
+#' @param file_path character.  The file path of the .txt output file created by the outputFull() method in SLiM.
+#' @param keep_maf numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf = 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R. See details.
+#' @param recomb_map data frame. (Optional) A recombination map of the same format as the data frame returned by \code{\link{create_slimMap}}. See details.
+#' @param pathway_df data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  See details.
 #'
 #' @return  A list containing:
-#' @return \item{\code{Mutations} }{A dataframe containing SNV information, see details..}
-#' @return \item{\code{Genomes} }{A sparse matrix of haplotypes, see details.}
+#' @return \item{\code{Haplotypes} }{A sparse matrix of haplotypes. See details.}
+#' @return \item{\code{Mutations}}{A data frame cataloging SNVs in \code{Haplotypes}. See details.}
 #' @importFrom Matrix sparseMatrix
 #' @export
 #'
 #' @references Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
+#' @references Douglas Bates and Martin Maechler (2018). \strong{Matrix: Sparse and Dense Matrix Classes and Methods}.
+#' \emph{R package version 1.2-14}. https://CRAN.R-project.org/package=Matrix
+#'
+#' @seealso \code{\link{create_slimMap}}, \code{\link{combine_exons}}, \code{\link{dgCMatrix-class}}
 #'
 #' @examples
 #'
-#' #please see vignette for example usage of read_slim.
-#'
-#' #Assuming that the .txt file returned by SLiM's outputFull() method is
-#' #titled SlimData, and is stored in a file named Data the following
-#' #code represents how read_slim would be executed.
+#' # If create_slimMap was used to create the recombination
+#' # map for SLiM from the hg_exons data set, and if the .txt file
+#' # produced by SLiM's outputFull() method is saved as "slimOut.txt"
+#' # in the current working directory we import "slimOut.txt" to R
+#' # using the following command.
 #'
 #' \dontrun{
-#' sout = read_slim(file_path = "Data/SlimData.txt",
-#'                  recomb_map = create_slimMap(hg_exons),
-#'                  pathway_df = hg_apopPath)
-#'
-#' a = Sys.time()
-#' sout = read_slim(file_path = "C:/Data/Slim/SlimFINALout.txt",
-#'                  keep_maf = 0.01,
-#'                  recomb_map = create_slimMap(hg_exons),
-#'                  pathway_df = hg_apopPath)
-#' b = Sys.time()
-#' difftime(b, a, units = "mins")
-#'
-#' sout = read_slim(file_path = "C:/Data/Slim/SLiMtest_output.txt",
-#'                  keep_maf = 0.01)
+#' s_out <- read_slim(file_path  = "slimOut.txt",
+#'                    recomb_map = create_slimMap(hg_exons))
 #' }
+#'
 read_slim <- function(file_path, keep_maf = 0.01,
                       recomb_map = NULL,
                       pathway_df = NULL){
@@ -379,7 +375,7 @@ read_slim <- function(file_path, keep_maf = 0.01,
   }
 
 
-  return(list(Mutations = RareMutData, Haplotypes = GenoData))
+  return(list(Haplotypes = GenoData, Mutations = RareMutData))
 }
 
 
