@@ -4,9 +4,9 @@
 #'
 #' @docType data
 #'
-#' @seealso EXgen
+#' @seealso \code{\link{EXmuts}}
 #'
-#' @format A data set with 450 rows and 6 variables:
+#' @format A data set with 500 rows and 6 variables:
 #' \describe{
 #'   \item{colID}{Numeric. The corresponding column number of the SVN in the EXgen dataset.}
 #'   \item{chrom}{Numeric. The chromosome number.}

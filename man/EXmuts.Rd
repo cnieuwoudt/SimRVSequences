@@ -4,7 +4,7 @@
 \name{EXmuts}
 \alias{EXmuts}
 \title{Example Mutations Dataset}
-\format{A data set with 450 rows and 6 variables:
+\format{A data set with 500 rows and 6 variables:
 \describe{
   \item{colID}{Numeric. The corresponding column number of the SVN in the EXgen dataset.}
   \item{chrom}{Numeric. The chromosome number.}
@@ -20,6 +20,6 @@ EXmuts
 This data set catalogs the mutations in the \code{\link{EXhaps}} data set.  Each row of \code{EXmuts} describes a column (i.e. SNV) in \code{EXhaps}. This toy data set is used primarily for demonstration, and does not represent a complete sample of all mutations that would accompany a full exon-only simulation.
 }
 \seealso{
-EXgen
+\code{\link{EXmuts}}
 }
 \keyword{datasets}
