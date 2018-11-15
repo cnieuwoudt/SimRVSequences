@@ -132,6 +132,8 @@ remove_allWild <- function(f_haps, SNV_map){
 #'
 #' Simulate single-nucleotide variant (SNV) data for a sample of ascertained pedigrees.
 #'
+#' Please note that \code{sim_RVstudy} was not created with the intention of simulating sequence data for pedigrees that contain inbreeding or loops.  Hence, \strong{certain types of inbreeding and/or loops can not be accomodated}. Please see examples.
+#'
 #' The data frame of pedigrees, \code{ped_files}, supplied to \code{sim_RVstudy} must contain the variables:  \code{FamID}, \code{ID}, \code{sex}, \code{dadID}, \code{momID}, \code{affected}, \code{DA1}, and \code{DA2}. Please note: If the variables \code{DA1} and \code{DA2} are not provided we assume the pedigrees are fully sporadic.  The required variables are described as follows:
 #' \tabular{lll}{
 #' \strong{name} \tab \strong{type} \tab \strong{description} \cr
@@ -145,6 +147,7 @@ remove_allWild <- function(f_haps, SNV_map){
 #' \code{DA2} \tab numeric \tab maternally inherited allele at the cRV locus: \code{DA2 = 1} if the cRV is inherited, and \code{0} otherwise.\cr
 #' }
 #' The \code{\link{sim_RVped}} function of the \code{SimRVPedigree} package may be used to simulate pedigrees that meet this criteria.
+#'
 #' The data frame \code{SNV_map}, which catalogs the SNVs in the argument \code{haplos}, must contain the following variables:
 #' \tabular{lll}{
 #' \strong{name} \tab \strong{type} \tab \strong{description} \cr
@@ -156,9 +159,7 @@ remove_allWild <- function(f_haps, SNV_map){
 #' \code{pathwaySNV} \tab logical \tab identifies SNVs located within the pathway of interest as \code{TRUE} \cr
 #' \code{is_crv} \tab logical \tab  identifies causal rare variants (cRVs) as \code{TRUE}.  Note familial cRVs are sampled, with replacement from the SNVs for which \code{is_crv} is TRUE. \cr
 #' }
-#' Please note, the \code{read_slim} function will create all of the requisite variables, save \code{is_crv}, when importing SLIM data. Users are expected to create the variable \code{is_crv} prior to using the \code{sim_RVstudy} function. If the variable \code{is_crv} is not supplied, a single SNV will be chosen at random to be the causal rare variant for all pedigrees in the study.  Please refer to section 3.3 of the vignette for additional details regarding the variable \code{is_crv}.
-#'
-#' NB: Since \code{sim_RVstudy} employs a forwards-in-time model, certain type of inbreeding/loop may cause sim_RVstudy to crash. See examples.
+#' Please note, the \code{read_slim} function format \code{Mutations} with all of the variables required for \code{SNV_map}, save \code{is_crv}, when importing SLIM data. Users are expected to create the variable \code{is_crv} prior to using the \code{sim_RVstudy} function. If the variable \code{is_crv} is not supplied, a single SNV will be chosen at random to be the causal rare variant for all pedigrees in the study.  Please refer to section 3.3 of the vignette for additional details regarding the variable \code{is_crv}.
 #'
 #' @param ped_files Data frame. A data frame of pedigrees for which to simulate sequence data, see details.
 #' @param haplos sparseMatrix. A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.  Rows are assumed to be haplotypes, while columns represent SNVs.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, users may supply the sparse matrix \code{Haplotypes} returned by \code{read_slim}.
@@ -170,7 +171,7 @@ remove_allWild <- function(f_haps, SNV_map){
 #' @param burn_in Numeric. The "burn-in" distance in centiMorgan, as defined by Voorrips and Maliepaard (2012), which is required before simulating the location of the first chiasmata with interference. By default, \code{burn_in = 1000}.
 #' The burn in distance in cM. By default, \code{burn_in = 1000}.
 #'
-#' @return  A object of class \code{famStudy}.  Objects of class \code{famStudy} inherit from lists and will always include the following four items:
+#' @return  A object of class \code{famStudy}.  Objects of class \code{famStudy} are lists that will always include the following four items:
 #' @return \item{\code{ped_files}}{A data frame containing the sample of pedigrees for which sequence data was simulated, see details.}
 #' @return \item{\code{ped_haplos}}{A sparse matrix that contains the simulated haplotypes for each pedigree member in \code{ped_files}, see details.}
 #' @return \item{\code{haplo_map}}{A data frame that maps the haplotypes (i.e. rows) in \code{ped_haplos} to the individuals in \code{ped_files}, see details.}
@@ -201,7 +202,35 @@ remove_allWild <- function(f_haps, SNV_map){
 #'                      SNV_map = EXmuts,
 #'                      haplos = EXhaps)
 #'
-#' summary(seqDat)
+#'
+#' # Inbreeding example
+#' # Due to the forward-in-time model used by sim_RVstudy certain types of
+#' # inbreeding and/or loops may cause fatal errors when using sim_RVstudy.
+#' # The following two examples are used to demonstrate this.
+#'
+#' # Create inbreeding in family 1 of study_peds
+#' imb_ped1 <- study_peds[study_peds$FamID == 3, ]
+#' imb_ped1[imb_ped1$ID == 18, c("momID")] = 7
+#' plot(imb_ped1)
+#'
+#' # Notice that this instance of inbreeding can be accomodated
+#' # by the sim_RVstudy function
+#' seqDat = sim_RVstudy(ped_files = imb_ped1,
+#'                      SNV_map = EXmuts,
+#'                      haplos = EXhaps)
+#'
+#' # Create different type of inbreeding in family 1 of study_peds
+#' imb_ped2 <- study_peds[study_peds$FamID == 3, ]
+#' imb_ped2[imb_ped1$ID == 8, c("momID")] = 18
+#' plot(imb_ped2)
+#'
+#' # Notice that inbreeding in imb_ped2 will cause a fatal
+#' # error when the sim_RVstudy function is executed
+#' \dontrun{
+#' seqDat = sim_RVstudy(ped_files = imb_ped2,
+#'                      SNV_map = EXmuts,
+#'                      haplos = EXhaps)
+#' }
 #'
 sim_RVstudy <- function(ped_files, haplos, SNV_map,
                         affected_only = TRUE,
