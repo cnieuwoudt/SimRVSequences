@@ -22,10 +22,16 @@ is.famStudy <- function(x) {
 
 #' Summary function for objects of class famStudy
 #'
+#' Summary function for objects of class \code{famStudy}, that is objects returned by the \code{\link{sim_RVstudy}} function.
+#'
 #' @param object An object of class \code{famStudy}, returned by the \code{sim_RVstudy} function.
 #' @param ... additional arguments passed to other methods.
 #' @importFrom Matrix colSums
-#' @return Not sure yet..
+#'
+#' @return \item{\code{fam_allele_count} }{A matrix that contains counts of the number of SNVs shared among the disease-affected relatives in each pedigree.}
+#' @return \item{\code{pathway_count} }{A data frame that catalogs the total number of SNVs observed in study participants who are affected by disease.  When the variable \code{pathwaySNV} is included in the \code{SNV_map} data frame of the \code{famStudy} object, this data frame will identify SNVs in the pathway of interest as \code{TRUE}.}
+#'
+#' @seealso \code{\link{sim_RVstudy}}
 #' @export
 #'
 #' @examples
@@ -36,10 +42,10 @@ is.famStudy <- function(x) {
 #' data(EXmuts)
 #' data(EXhaps)
 #'
-#' #create variable is_CRV in EXmuts to identify causal
-#' #rare variants, from which to sample familial variants.
+#' #create variable is_CRV in EXmuts to identify the causal
+#' #rare variants from which to sample familial cRVs.
 #' EXmuts$is_CRV = FALSE
-#' EXmuts$is_CRV[c(2, 3, 12, 24)] = TRUE
+#' EXmuts$is_CRV[c(26, 73, 75, 238, 278)] = TRUE
 #'
 #' #supply required inputs to the sim_RVstudy function
 #' seqDat = sim_RVstudy(ped_files = study_peds,

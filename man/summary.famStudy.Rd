@@ -12,10 +12,12 @@
 \item{...}{additional arguments passed to other methods.}
 }
 \value{
-Not sure yet..
+\item{\code{fam_allele_count} }{A matrix that contains counts of the number of SNVs shared among the disease-affected relatives in each pedigree.}
+
+\item{\code{pathway_count} }{A data frame that catalogs the total number of SNVs observed in study participants who are affected by disease.  When the variable \code{pathwaySNV} is included in the \code{SNV_map} data frame of the \code{famStudy} object, this data frame will identify SNVs in the pathway of interest as \code{TRUE}.}
 }
 \description{
-Summary function for objects of class famStudy
+Summary function for objects of class \code{famStudy}, that is objects returned by the \code{\link{sim_RVstudy}} function.
 }
 \examples{
 library(SimRVSequences)
@@ -25,10 +27,10 @@ data(study_peds)
 data(EXmuts)
 data(EXhaps)
 
-#create variable is_CRV in EXmuts to identify causal
-#rare variants, from which to sample familial variants.
+#create variable is_CRV in EXmuts to identify the causal
+#rare variants from which to sample familial cRVs.
 EXmuts$is_CRV = FALSE
-EXmuts$is_CRV[c(2, 3, 12, 24)] = TRUE
+EXmuts$is_CRV[c(26, 73, 75, 238, 278)] = TRUE
 
 #supply required inputs to the sim_RVstudy function
 seqDat = sim_RVstudy(ped_files = study_peds,
@@ -41,4 +43,7 @@ seqDat = sim_RVstudy(ped_files = study_peds,
 summary(seqDat)
 
 
+}
+\seealso{
+\code{\link{sim_RVstudy}}
 }
