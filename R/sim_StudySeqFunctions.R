@@ -128,26 +128,60 @@ remove_allWild <- function(f_haps, SNV_map){
   return(list(red_haps, SNV_map))
 }
 
-#' Simulate sequence data for a study
+#' Simulate sequence data for a sample of pedigrees
 #'
-#' Simulate SNV data for a sample of ascertained pedigrees
+#' Simulate single-nucleotide variant (SNV) data for a sample of ascertained pedigrees.
 #'
-#' NOTE: Due to a forwards-in-time model, certain type of inbreeding/loop may cause sim_RVstudy to crash.
+#' The data frame of pedigrees, \code{ped_files}, supplied to \code{sim_RVstudy} must contain the variables:  \code{FamID}, \code{ID}, \code{sex}, \code{dadID}, \code{momID}, \code{affected}, \code{DA1}, and \code{DA2}. Please note: If the variables \code{DA1} and \code{DA2} are not provided we assume the pedigrees are fully sporadic.  The required variables are described as follows:
+#' \tabular{lll}{
+#' \strong{name} \tab \strong{type} \tab \strong{description} \cr
+#' \code{FamID} \tab numeric \tab family identification number\cr
+#' \code{ID} \tab numeric \tab individual identification number\cr
+#' \code{sex} \tab numeric \tab sex identification variable: \code{sex = 0} for males, and \code{sex = 1} females. \cr
+#' \code{dadID} \tab numeric \tab identification number of father \cr
+#' \code{momID} \tab numeric \tab identification number of mother \cr
+#' \code{affected} \tab logical \tab disease-affection status: \code{affected = TRUE} if individual has developed disease, and \code{FALSE} otherwise. \cr
+#' \code{DA1} \tab numeric \tab paternally inherited allele at the cRV locus: \code{DA1 = 1} if the cRV is inherited, and \code{0} otherwise. \cr
+#' \code{DA2} \tab numeric \tab maternally inherited allele at the cRV locus: \code{DA2 = 1} if the cRV is inherited, and \code{0} otherwise.\cr
+#' }
+#' The \code{\link{sim_RVped}} function of the \code{SimRVPedigree} package may be used to simulate pedigrees that meet this criteria.
+#' The data frame \code{SNV_map}, which catalogs the SNVs in the argument \code{haplos}, must contain the following variables:
+#' \tabular{lll}{
+#' \strong{name} \tab \strong{type} \tab \strong{description} \cr
+#' \code{colID} \tab numeric \tab associates the rows in \code{SNV_map} to the columns of \code{haplos}\cr
+#' \code{chrom} \tab numeric \tab the chromosome the SNV resides on\cr
+#' \code{position} \tab numeric \tab is the position of the SNV in base pairs when \code{pos_in_bp = TRUE}\cr
+#' \code{afreq} \tab numeric \tab derived allele frequency of the SNV \cr
+#' \code{marker} \tab character \tab a unique character identifier for the SNV \cr
+#' \code{pathwaySNV} \tab logical \tab identifies SNVs located within the pathway of interest as \code{TRUE} \cr
+#' \code{is_crv} \tab logical \tab  identifies causal rare variants (cRVs) as \code{TRUE}.  Note familial cRVs are sampled, with replacement from the SNVs for which \code{is_crv} is TRUE. \cr
+#' }
+#' Please note, the \code{read_slim} function will create all of the requisite variables, save \code{is_crv}, when importing SLIM data. Users are expected to create the variable \code{is_crv} prior to using the \code{sim_RVstudy} function. If the variable \code{is_crv} is not supplied, a single SNV will be chosen at random to be the causal rare variant for all pedigrees in the study.  Please refer to section 3.3 of the vignette for additional details regarding the variable \code{is_crv}.
 #'
-#' @param ped_files Data frame. Must match format of pedigree simulated by sim_RVped
-#' @param SNV_map Data.frame. Must contain three columns with: column 1: marker names, must be listed in the same order as in the founder genotype file, column 2: the chromosomal position of the marker, column 3: the position of the marker in cM.
-#' @param haplos sparseMatrix. The genomes matrix returned by \code{read_slim}.  Mutations in haplos are described in \code{SNV_map}.
-#' @param affected_only Logical. When \code{affected_only = TRUE} pedigrees are reduced contain only diesease-affected relatives, their parents, and any obligate carriers or founders; sequence data is simulated only for retained family memebres. When \code{affected_only = FALSE} sequence data is simulated for all.  By default, \code{affected_only = TRUE}.
-#' @param pos_in_bp Logical. The setting \code{pos_in_bp = TRUE} must be used if genomic positions are given in base pairs.  If the genomic postions in \code{SNV_map} are listed in centiMorgan, please set \code{pos_in_bp = FALSE}.  By default, \code{pos_in_bp = TRUE}.
-#' @param remove_wild Logical. Should markers at which no member of study carry a mutated allele be removed from the data. By default, \code{remove_wild = TRUE}.
-#' @param gamma_params Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).
-#' @param burn_in Numeric. The burn in distance in cM. By default, \code{burn_in = 1000}.
+#' NB: Since \code{sim_RVstudy} employs a forwards-in-time model, certain type of inbreeding/loop may cause sim_RVstudy to crash. See examples.
+#'
+#' @param ped_files Data frame. A data frame of pedigrees for which to simulate sequence data, see details.
+#' @param haplos sparseMatrix. A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.  Rows are assumed to be haplotypes, while columns represent SNVs.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, users may supply the sparse matrix \code{Haplotypes} returned by \code{read_slim}.
+#' @param SNV_map Data frame. A data frame that catalogs the SNVs in \code{haplos}.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, the data frame \code{Mutations} is of the proper format for \code{SNV_map}.  However, users must add the variable \code{is_CRV} to this data frame to identify causal rare variants, see details.
+#' @param affected_only Logical. When \code{affected_only = TRUE}, we only simulate SNV data for the affected individuals and the family members that connect them along a line of descent.  When \code{affected_only = FALSE}, SNV data is simulated for the entire pedigree. By default, \code{affected_only = TRUE}.
+#' @param pos_in_bp Logical. This argument indicates if the positions in \code{SNV_map} are listed in base pairs.  By default, \code{pos_in_bp = TRUE}. If the positions in \code{SNV_map} are listed in centiMorgan please set \code{pos_in_bp = FALSE} instead.
+#' @param remove_wild Logical.  A logical argument that determines if SNVs not carried by any member of the study should be removed from the data.  By default, \code{remove_wild = TRUE}.
+#' @param gamma_params Numeric list of length 2. The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2*2.63)}, as discussed in Voorrips and Maliepaard (2012).
+#' @param burn_in Numeric. The "burn-in" distance in centiMorgan, as defined by Voorrips and Maliepaard (2012), which is required before simulating the location of the first chiasmata with interference. By default, \code{burn_in = 1000}.
+#' The burn in distance in cM. By default, \code{burn_in = 1000}.
+#'
+#' @return  A object of class \code{famStudy}.  Objects of class \code{famStudy} inherit from lists and will always include the following four items:
+#' @return \item{\code{ped_files}}{A data frame containing the sample of pedigrees for which sequence data was simulated, see details.}
+#' @return \item{\code{ped_haplos}}{A sparse matrix that contains the simulated haplotypes for each pedigree member in \code{ped_files}, see details.}
+#' @return \item{\code{haplo_map}}{A data frame that maps the haplotypes (i.e. rows) in \code{ped_haplos} to the individuals in \code{ped_files}, see details.}
+#' @return \item{\code{SNV_map}}{A data frame cataloging the SNVs in \code{ped_haplos}, see details.}
 #'
 #' @references Roeland E. Voorrips and Chris A Maliepaard. (2012). \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
 #' @references Christina Nieuwoudt and Jinko Graham. (??) Future bioRxiv article.
 #'
-#' @return study_sequences
 #' @export
+#'
+#' @seealso \code{\link{sim_RVped}}, \code{\link{read_slim}}, \code{\link{summary.famStudy}}
 #'
 #' @examples
 #' library(SimRVSequences)
@@ -160,7 +194,7 @@ remove_allWild <- function(f_haps, SNV_map){
 #' #create variable is_CRV in EXmuts to identify causal
 #' #rare variants, from which to sample familial variants.
 #' EXmuts$is_CRV = FALSE
-#' EXmuts$is_CRV[c(2, 3, 12, 24)] = TRUE
+#' EXmuts$is_CRV[c(26, 73, 75, 238, 278)] = TRUE
 #'
 #' #supply required inputs to the sim_RVstudy function
 #' seqDat = sim_RVstudy(ped_files = study_peds,
@@ -169,12 +203,12 @@ remove_allWild <- function(f_haps, SNV_map){
 #'
 #' summary(seqDat)
 #'
-sim_RVstudy <- function(ped_files, SNV_map, haplos,
+sim_RVstudy <- function(ped_files, haplos, SNV_map,
                         affected_only = TRUE,
                         remove_wild = TRUE,
                         pos_in_bp = TRUE,
-                        burn_in = 1000,
-                        gamma_params = c(2.63, 2.63/0.5)){
+                        gamma_params = c(2.63, 2.63/0.5),
+                        burn_in = 1000){
 
   #check SNV_map for possible issues
   check_SNV_map(SNV_map)
@@ -303,5 +337,5 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
     SNV_map$position <- convert_CM_to_BP(SNV_map$position)
   }
 
-  return(famStudy(list(ped_haplos = ped_haplos, haplo_map = haplo_map, SNV_map = SNV_map, ped_files = ped_files)))
+  return(famStudy(list(ped_files = ped_files, ped_haplos = ped_haplos, haplo_map = haplo_map, SNV_map = SNV_map)))
 }
