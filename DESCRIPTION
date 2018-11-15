@@ -6,7 +6,7 @@ Author: Christina Nieuwoudt, Jinko Graham
 Maintainer: Christina Nieuwoudt <cnieuwou@sfu.ca>
 Description: SimRVSequences provides methods to simulate single-nucleotide variant data for pedigrees ascertained for family-based study.
 Depends:
-    R (>= 3.2.5)
+    R (>= 3.5.0)
 Imports:
     reshape2 (>= 1.4.1),
     stats (>= 3.3.0),
