@@ -336,7 +336,7 @@ Not all of the variables above are required to simulate SNV data; the required v
 To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette.
 
 # Simulate SNV data for Pedigrees 
-In what follows we will discuss usage of the `sim_RVstudy` function in section 5.1, the `object_name` returned by the `sim_RVstudy` function in section 5.2, and methods for objects of class `object_name` in section 5.3. 
+Simulation of sequence data for ascertained pedigrees is accomplished with the `sim_RVstudy` function.  We will illustrate the useage of this function in section 5.1.  The `sim_RVstudy` function returns an object of class `famStudy`.  In section 5.2 we discuss objects class `famStudy` in detail.  Finally, in section 5.3 we demonstrate the usage and output of the `summary` function for objects of class `famStudy`. 
 
 ## The `sim_RVstudy` function
 Simulating SNV data for a sample of ascertained pedigrees is achieved with our `sim_RVstudy` function.  This function has the following required and optional arguments:
@@ -345,7 +345,7 @@ Required Arguments:
 
 1. `ped_files` A data frame of pedigrees.  This data frame must contain the variables:  `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.  If `DA1` and `DA2` are not provided we assume the pedigrees are fully sporadic.  See section 4 for additional details regarding these variables.
 2. `haplos` A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.  Rows are assumed to be haplotypes, while columns represent SNVs.  If `read_slim` was used to import data, users may supply the sparse matrix `Haplotypes` returned by `read_slim`.
-3. `SNV_map` The rows of the data frame `SNV_map` provide information on the SNVs in `haplos.`  If `read_slim` was used to import data, the data frame `Mutations` returned by this function is of the proper format for `SNV_amp` (see section 3.2).  We note that users must add the variable `is_CRV` to this data frame, as discussed in section 3.3.
+3. `SNV_map` The rows of the data frame `SNV_map` provide information on the SNVs in `haplos.`  If `read_slim` was used to import data, the data frame `Mutations` returned by this function is of the proper format for `SNV_map` (see section 3.2).  We note that users must add the variable `is_CRV` to this data frame, as discussed in section 3.3.
 
 Optional Arguments:
 
@@ -364,20 +364,23 @@ study_seq <- sim_RVstudy(ped_files = study_peds,
                          SNV_map = EXmuts,
                          haplos = EXhaps)
 
-# view summary of output
-summary(study_seq)
+# determine the class of study seq
+class(study_seq)
 ```
 
-From the output above we see that `sim_RVstudy` returns four items: 
+From the output above, we see that the `sim_RVstudy` function returns an object of class `famStudy`, which inherits from a `list`.  Specifically, a `famStudy` object is a list that contains the following four items:
 
+ - a data frame named `ped_files`, 
  - a sparse matrix named `ped_haplos`, 
  - a data frame named `haplo_map`, 
- - a data frame named `SNV_map`, 
- - and a data frame named `ped_files`. 
+ - and a data frame named `SNV_map`.
 
-We will discuss each of the four outputs returned by `sim_RVstudy` in the following subsections.  We discuss the `ped_files` data frame returned by `sim_RVstudy` in subsection 5.1, the sparse matrix `ped_haplos` in sibsection 5.2, the data frame `SNV_map` in subsection 5.3, and the data frame `haplo_map` in subsection 5.4.  Finally, in subsection 5.5 we give a brief overview of the available methods to manipulate the output returned by `sim_RVstudy`.
+We will discuss each of the four items contained in the `famStudy` object returned by `sim_RVstudy` in section 5.1.  In section 5.2 we illustrate usage and output of the `summary` function for objects of class `famStudy`.
 
-## `object_name` 
+## Objects of class `famStudy`
+As mentioned previously, in this section we describe the four items contained in the `famStudy` object returned by `sim_RVstudy`.
+We discuss the `ped_files` data frame returned by `sim_RVstudy` in subsection 5.1.1, the sparse matrix `ped_haplos` in sibsection 5.2.1, the data frame `SNV_map` in subsection 5.3.1, and the data frame `haplo_map` in subsection 5.4.1.
+
 ### The `ped_files` data frame
 The data frame `ped_files` returned by `sim_RVstudy` is a potentially reduced set of pedigree files for the original families. Recall that, by default `affected_only = TRUE`, so the pedigrees supplied to this function are reduced to contain only the affected individuals and the individuals who connect them along a line of descent. 
 
@@ -440,28 +443,39 @@ unique(study_seq$haplo_map[, c("FamID", "FamCRV")])
 From the output above, we see that families 1 and 4 segregate variant `2_201284953`, family 2 does not segregate any SNV in the pool of causal rare variants, family 3 segregates variant `10_89016102`,  and family 5 segregates variant `10_89015798`.  Note that family 2 does not segregate any of the SNVs in our pool of causal rare variants because it is a fully sporadic pedigree, i.e. there is no genetic predisposition to disease in this pedigree.
 
 
-## The `count_affectedRV` and `function_name` functions
+## The `summary.famStudy` function
 
-To count the total number of SNVs shared among affected relatives in each pedigree we use the `count_affectedRV` function.  To use this function we supply the output returned by `sim_RVstudy` to `count_affectedRV`.
+To count SNVs shared among affected relatives in each pedigree we use the `count_affectedRV` function.  To use this function we supply the output returned by `sim_RVstudy` to `count_affectedRV`.
 
 ```{r}
 # count number of SNVs shared by the affected
 # relatives in each pedigree
-count_affectedRV(study_seq)
+study_summary <- summary(study_seq)
+
+# determine the class of study_summary
+class(study_summary)
+
+#view a summary of the study summary
+names(study_summary)
+```
+
+From the output above we see that the summary function for objects of class `famStudy` returns a list containing two items: `fam_allele_count` and `pathway_count`.  The item `fam_allele_count` is a matrix that includes a count of the SNVs shared among the disease-affected relatives in each pedigree.
+
+```{r}
+#view fam_allele_count
+study_summary$fam_allele_count
 ```
 
 Looking at the output above, we see that only one affected relative in family 1 carries a copy of the first marker, `1_236566020`.  It is noteworthy that the disease-affected relative in families 1 and 4 carry so many copies of SNV `2_201284953`.  Not too surprisingly, this is the causal rare variant for these two families.
 
+The item `pathway_count` is a data frame that catalogs the total number of SNVs observed in affected study participants.
+
 ```{r}
-# To calculate the total number of SNVs shared
-# by affected relatives across all families we 
-# use colSums, from the Matrix package
-library(Matrix)
-count_SNVshare <- colSums(count_affectedRV(study_seq)[, -1])
-count_SNVshare
+#view pathway_count
+study_summary$pathway_count
 ```
 
-From the output above, we see that there are several SNVs carried by more than 1 disease-affected relative in the study; however, only XXX of the SNVs carried by more than one individual reside in the pathway of interest.
+From pathway_count , we see that there are several SNVs carried by more than 1 disease-affected relative in the study; however, only XXX of the SNVs carried by more than one individual reside in the pathway of interest.
 
 # `SimRVSequences` Model
 
