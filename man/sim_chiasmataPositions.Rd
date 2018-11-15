@@ -10,9 +10,10 @@ sim_chiasmataPositions(chrom_map, burn_in = 1000, gamma_params = c(2.63,
 \arguments{
 \item{chrom_map}{Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.}
 
-\item{burn_in}{Numeric. The burn in distance in cM. By default, \code{burn_in = 1000}.}
+\item{burn_in}{Numeric. The "burn-in" distance in centiMorgan, as defined by Voorrips and Maliepaard (2012), which is required before simulating the location of the first chiasmata with interference. By default, \code{burn_in = 1000}.
+The burn in distance in cM. By default, \code{burn_in = 1000}.}
 
-\item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2.63/0.5)}, as discussed in Vorrips (2012).}
+\item{gamma_params}{Numeric list of length 2. The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2*2.63)}, as discussed in Voorrips and Maliepaard (2012).}
 }
 \value{
 A list of chiasmata postions.

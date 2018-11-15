@@ -7,7 +7,7 @@
 check_peds(ped_files)
 }
 \arguments{
-\item{ped_files}{Data frame. Must match format of pedigree simulated by sim_RVped}
+\item{ped_files}{Data frame. A data frame of pedigrees for which to simulate sequence data, see details.}
 }
 \description{
 \strong{For internal use.}
