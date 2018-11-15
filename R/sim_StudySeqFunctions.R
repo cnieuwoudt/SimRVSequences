@@ -303,5 +303,5 @@ sim_RVstudy <- function(ped_files, SNV_map, haplos,
     SNV_map$position <- convert_CM_to_BP(SNV_map$position)
   }
 
-  return(list(ped_haplos = ped_haplos, haplo_map = haplo_map, SNV_map = SNV_map, ped_files = ped_files))
+  return(famStudy(list(ped_haplos = ped_haplos, haplo_map = haplo_map, SNV_map = SNV_map, ped_files = ped_files)))
 }
