@@ -2,7 +2,7 @@
 % Please edit documentation in R/study_seq_methods.R
 \name{affected_allele_count}
 \alias{affected_allele_count}
-\title{Determine total number of like-alleles shared by affecteds in a family}
+\title{Determine total number of alleles shared by affecteds in a family}
 \usage{
 affected_allele_count(ped_haps, hap_map, ped_file)
 }
@@ -17,8 +17,9 @@ affected_allele_count(ped_haps, hap_map, ped_file)
 A list of sharing counts, in the same order as the SNVs in \code{ped_haps}.
 }
 \description{
-Determine total number of like-alleles shared by affecteds in a family
+Determine total number of alleles shared by affecteds in a family
 }
 \examples{
 #no examples yet
 }
+\keyword{internal}

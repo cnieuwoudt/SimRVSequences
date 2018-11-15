@@ -1,7 +1,30 @@
-#' Summary function for object of class fam_study
+#' Constructor function for an object of class famStudy
 #'
-#' @param fam_study The object returned by sim_RVstudy
+#' @param study_data The list of items returned by the \code{sim_RVstudy} function.
 #'
+#' @return an object of class \code{famStudy}.
+#' @keywords internal
+famStudy <- function(study_data) {
+  class(study_data) <- c("famStudy", class(study_data))
+  return(study_data)
+}
+
+#' Check to see if object is of class ped
+#'
+#' @param x An R object.
+#'
+#' @return Logical. Indicates if \code{x} is of class \code{ped}.
+#' @keywords internal
+#'
+is.famStudy <- function(x) {
+  return(inherits(x, "famStudy"))
+}
+
+#' Summary function for objects of class famStudy
+#'
+#' @param object An object of class \code{famStudy}, returned by the \code{sim_RVstudy} function.
+#' @param ... additional arguments passed to other methods.
+#' @importFrom Matrix colSums
 #' @return Not sure yet..
 #' @export
 #'
@@ -25,31 +48,45 @@
 #'
 #' #to count the number of SNVs shared by the disease-affected
 #' #relatives in each pedigree, supply the output returned by
-#' #sim_RVstudy to count_affectedRV
-#' count_affectedRV(seqDat)
+#' #sim_RVstudy to the summary function
+#' summary(seqDat)
 #'
 #'
-count_affectedRV <- function(fam_study){
-  Fids <- sort(unique(fam_study$ped_files$FamID))
+summary.famStudy <- function(object, ...){
+  if (!is.famStudy(object)) {
+    stop("\n Expecting a object of class famStudy returned by the sim_RVstudy function.")
+  }
 
+  Fids <- sort(unique(object$ped_files$FamID))
+
+  #count the number of SNVs shared by the disease affected relatives by family
   aff_allele_counts <- lapply(Fids, function(x){
-    affected_allele_count(ped_haps = fam_study$ped_haplos[fam_study$haplo_map$FamID == x, ],
-                          hap_map  = fam_study$haplo_map[fam_study$haplo_map$FamID == x, ],
-                          ped_file = fam_study$ped_files[fam_study$ped_files$FamID == x, ])
+    affected_allele_count(ped_haps = object$ped_haplos[object$haplo_map$FamID == x, ],
+                          hap_map  = object$haplo_map[object$haplo_map$FamID == x, ],
+                          ped_file = object$ped_files[object$ped_files$FamID == x, ])
   })
 
-  allele_count_dat <- do.call(rbind, aff_allele_counts)
-  allele_count_dat <- cbind(Fids, allele_count_dat)
-  colnames(allele_count_dat) <- c("FamID", fam_study$SNV_map$marker)
+  fam_allele_count <- do.call(rbind, aff_allele_counts)
+  fam_allele_count <- cbind(Fids, fam_allele_count)
+  colnames(fam_allele_count) <- c("FamID", object$SNV_map$marker)
+
+  #create a data frame that stores sharing among study members by SNV
+  pathway_count <- data.frame(marker = object$SNV_map$marker,
+                              total = as.numeric(colSums(fam_allele_count[, -1])),
+                              pathwaySNV = object$SNV_map$pathwaySNV)
+
+  #reduce to the SNVs carried by at least one affected study participant
+  pathway_count <- pathway_count[which(pathway_count$total != 0), ]
 
   #remove SNVs not carried by affecteds
-  allele_count_dat <- allele_count_dat[, which(colSums(allele_count_dat) != 0)]
-  return(allele_count_dat)
+  fam_allele_count <- fam_allele_count[, which(colSums(fam_allele_count) != 0)]
+  return(list(fam_allele_count = fam_allele_count,
+              pathway_count = pathway_count))
 }
 
 
 
-#' Determine total number of like-alleles shared by affecteds in a family
+#' Determine total number of alleles shared by affecteds in a family
 #'
 #' @param ped_haps sparse matrix.  The familial haplotype data.
 #' @param hap_map data frame. Mapping data: maps individuals in \code{ped_file} to the haplotypes in \code{ped_haps}.
@@ -58,7 +95,7 @@ count_affectedRV <- function(fam_study){
 #' @importFrom Matrix colSums
 #'
 #' @return A list of sharing counts, in the same order as the SNVs in \code{ped_haps}.
-#' @export
+#' @keywords internal
 #'
 #' @examples
 #' #no examples yet
@@ -70,3 +107,5 @@ affected_allele_count <- function(ped_haps, hap_map, ped_file){
   total_count <- colSums(ped_haps[aff_rows, ])
   return(total_count)
 }
+
+
