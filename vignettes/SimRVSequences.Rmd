@@ -146,7 +146,7 @@ The data frame `pathway_df` allows users to identify SNVs located within a pathw
 # load the hg_apopPath data
 data("hg_apopPath")
 
-#View the first 4 observations of hg_apopPath
+# View the first 4 observations of hg_apopPath
 head(hg_apopPath, n = 4)
 ```
 
@@ -197,7 +197,7 @@ nrow(EXmuts)
 Since `EXmuts` catalogs the SNVs in `EXhaps`, `EXmuts` will have 500 rows.
 
 ```{r}
-#View the first 30 mutations of the first 15 haplotypes in EXhaps
+# View the first 30 mutations of the first 15 haplotypes in EXhaps
 EXhaps[1:15, 1:30]
 ```
 
@@ -228,7 +228,7 @@ To obtain a pool of variants with $p_{tot} \sim 0.001$, let's choose the 12 SNVs
 
 ```{r}
 # Create the variable 'is_CRV', which is TRUE for SNVs
-# in our pathway with derived allele frequncy 5e-05 or 1e-04,
+# in our pathway with derived allele frequency 5e-05 or 1e-04,
 # and FALSE otherwise
 EXmuts$is_CRV <- EXmuts$pathwaySNV & EXmuts$afreq %in% c(5e-5, 1e-04)
 
@@ -236,14 +236,14 @@ EXmuts$is_CRV <- EXmuts$pathwaySNV & EXmuts$afreq %in% c(5e-5, 1e-04)
 # frequencies of causal SNVs is 0.001
 sum(EXmuts$afreq[EXmuts$is_CRV])
 
-#determine the number of variants in our pool of causal variants
+# determine the number of variants in our pool of causal variants
 sum(EXmuts$is_CRV)
 ```
 
 From the output above we see that we have selected a pool of 16 causal variants from our pathway with a cumulative allele frequency of 0.001. 
 
 ```{r}
-#view first 4 observations of EXmuts
+# view first 4 observations of EXmuts
 head(EXmuts, n = 4)
 ```
 
@@ -258,7 +258,7 @@ The R package `SimRVPedigree` [8] is used to simulate pedigrees ascertained for 
 # load the SimRVPedigree library
 library(SimRVPedigree)
 
-#Create hazard object from AgeSpecific_Hazards data
+# Create hazard object from AgeSpecific_Hazards data
 data(AgeSpecific_Hazards)
 my_HR = hazard(AgeSpecific_Hazards)
 
@@ -272,12 +272,12 @@ cl <- makeCluster(2)   # create cluster
 registerDoParallel(cl) # register cluster
 
 
-#simulate a sample of five pedigrees using foreach
+# simulate a sample of five pedigrees using foreach
 study_peds = foreach(i = seq(npeds), .combine = rbind,
                   .packages = c("SimRVPedigree"),
                   .options.RNG = 844090518
 ) %dorng% {
-  # Simulate pedigrees ascertained for at least three disese-affected individuals,
+  # Simulate pedigrees ascertained for at least three disease-affected individuals,
   # according to the age-specific hazard rates in the `AgeSpecific_Hazards` data
   # set, ascertained from 1980 to 2010, with start year spanning
   # from 1900 to 1920, stop year set to 2018, and with genetic relative-risk 50.
@@ -295,7 +295,7 @@ stopCluster(cl) #shut down cluster
 
 For the purpose of demonstration, we will use the `study_peds` data set provided by `SimRVSequences`.  
 ```{r, fig.height = 8, fig.width = 8.6}
-#import study peds
+# import study peds
 data("study_peds")
 
 # Plot the pedigree with FamID 3
@@ -309,7 +309,7 @@ The seed founder (ID 1) and all of his descendants have age data relative to the
 
 
 ```{r}
-#View the first 4 rows of study_peds
+# View the first 4 rows of study_peds
 head(study_peds, n = 4)
 ```
 
@@ -382,9 +382,9 @@ We will discuss each of the four items contained in the `famStudy` object in the
 The data frame `ped_files` contained in the `famStudy` object is a potentially reduced set of pedigree files for the original families. Recall that, by default `affected_only = TRUE`, so the pedigrees supplied to `sim_RVstudy` are reduced to contain only the affected individuals and the individuals who connect them along a line of descent. 
 
 ```{r, fig.height = 5, fig.width = 5.5}
-#plot the pedigree returned by sim_RVseq for family 3.
-#Since we used the affected_only option the pedigree has
-#been reduced to contain only disease-affected relatives.
+# plot the pedigree returned by sim_RVseq for family 3.
+# Since we used the affected_only option the pedigree has
+# been reduced to contain only disease-affected relatives.
 plot(study_seq$ped_files[study_seq$ped_files$FamID == 3, ],
      location = "bottomleft")
 ```
@@ -394,17 +394,17 @@ Comparing the plot above to the plot of the same family in section 4, we can see
 ### The `ped_haplos` matrix 
 Next, we look at the sparse matrix, `ped_haplos`, which is contained in the `famStudy` object.  This sparse matrix contains simulated haplotype data.
 ```{r}
-#View the first 15 haplotypes in ped_haplos
+# View the first 15 haplotypes in ped_haplos
 study_seq$ped_haplos[1:15, ]
 ```
 
 The `ped_haplos` matrix contains the haplotype data for each individual in the `ped_files` output.
 
 ```{r}
-#Determine the dimensions of ped_haplos
+# Determine the dimensions of ped_haplos
 dim(study_seq$ped_haplos)
 
-#Determine the dimensions of EXhaps
+# Determine the dimensions of EXhaps
 dim(EXhaps)
 ```
 
@@ -414,7 +414,7 @@ Notice that `ped_haplos` only has 25 columns (i.e. mutations) even though `EXhap
 In this subsection we discuss the `SNV_map` data frame contained in the `famStudy` object. Recall that one of `sim_RVstudy`'s arguments is also named `SNV_map`.  When the `remove_wild` argument of `sim_RVstudy` is set to `FALSE`, the data frame supplied to `SNV_map` will be returned unchanged.  However, when `remove_wild` is set to `TRUE`, the `SNV_map` contained in the `famStudy` object will be a reduced data frame that contains only SNVs that are carried by at least one study participant. 
 
 ```{r}
-#View the first 4 observations in SNV_map
+# View the first 4 observations in SNV_map
 head(study_seq$SNV_map, n = 4)
 ```
 
@@ -452,14 +452,14 @@ study_summary <- summary(study_seq)
 # determine the class of study_summary
 class(study_summary)
 
-#view a summary of the study summary
+# view the names of the items in study_summary
 names(study_summary)
 ```
 
 From the output above we see that the summary function for objects of class `famStudy` returns a list containing two items: `fam_allele_count` and `pathway_count`.  The item `fam_allele_count` is a matrix that includes a count of the SNVs shared among the disease-affected relatives in each pedigree.
 
 ```{r}
-#view fam_allele_count
+# view fam_allele_count
 study_summary$fam_allele_count
 ```
 
@@ -468,7 +468,7 @@ Looking at the output above, we see that only one affected relative in family 1 
 The item `pathway_count` is a data frame that catalogs the total number of SNVs observed in affected study participants.
 
 ```{r}
-#view pathway_count
+# view pathway_count
 study_summary$pathway_count
 ```
 
@@ -583,21 +583,21 @@ This function has only one argument called `exon_data`, which is a data frame th
 Usage of the `combine_exons` function is illustrated below.
 
 ```{r}
-#create an example data frame that contains the 
-#the variables: chrom, exonStart, and exonEnd
+# create an example data frame that contains the 
+# the variables: chrom, exonStart, and exonEnd
 exDat <- data.frame(chrom     = c(1, 1, 1, 2, 2, 2),
                     exonStart = c(1, 2, 5, 1, 3, 3),
                     exonEnd   = c(3, 4, 7, 4, 5, 6))
 
-#View exDat data set
+# View exDat data set
 exDat
 ```
 
 From the output above, we see that the first two exons in chromosome one overlap (i.e. the exons with ranges [1, 3] and [2, 4]), as do all three exons in chromosome two.
 
 ```{r}
-#supply exDat to combine_exons
-#and view the results
+# supply exDat to combine_exons
+# and view the results
 combine_exons(exDat)
 ```
 
