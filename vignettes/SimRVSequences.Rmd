@@ -456,7 +456,7 @@ class(study_summary)
 names(study_summary)
 ```
 
-From the output above we see that the summary function for objects of class `famStudy` returns a list containing two items: `fam_allele_count` and `pathway_count`.  The item `fam_allele_count` is a matrix that includes a count of the SNVs shared among the disease-affected relatives in each pedigree.
+From the output above, we see that when supplied an object of class `famStudy` the `summary` function returns a list containing two items: `fam_allele_count` and `pathway_count`.  The item `fam_allele_count` is a matrix that includes a count of the SNVs shared among the disease-affected relatives in each pedigree.
 
 ```{r}
 # view fam_allele_count
