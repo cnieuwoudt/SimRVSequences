@@ -148,15 +148,14 @@ remove_allWild <- function(f_haps, SNV_map){
 #' }
 #' The \code{\link{sim_RVped}} function of the \code{SimRVPedigree} package may be used to simulate pedigrees that meet this criteria.
 #'
-#' The data frame \code{SNV_map}, which catalogs the SNVs in the argument \code{haplos}, must contain the following variables:
+#' The data frame \code{SNV_map}, which catalogs the SNVs in the argument \code{haplos}, may contain the following variables:
 #' \tabular{lll}{
 #' \strong{name} \tab \strong{type} \tab \strong{description} \cr
 #' \code{colID} \tab numeric \tab associates the rows in \code{SNV_map} to the columns of \code{haplos}\cr
 #' \code{chrom} \tab numeric \tab the chromosome the SNV resides on\cr
 #' \code{position} \tab numeric \tab is the position of the SNV in base pairs when \code{pos_in_bp = TRUE}\cr
-#' \code{afreq} \tab numeric \tab derived allele frequency of the SNV \cr
-#' \code{marker} \tab character \tab a unique character identifier for the SNV \cr
-#' \code{pathwaySNV} \tab logical \tab identifies SNVs located within the pathway of interest as \code{TRUE} \cr
+#' \code{marker} \tab character \tab (Optional) a unique character identifier for the SNV. If missing this variable will be created from \code{chrom} and \code{position}. \cr
+#' \code{pathwaySNV} \tab logical \tab (Optional) identifies SNVs located within the pathway of interest as \code{TRUE} \cr
 #' \code{is_crv} \tab logical \tab  identifies causal rare variants (cRVs) as \code{TRUE}.  Note familial cRVs are sampled, with replacement from the SNVs for which \code{is_crv} is TRUE. \cr
 #' }
 #' Please note, the \code{read_slim} function format \code{Mutations} with all of the variables required for \code{SNV_map}, save \code{is_crv}, when importing SLIM data. Users are expected to create the variable \code{is_crv} prior to using the \code{sim_RVstudy} function. If the variable \code{is_crv} is not supplied, a single SNV will be chosen at random to be the causal rare variant for all pedigrees in the study.  Please refer to section 3.3 of the vignette for additional details regarding the variable \code{is_crv}.
@@ -241,6 +240,10 @@ sim_RVstudy <- function(ped_files, haplos, SNV_map,
 
   #check SNV_map for possible issues
   check_SNV_map(SNV_map)
+
+  if (!"marker" %in% colnames(SNV_map)) {
+    SNV_map$marker <- paste0(SNV_map$chrom, sep = "_", SNV_map$position)
+  }
 
   #check to see if DA1 and DA2 are both missing, if so
   #assume fully sporadic and issue warning

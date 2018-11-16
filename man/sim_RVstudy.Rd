@@ -41,7 +41,7 @@ A object of class \code{famStudy}.  Objects of class \code{famStudy} are lists t
 Simulate single-nucleotide variant (SNV) data for a sample of ascertained pedigrees.
 }
 \details{
-Please note that \code{sim_RVstudy} was not created with the intention of simulating sequence data for pedigrees that contain inbreeding or loops.  Hence, \strong{certain type of inbreeding and/or loops can not be accomodated}. Please see examples.
+Please note that \code{sim_RVstudy} was not created with the intention of simulating sequence data for pedigrees that contain inbreeding or loops.  Hence, \strong{certain types of inbreeding and/or loops can not be accomodated}. Please see examples.
 
 The data frame of pedigrees, \code{ped_files}, supplied to \code{sim_RVstudy} must contain the variables:  \code{FamID}, \code{ID}, \code{sex}, \code{dadID}, \code{momID}, \code{affected}, \code{DA1}, and \code{DA2}. Please note: If the variables \code{DA1} and \code{DA2} are not provided we assume the pedigrees are fully sporadic.  The required variables are described as follows:
 \tabular{lll}{
@@ -57,15 +57,14 @@ The data frame of pedigrees, \code{ped_files}, supplied to \code{sim_RVstudy} mu
 }
 The \code{\link{sim_RVped}} function of the \code{SimRVPedigree} package may be used to simulate pedigrees that meet this criteria.
 
-The data frame \code{SNV_map}, which catalogs the SNVs in the argument \code{haplos}, must contain the following variables:
+The data frame \code{SNV_map}, which catalogs the SNVs in the argument \code{haplos}, may contain the following variables:
 \tabular{lll}{
 \strong{name} \tab \strong{type} \tab \strong{description} \cr
 \code{colID} \tab numeric \tab associates the rows in \code{SNV_map} to the columns of \code{haplos}\cr
 \code{chrom} \tab numeric \tab the chromosome the SNV resides on\cr
 \code{position} \tab numeric \tab is the position of the SNV in base pairs when \code{pos_in_bp = TRUE}\cr
-\code{afreq} \tab numeric \tab derived allele frequency of the SNV \cr
-\code{marker} \tab character \tab a unique character identifier for the SNV \cr
-\code{pathwaySNV} \tab logical \tab identifies SNVs located within the pathway of interest as \code{TRUE} \cr
+\code{marker} \tab character \tab (Optional) a unique character identifier for the SNV. If missing this variable will be created from \code{chrom} and \code{position}. \cr
+\code{pathwaySNV} \tab logical \tab (Optional) identifies SNVs located within the pathway of interest as \code{TRUE} \cr
 \code{is_crv} \tab logical \tab  identifies causal rare variants (cRVs) as \code{TRUE}.  Note familial cRVs are sampled, with replacement from the SNVs for which \code{is_crv} is TRUE. \cr
 }
 Please note, the \code{read_slim} function format \code{Mutations} with all of the variables required for \code{SNV_map}, save \code{is_crv}, when importing SLIM data. Users are expected to create the variable \code{is_crv} prior to using the \code{sim_RVstudy} function. If the variable \code{is_crv} is not supplied, a single SNV will be chosen at random to be the causal rare variant for all pedigrees in the study.  Please refer to section 3.3 of the vignette for additional details regarding the variable \code{is_crv}.
