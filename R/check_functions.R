@@ -3,7 +3,7 @@
 #' \strong{For internal use.}
 #'
 #' @inheritParams sim_RVstudy
-#' @export
+#' @keywords internal
 #'
 check_SNV_map <- function(SNV_map){
   #check to see if SNV_map contains the column information we expect
@@ -34,12 +34,19 @@ check_SNV_map <- function(SNV_map){
     stop("The variable 'position' in the SNV_map dataset contains missing values.")
   }
 
-  ## Check marker variable
-  if (!"marker" %in% colnames(SNV_map)) {
-    stop("The variable 'marker' is missing from SNV_map.")
+  # Check to see that we do not have multiple SNVs at the same postion
+  if (nrow(unique(SNV_map[, c("chrom", "position")])) != nrow(SNV_map)) {
+    stop("SNV_map contains multiple SNVs located at the same position on the same chromosome.")
   }
-  if (any(is.na(SNV_map$marker))) {
-    stop("The variable 'marker' in the SNV_map dataset contains missing values.")
+
+  # Check to see if marker variable exists, and if so do all SNVs have a unique name
+  if ("marker" %in% colnames(SNV_map)) {
+    if (length(unique(SNV_map$marker)) != nrow(SNV_map)) {
+      stop("Expecting each SNV to have a unique marker name in SNV_map.")
+    }
+    if (any(is.na(SNV_map$marker))) {
+      stop("The variable 'marker' in the SNV_map dataset contains missing values.")
+    }
   }
 
   #when is_CRV is specified, check to see that it is TRUE for

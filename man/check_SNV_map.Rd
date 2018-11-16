@@ -12,3 +12,4 @@ check_SNV_map(SNV_map)
 \description{
 \strong{For internal use.}
 }
+\keyword{internal}

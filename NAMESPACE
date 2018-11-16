@@ -3,7 +3,6 @@
 S3method(summary,famStudy)
 export(affected_onlyPed)
 export(assign_gen)
-export(check_SNV_map)
 export(check_ped)
 export(check_peds)
 export(combine_exons)
