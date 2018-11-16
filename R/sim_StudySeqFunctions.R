@@ -132,7 +132,20 @@ remove_allWild <- function(f_haps, SNV_map){
 #'
 #' Simulate single-nucleotide variant (SNV) data for a sample of ascertained pedigrees.
 #'
-#' Please note that \code{sim_RVstudy} was not created with the intention of simulating sequence data for pedigrees that contain inbreeding or loops.  Hence, \strong{certain types of inbreeding and/or loops can not be accomodated}. Please see examples.
+#' Please note that the \code{sim_RVstudy} function is NOT appropriate for users who wish to simulate genotype conditional on phenotype.  Instead, \code{sim_RVstudy} employs the following algorithm.
+#'
+#' \enumerate{
+#' \item For each pedigree, we sample a single \strong{causal rare variant (cRV)} from a pool of SNVs specified by the user.
+#' \item After identifying the familial cRV we sample founder haplotypes from haplotype data conditional on the founder's cRV status at the familial cRV locus.
+#' \item Proceeding forward in time, from founders to more recent generations, for each parent/offspring pair we:
+#' \enumerate{
+#' \item simulate recombination and formation of parental gametes, according to the model proposed by Voorrips and Maliepaard (2012), and then
+#' \item perform a conditional gene drop to model inheritance of the cRV.
+#' }}
+#'
+#' For a detailed description of the model used to simulate sequence data, please refer to section 6 of the vignette.
+#'
+#' Please note that \code{sim_RVstudy} was not created with the intention of simulating sequence data for pedigrees that contain inbreeding or loops.  Hence, \strong{certain types of inbreeding and/or loops cannot be accomodated}. Please see examples.
 #'
 #' The data frame of pedigrees, \code{ped_files}, supplied to \code{sim_RVstudy} must contain the variables:  \code{FamID}, \code{ID}, \code{sex}, \code{dadID}, \code{momID}, \code{affected}, \code{DA1}, and \code{DA2}. Please note: If the variables \code{DA1} and \code{DA2} are not provided we assume the pedigrees are fully sporadic.  The required variables are described as follows:
 #' \tabular{lll}{
@@ -170,7 +183,7 @@ remove_allWild <- function(f_haps, SNV_map){
 #' @param burn_in Numeric. The "burn-in" distance in centiMorgan, as defined by Voorrips and Maliepaard (2012), which is required before simulating the location of the first chiasmata with interference. By default, \code{burn_in = 1000}.
 #' The burn in distance in cM. By default, \code{burn_in = 1000}.
 #'
-#' @return  A object of class \code{famStudy}.  Objects of class \code{famStudy} are lists that will always include the following four items:
+#' @return  A object of class \code{famStudy}.  Objects of class \code{famStudy} are lists that include the following named items:
 #' @return \item{\code{ped_files}}{A data frame containing the sample of pedigrees for which sequence data was simulated, see details.}
 #' @return \item{\code{ped_haplos}}{A sparse matrix that contains the simulated haplotypes for each pedigree member in \code{ped_files}, see details.}
 #' @return \item{\code{haplo_map}}{A data frame that maps the haplotypes (i.e. rows) in \code{ped_haplos} to the individuals in \code{ped_files}, see details.}
