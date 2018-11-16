@@ -78,8 +78,11 @@ summary.famStudy <- function(object, ...){
 
   #create a data frame that stores sharing among study members by SNV
   pathway_count <- data.frame(marker = object$SNV_map$marker,
-                              total = as.numeric(colSums(fam_allele_count[, -1])),
-                              pathwaySNV = object$SNV_map$pathwaySNV)
+                              total = as.numeric(colSums(fam_allele_count[, -1])))
+
+  if (!is.null(object$SNV_map$pathwaySNV)) {
+    pathway_count$pathwaySNV = object$SNV_map$pathwaySNV
+  }
 
   #reduce to the SNVs carried by at least one affected study participant
   pathway_count <- pathway_count[which(pathway_count$total != 0), ]
