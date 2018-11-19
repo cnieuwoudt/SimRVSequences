@@ -27,7 +27,7 @@ sim_RVstudy(ped_files, haplos, SNV_map, affected_only = TRUE,
 The burn in distance in cM. By default, \code{burn_in = 1000}.}
 }
 \value{
-A object of class \code{famStudy}.  Objects of class \code{famStudy} are lists that will always include the following four items:
+A object of class \code{famStudy}.  Objects of class \code{famStudy} are lists that include the following named items:
 
 \item{\code{ped_files}}{A data frame containing the sample of pedigrees for which sequence data was simulated, see details.}
 
