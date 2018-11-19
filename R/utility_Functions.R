@@ -5,7 +5,7 @@
 #' @param ped_file Data.frame. The pedigree file, must have same format as pedigree simulated with \code{sim_RVped}
 #'
 #' @return A list containing the parent's paternal and maternal alleles at the disease locus, and the RV status of the offspring
-#' @export
+#' @keywords internal
 #' @importFrom reshape2 melt
 get_parOffInfo <- function(ped_file){
 
@@ -46,7 +46,7 @@ get_parOffInfo <- function(ped_file){
 #' @param chias_locations  Numeric vector.  Chiasmata locations.
 #'
 #' @return The locations of crossovers
-#' @export
+#' @keywords internal
 #'
 #' @examples
 #' \dontrun{
@@ -111,18 +111,7 @@ is_int <- function(x) {x %% 1 == 0}
 #' @param ped_file data.frame. A pedigree.
 #'
 #' @return \code{retA_ped} A pedigree containing only affected members, obligate carriers, and founders.
-#' @export
-#'
-#' @examples
-#' data(study_peds)
-#'
-#' #plot full pedigree
-#' plot(study_peds[which(study_peds$FamID == 1), ])
-#'
-#' #reduce to affected only pedigree
-#' Apeds = affected_onlyPed(study_peds[which(study_peds$FamID == 1), ])
-#' plot(Apeds)
-#'
+#' @keywords internal
 affected_onlyPed = function(ped_file){
 
   #assign individuals with unknown affection status to FALSE,
@@ -178,7 +167,7 @@ affected_onlyPed = function(ped_file){
 #' @param pos_BP Numeric.  The position in basepairs.
 #'
 #' @return pos_CM The postion in centiMorgans
-#' @export
+#' @keywords internal
 #'
 convert_BP_to_cM <- function(pos_BP){ pos_BP/1000000 }
 
@@ -189,7 +178,7 @@ convert_BP_to_cM <- function(pos_BP){ pos_BP/1000000 }
 #' @param pos_CM Numeric.  The position in centiMorgan.
 #'
 #' @return pos_BP The postion in basepairs
-#' @export
+#' @keywords internal
 #'
 convert_CM_to_BP <- function(pos_CM){ pos_CM*1000000 }
 
@@ -202,7 +191,7 @@ convert_CM_to_BP <- function(pos_CM){ pos_CM*1000000 }
 #' @importFrom kinship2 kindepth
 #' @importFrom SimRVPedigree ped2pedigree
 #' @importFrom SimRVPedigree new.ped
-#' @export
+#' @keywords internal
 assign_gen <- function(x){
   # create a ped object
   # this will also check to see that

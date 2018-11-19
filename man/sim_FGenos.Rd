@@ -26,3 +26,4 @@ list of familial founder genotypes
 \description{
 \strong{For internal use.}
 }
+\keyword{internal}

@@ -15,3 +15,4 @@ A list containing the parent's paternal and maternal alleles at the disease locu
 \description{
 \strong{For internal use.}
 }
+\keyword{internal}

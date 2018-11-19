@@ -15,3 +15,4 @@ a dataframe catalouging the start and stop positions, in base pairs, for each ch
 \description{
 INTENDED FOR INTERNAL USE ONLY
 }
+\keyword{internal}

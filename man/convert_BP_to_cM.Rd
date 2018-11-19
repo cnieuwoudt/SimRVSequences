@@ -15,3 +15,4 @@ pos_CM The postion in centiMorgans
 \description{
 Convert from basepairs to centimorgan
 }
+\keyword{internal}

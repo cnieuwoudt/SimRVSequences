@@ -17,3 +17,4 @@ The reduced haplotype matrix.
 \description{
 Reduce haplos to contain non-cSNV data
 }
+\keyword{internal}

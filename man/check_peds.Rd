@@ -12,3 +12,4 @@ check_peds(ped_files)
 \description{
 \strong{For internal use.}
 }
+\keyword{internal}

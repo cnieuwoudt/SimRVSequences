@@ -13,7 +13,7 @@
 #' @importFrom Matrix colSums
 #'
 #' @return offspring_seq. The genetic data that the offspring inherits from this parent.  This will be a recombined sequence.
-#' @export
+#' @keywords internal
 #'
 reconstruct_fromHaplotype <- function(parental_genotypes,
                                       CSNV_map,
@@ -84,10 +84,7 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #' @param founder_genos Dataframe.  A dataframe with rows corresponding to founders, and columns corresponding to markers.  Markers must be listed in same order as \code{SNV_map}.
 #'
 #' @return offspring_sequences
-#' @export
-#'
-#' @examples
-#' #FIND SHORT WORKING EXAMPLE
+#' @keywords internal
 #'
 sim_seq <- function(ped_file, founder_genos,
                     SNV_map, chrom_map, RV_marker,

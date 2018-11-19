@@ -19,7 +19,7 @@
 #' @param chrom_map Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.
 #'
 #' @return A list of chiasmata postions.
-#' @export
+#' @keywords internal
 #'
 #' @importFrom stats rexp
 #' @importFrom stats rgamma
@@ -78,7 +78,7 @@ sim_chiasmataPositions <- function(chrom_map,
 #' @param allele_IDs List of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination. (Can accomodate numeric or string entries)
 #'
 #' @return haploid_mat. A matrix with rows representing recombined haplotypes along with an identifier that defines which group each haploid will be associated with after meiosis II.
-#' @export
+#' @keywords internal
 #'
 #' @references Thompson, E. (2000). \emph{Statistical Inference from Genetic Data on Pedigrees.} NSF-CBMS Regional Conference Series in Probability and Statistics, 6, I-169. Retrieved from http://www.jstor.org.proxy.lib.sfu.ca/stable/4153187
 #'
@@ -149,23 +149,7 @@ sim_haploidFormation <- function(num_chiasmata,
 #' @return  A list containing the following:
 #' @return \code{chrom_haps} A list of dataframes, each dataframe is a set of four recombined haplotypes for a single chromosome (in the order specified in \code{chrom_map}), each with a gamete group identifier column.
 #' @return \code{gamete_group} A list of lists, each list contains the crossover positions for a single chromosome (in the order specified in \code{chrom_map}).
-#' @export
-#'
-#' @examples
-#' my_chrom_map <- data.frame(chrom = c(1, 2, 3),
-#'                            start_pos = c(0, 0, 0),
-#'                            end_pos  = c(248956422, 242193529, 198295559))
-#' my_chrom_map$start_pos = convert_BP_to_cM(my_chrom_map$start_pos)
-#' my_chrom_map$end_pos = convert_BP_to_cM(my_chrom_map$end_pos)
-#'
-#' sim_gameteFormation(my_chrom_map, allele_IDs = c(1, 2))
-#' sim_gameteFormation(my_chrom_map, allele_IDs = c("a", "b"))
-#'
-#' \dontrun{
-#' system.time(for (i in 1:10000) {
-#'  sim_gameteFormation(my_chrom_map, c(0, 1))
-#'  })
-#' }
+#' @keywords internal
 sim_gameteFormation <- function(chrom_map, allele_IDs,
                                 burn_in = 1000, gamma_params = c(2.63, 2.63/0.5)) {
 

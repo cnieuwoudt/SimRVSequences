@@ -27,3 +27,4 @@ For internal use.
 \details{
 Prior to running this function, for each chromosome, we have a coded sequence (i.e. c(1, 2, 1)) and a list of crossover points (i.e. c(45, 100)). This data would indicate that the offspring inherts all genetic data from the start postion to postion 45 of the parent's 1st haplotype, then all genetic data after position 45 up to postion 100 from the 2nd haplotype, and all genetic data after postion 100 from the 1st haplotype.  This function completes that task.
 }
+\keyword{internal}

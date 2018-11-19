@@ -66,7 +66,7 @@ check_SNV_map <- function(SNV_map){
 #'
 #' @param ped_file data.frame The pedigree.
 #'
-#' @export
+#' @keywords internal
 #'
 check_ped <- function(ped_file){
 
@@ -147,7 +147,7 @@ check_ped <- function(ped_file){
 #'
 #' @inheritParams sim_RVstudy
 #'
-#' @export
+#' @keywords internal
 #'
 check_peds <- function(ped_files){
 

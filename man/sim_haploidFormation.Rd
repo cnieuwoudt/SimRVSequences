@@ -48,3 +48,4 @@ Thompson, E. (2000). \emph{Statistical Inference from Genetic Data on Pedigrees.
 \seealso{
 \code{\link{sim_chiasmataPositions}}
 }
+\keyword{internal}

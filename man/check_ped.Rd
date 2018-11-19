@@ -12,3 +12,4 @@ check_ped(ped_file)
 \description{
 \strong{For internal use.} Checks individual pedigrees for formatting (i.e. mom/dad properly specified, etc.)
 }
+\keyword{internal}

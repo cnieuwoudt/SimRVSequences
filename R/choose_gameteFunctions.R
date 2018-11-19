@@ -19,7 +19,7 @@
 #' @param offspring_RVstatus Numeric. 1 if offspring inherits the RV from parent, 0 otherwise.
 #'
 #' @return A list containing (1) a list of inherited haplotype codings (2) the chiasmata locations
-#' @export
+#' @keywords internal
 sim_gameteInheritance <- function(RV_locus, parent_RValleles,
                                   offspring_RVstatus,
                                   chrom_map, allele_IDs,

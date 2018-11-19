@@ -15,14 +15,4 @@ affected_onlyPed(ped_file)
 \description{
 Remove unaffected relatives
 }
-\examples{
-data(study_peds)
-
-#plot full pedigree
-plot(study_peds[which(study_peds$FamID == 1), ])
-
-#reduce to affected only pedigree
-Apeds = affected_onlyPed(study_peds[which(study_peds$FamID == 1), ])
-plot(Apeds)
-
-}
+\keyword{internal}

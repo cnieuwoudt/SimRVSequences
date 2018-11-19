@@ -17,7 +17,4 @@ A list (by family) of haplotype matrices and ID vectors and the reduce marker da
 \description{
 Remove any markers for which all founders, in the study, are homozygous for the wild-type allele.  Since we do not model de novo mutations, it is not possible for non-founders to develop mutations at these loci.
 }
-\examples{
-#probably no examples
-
-}
+\keyword{internal}

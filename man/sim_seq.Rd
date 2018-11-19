@@ -29,7 +29,4 @@ offspring_sequences
 \description{
 Simulate sequence data for a pedigree
 }
-\examples{
-#FIND SHORT WORKING EXAMPLE
-
-}
+\keyword{internal}

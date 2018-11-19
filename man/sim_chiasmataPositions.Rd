@@ -35,3 +35,4 @@ NOTE: To simulate chiasmata formation \strong{without chiasmata interference} (i
 \references{
 Roeland E. Voorrips, Chris A Maliepaard. (2012), \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
 }
+\keyword{internal}
