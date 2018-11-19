@@ -352,7 +352,7 @@ Optional Arguments:
 4. `affected_only` A logical argument.  When `affected_only = TRUE`, we only simulate SNV data for the affected individuals and the family members that connect them along a line of descent.  When `affected_only = FALSE`, SNV data is simulated for the entire pedigree. By default, `affected_only = TRUE`.
 5. `remove_wild` A logical argument that determines if SNVs not carried by any member of the study should be removed from the data.  By default, `remove_wild = TRUE`.
 6.  `pos_in_bp` A logical argument which indicates if the positions in `SNV_map` are listed in base pairs.  By default, `pos_in_bp = TRUE`. If the positions in `SNV_map` are listed in centiMorgan set `pos_in_bp = FALSE` instead.
-7. `gamma_params` The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, `gamma_params = c(2.63, 2*2.63)`, as in [11].
+7. `gamma_params` The respective shape and rate parameters of the gamma distribution used to simulate the distance between chiasmata.  By default, `gamma_params = c(2.63, 2*2.63)`, as in [11].
 8. `burn-in` The "burn-in" distance in centiMorgan, as defined by [11], which is required before simulating the location of the first chiasmata with interference. By default, `burn_in = 1000`.
 
 Assuming readers have followed the steps outlined in sections 3 and 4, we may execute the `sim_RVstudy` function as follows.
@@ -381,7 +381,7 @@ We will discuss each of the four items contained in the `famStudy` object in the
 ### The `ped_files` data frame
 The data frame `ped_files` contained in the `famStudy` object is a potentially reduced set of pedigree files for the original families. Recall that, by default `affected_only = TRUE`, so the pedigrees supplied to `sim_RVstudy` are reduced to contain only the affected individuals and the individuals who connect them along a line of descent. 
 
-```{r, fig.height = 5, fig.width = 5.5}
+```{r, fig.height = 4.5, fig.width = 5.5}
 # plot the pedigree returned by sim_RVseq for family 3.
 # Since we used the affected_only option the pedigree has
 # been reduced to contain only disease-affected relatives.
@@ -418,7 +418,7 @@ In this subsection we discuss the `SNV_map` data frame contained in the `famStud
 head(study_seq$SNV_map, n = 4)
 ```
 
-The output `SNV_map` catalogs the SNVs, i.e. columns,  in `ped_haplos`.  For example, the first column in `ped_haplos` is a SNV located on chromosome 1 at position 23084822.  
+The output `SNV_map` catalogs the SNVs, i.e. columns,  in `ped_haplos`.  For example, the first column in `ped_haplos` is a SNV located on chromosome 1 at position 21568178.  
 
 ### The `haplo_map` data frame
 Next, we look at the `haplo_map` data frame contained in the `famStudy` object.  The `haplo_map` data frame is used to map the haplotypes (i.e. rows) in `ped_haplos` to the individuals in `ped_files`.
@@ -445,8 +445,8 @@ From the output above, we see that families 1 and 4 segregate variant `2_2012849
 To obtain summary information for the simulated sequence data we supply objects of class `famStudy` to the `summary` function.  Recall that the output of the `sim_RVstudy` function is an object of class `famStudy`; hence, users may supply the output of `sim_RVstudy` directly to `summary`.
 
 ```{r}
-# count number of SNVs shared by the affected
-# relatives in each pedigree
+# supply the famStudy object, returned by 
+# sim_RVstudy, to the summary function
 study_summary <- summary(study_seq)
 
 # determine the class of study_summary
@@ -465,14 +465,14 @@ study_summary$fam_allele_count
 
 Looking at the output above, we see that only one affected relative in family 1 carries a copy of the first marker, `1_236566020`.  It is noteworthy that the disease-affected relative in families 1 and 4 carry so many copies of SNV `2_201284953`.  Not too surprisingly, this is the causal rare variant for these two families.
 
-The item `pathway_count` is a data frame that catalogs the total number of SNVs observed in affected study participants.
+The item `pathway_count` is a data frame that catalogs the total number of SNVs observed in disease-affected study participants.
 
 ```{r}
 # view pathway_count
 study_summary$pathway_count
 ```
 
-From pathway_count , we see that there are several SNVs carried by more than 1 disease-affected relative in the study; however, only 4 of the SNVs carried by more than one individual reside in the pathway of interest.
+From `pathway_count`, we see that there are several SNVs carried by more than 1 disease-affected study participants; however, only 4 of the SNVs carried by more than one individual reside in the pathway of interest.
 
 # `SimRVSequences` Model
 
