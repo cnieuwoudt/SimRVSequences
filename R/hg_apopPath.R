@@ -1,4 +1,4 @@
-#' Human Apoptosis Sub-Pathway Data
+#' Apoptosis sub-pathway dataset
 #'
 #' This data set catalouges combined exon segments from the 25 genes that have the highest interaction with the \emph{TNFSF10} gene, a known member of the human apoptosis pathway.
 #'

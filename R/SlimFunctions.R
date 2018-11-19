@@ -177,7 +177,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
   return(mut_dat[, c(1:4)])
 }
 
-#' Import SLiM Data to R
+#' Import SLiM data to R
 #'
 #'To import SLiM data into \code{R}, we provide the \code{read_slim} function, which has been tested for SLiM versions 2.0-3.1.  Presently, the \code{read_slim} function is only appropriate for single-nucleotide variant (SNV) data produced by SLiM's outputFull() method.  We do not support output in MS or VCF data format, i.e. produced by outputVCFsample() or outputMSSample() in SLiM.
 #'

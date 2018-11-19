@@ -3,7 +3,7 @@
 \docType{data}
 \name{hg_exons}
 \alias{hg_exons}
-\title{Human Exon Data}
+\title{Human exon data}
 \format{A data set with 223565 rows and 4 variables:
 \describe{
   \item{chrom}{Numeric. The chromosome number.}

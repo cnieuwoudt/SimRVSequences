@@ -2,7 +2,7 @@
 % Please edit documentation in R/SlimFunctions.R
 \name{read_slim}
 \alias{read_slim}
-\title{Import SLiM Data to R}
+\title{Import SLiM data to R}
 \usage{
 read_slim(file_path, keep_maf = 0.01, recomb_map = NULL,
   pathway_df = NULL)

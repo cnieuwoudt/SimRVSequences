@@ -1,4 +1,4 @@
-#' Human Exon Data
+#' Human exon data
 #'
 #' This data set catalouges combined exon segments from the 22 human autosomes.
 #'

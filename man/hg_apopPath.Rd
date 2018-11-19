@@ -3,7 +3,7 @@
 \docType{data}
 \name{hg_apopPath}
 \alias{hg_apopPath}
-\title{Human Apoptosis Sub-Pathway Data}
+\title{Apoptosis sub-pathway dataset}
 \format{A data set with 253 rows and 5 variables:
 \describe{
   \item{chrom}{Numeric. The chromosome number.}
