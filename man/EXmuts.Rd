@@ -3,7 +3,7 @@
 \docType{data}
 \name{EXmuts}
 \alias{EXmuts}
-\title{Example Mutations Dataset}
+\title{Example Mutations dataset}
 \format{A data set with 500 rows and 6 variables:
 \describe{
   \item{colID}{Numeric. The corresponding column number of the SVN in the EXgen dataset.}
@@ -17,9 +17,12 @@
 EXmuts
 }
 \description{
-This data set catalogs the mutations in the \code{\link{EXhaps}} data set.  Each row of \code{EXmuts} describes a column (i.e. SNV) in \code{EXhaps}. This toy data set is used primarily for demonstration, and does not represent a complete sample of all mutations that would accompany a full exon-only simulation.
+This data set catalogs the 500 single-nucleotide variants contained in the \code{EXhaps} dataset.  This dataset is intended to accompany the \code{EXhaps} dataset; each row of \code{EXmuts} describes a column (i.e. SNV) in \code{EXhaps}.
+}
+\details{
+Together, the \code{EXmuts} and \code{EXhaps} datasets represent example output of the \code{read_slim} function.  The \code{EXhaps} data set represents the sparse matrix \code{Haplotypes} returned by \code{read_slim}, and the \code{EXmuts} data set represents the \code{Mutations} data frame returned by \code{read_slim}.  This toy data set is used primarily for demonstration, and does not represent a complete sample of all mutations that would accompany a genome-wide, exon-only sequence data.
 }
 \seealso{
-\code{\link{EXmuts}}
+\code{\link{EXhaps}}, \code{\link{read_slim}}
 }
 \keyword{datasets}
