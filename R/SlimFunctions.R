@@ -203,6 +203,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' @param keep_maf numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf = 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R. See details.
 #' @param recomb_map data frame. (Optional) A recombination map of the same format as the data frame returned by \code{\link{create_slimMap}}. See details.
 #' @param pathway_df data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  See details.
+#' @param single_SNVtype logical. This argument indicates if all SNVs are of the same type, i.e. have the same fitness effects.  When \code{single_SNVtype = TRUE} we recode SNVs at the same locus to a single mutation since SNVs of the same type are identical in every respect with the exception of lineage . By default, \code{single_SNVtype = TRUE}. See details.
 #'
 #' @return  A list containing:
 #' @return \item{\code{Haplotypes} }{A sparse matrix of haplotypes. See details.}
@@ -229,9 +230,11 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #'                    recomb_map = create_slimMap(hg_exons))
 #' }
 #'
-read_slim <- function(file_path, keep_maf = 0.01,
+read_slim <- function(file_path,
+                      keep_maf = 0.01,
                       recomb_map = NULL,
-                      pathway_df = NULL){
+                      pathway_df = NULL,
+                      single_SNVtype = TRUE){
   #NOTE: Time to read file ~19 secs
   print("Reading Slim File")
   exDat = readLines(file_path)
@@ -349,15 +352,22 @@ read_slim <- function(file_path, keep_maf = 0.01,
   # the same site are actually identical mutations from different lineages.
   # For simplicity, we recode these mutations so that they are only cataloged
   # once.
-  # TALK TO JINKO BEFORE YOU DO THIS
-  if (any(duplicated(RareMutData$position))) {
+  if (single_SNVtype) {
     print("Recoding Identical Mutations")
+
+    #check to see if there are any identical
+    #mutations to re-code
+    if (any(duplicated(RareMutData$position))) {
     com_id_muts <- combine_identicalmutations(mutmap = RareMutData,
                                               hapmat = GenoData,
                                               pCount = popCount,
                                               keep_maf)
     RareMutData <- com_id_muts[[1]]
     GenoData <- com_id_muts[[2]]
+    } else {
+      RareMutData <- RareMutData[, -3]
+    }
+
   } else {
     RareMutData <- RareMutData[, -3]
   }
