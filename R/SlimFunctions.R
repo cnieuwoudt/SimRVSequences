@@ -119,7 +119,7 @@ create_slimMap <- function(exon_df, mutation_rate = 1E-8, recomb_rate = 1E-8){
 #' @param recomb_map The recombination map provided to slim
 #'
 #' @return A re-mapped mutation data frame
-#' @keywords internal
+#' @export
 reMap_mutations <- function(mutationDF, recomb_map){
   #split into data for different chromosomes, because it
   #makes myhead hurt to think this as 1 chomosome
@@ -168,8 +168,6 @@ reMap_mutations <- function(mutationDF, recomb_map){
     mut_by_chrom[[i]]$position <- mut_by_chrom[[i]]$position +
       bychr_int[[i]]$cumDist[mut_by_chrom[[i]]$ex_num] -
       mut_by_chrom[[i]]$ex_num
-
-#    mut_by_chrom[[i]]$colID <- c(1:nrow(mut_by_chrom[[i]]))
 
   }
 
@@ -254,7 +252,7 @@ read_slim <- function(file_path, keep_maf = 0.01,
   #   the mutation arose, and (9) the prevalence of the mutation.
   #
   # - Individuals:
-  #   lists which genomes belong to which individual, highly redundant as this
+  #   lists which genomes belong to which individual, redundant since this
   #   information is also listed at the beginning of each genome.
   #
   # - Genomes:
@@ -316,7 +314,7 @@ read_slim <- function(file_path, keep_maf = 0.01,
   #NOTE: jpos is the computationally expensive task (uses strsplit)
   #this chuck takes ~2.2 minutes to run (for complete exon-only data)
   #This is an improvement from the old time: ~ 6 mins
-  print("Creating Sparse Genotypes Matrix")
+  print("Creating Sparse Haplotypes Matrix")
   #determine future row and column position of each mutation listed in genomes
   #row will correspond to person, column will correspond to the tempID of the
   #mutation
@@ -342,7 +340,28 @@ read_slim <- function(file_path, keep_maf = 0.01,
   #Re-format tempID so that it corresponds to the column
   # (in GenoData) that the mutation is stored in
   RareMutData$colID <- 1:nrow(RareMutData)
-  RareMutData <- RareMutData[, c(5, 2, 4)]
+  RareMutData <- RareMutData[, c(5, 2, 3, 4)]
+
+  #-----------------------------#
+  # Re-code Identical Mutations #
+  #-----------------------------#
+  # Assuming that all mutations are of the same type, different mutations at
+  # the same site are actually identical mutations from different lineages.
+  # For simplicity, we recode these mutations so that they are only cataloged
+  # once.
+  # TALK TO JINKO BEFORE YOU DO THIS
+  if (any(duplicated(RareMutData$position))) {
+    print("Recoding Identical Mutations")
+    com_id_muts <- combine_identicalmutations(mutmap = RareMutData,
+                                              hapmat = GenoData,
+                                              pCount = popCount,
+                                              keep_maf)
+    RareMutData <- com_id_muts[[1]]
+    GenoData <- com_id_muts[[2]]
+  } else {
+    RareMutData <- RareMutData[, -3]
+  }
+
 
   #------------------#
   # Re-map Mutations #
@@ -386,10 +405,78 @@ read_slim <- function(file_path, keep_maf = 0.01,
 #' @param rarePos numeric vector. position of variations
 #'
 #' @return data.frame with x and y positions of mutations
-#' @keywords internal
+#' @export
 extract_tempIDs <- function(mutString, rarePos){
   tids <- as.numeric(strsplit(mutString, split = " ", fixed = TRUE)[[1]][-c(1:2)]) + 1
   #Subset colID by tids (tempID) and retain the colIDs that are non-zero,
   #i.e. the rare varaints
   rarePos[tids][rarePos[tids] > 0]
+}
+
+
+#' Combine identical mutations
+#'
+#' Assuming that all mutations are of the same type (in SLIM simulation), different mutations at the same site are actually identical mutations from different lineages. This function re-code these mutations so that they are only cataloged once.
+#'
+#' @param mutmap data.frame The SNV_map with identical mutations
+#' @param hapmat sparseMatrix The sparseMatrix of haplotypes
+#' @param pCount the population count
+#' @param keep_maf numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf = 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed.
+#' @importFrom Matrix rowSums
+#'
+#' @return  A list containing:
+#' @return \item{\code{hapmat} }{A sparse matrix of haplotypes. See details.}
+#' @return \item{\code{mutmap}}{A data frame cataloging SNVs in \code{hapmap}.}
+#' @export
+#'
+combine_identicalmutations <- function(mutmap, hapmat, pCount, keep_maf){
+
+  # identify the positions at which identical mutations
+  # from different lineages exist.
+  im_pos = unique(mutmap$position[duplicated(mutmap$position)])
+
+  # find the column locations for the identical mutations
+  col_loc <- lapply(im_pos, function(x){
+    mutmap$colID[which(mutmap$position == x)]
+  })
+
+  #find the combined SNV data
+  comb_mut <- lapply(col_loc, function(x){
+    rowSums(hapmat[, x])
+  })
+
+  keep_SNVcol <- unlist(lapply(col_loc, function(x){
+    x[1]
+  }))
+
+  #replace with combined haplotype data
+  hapmat[, keep_SNVcol] <- do.call(cbind, comb_mut)
+
+  #determine the superfluous columns and remove them, since we have
+  #already accounted for them by combining the columns for this SNV
+  remove_cols <- unlist(lapply(col_loc, function(x){
+    x[-1]
+  }))
+
+  #remove the columns of the identical SNVs
+  hapmat <- hapmat[, -remove_cols]
+
+  #combine the SNVs in mutmap, i.e. calculate prevalence and derived allele frequency
+  #and relable column ID
+  for (i in 1:length(col_loc)) {
+    mutmap$prevalence[col_loc[[i]][1]] <- sum(mutmap$prevalence[col_loc[[i]]])
+    mutmap$afreq[col_loc[[i]][1]] <- mutmap$prevalence[col_loc[[i]][1]]/(2*pCount)
+  }
+
+  mutmap <- mutmap[-remove_cols, ]
+  mutmap$colID <- 1:nrow(mutmap)
+
+  if (any(mutmap$afreq > keep_maf)) {
+    keep_cols <- which(mutmap$afreq <= keep_maf)
+    hapmat <- hapmat[, keep_cols]
+    mutmap <- mutmap[keep_cols, ]
+    mutmap$colID <- 1:nrow(mutmap)
+  }
+
+  return(list(mutmap[, c("colID", "position", "afreq")], hapmat))
 }

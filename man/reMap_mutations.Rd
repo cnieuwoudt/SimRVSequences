@@ -17,4 +17,3 @@ A re-mapped mutation data frame
 \description{
 Intended for internal use
 }
-\keyword{internal}
