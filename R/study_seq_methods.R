@@ -77,8 +77,11 @@ summary.famStudy <- function(object, ...){
   colnames(fam_allele_count) <- c("FamID", object$SNV_map$marker)
 
   #create a data frame that stores sharing among study members by SNV
-  pathway_count <- data.frame(marker = object$SNV_map$marker,
-                              total = as.numeric(colSums(fam_allele_count[, -1])))
+  pathway_count <- data.frame(chrom = object$SNV_map$chrom,
+                              position = object$SNV_map$position,
+                              marker = object$SNV_map$marker,
+                              total = as.numeric(colSums(fam_allele_count[, -1])),
+                              is_CRV = object$SNV_map$is_CRV)
 
   if (!is.null(object$SNV_map$pathwaySNV)) {
     pathway_count$pathwaySNV = object$SNV_map$pathwaySNV
