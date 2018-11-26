@@ -316,7 +316,7 @@ sim_RVstudy <- function(ped_files, haplos, SNV_map,
     SNV_map$is_CRV = FALSE
     SNV_map$is_CRV[sample(1:nrow(SNV_map), size = 1)] = TRUE
     warning("The variable is_CRV is missing from SNV_map.",
-            "\n ...Randomly selecting one SNV to be the causal rare variant for all pedigrees")
+            "\n ...Randomly selecting an SNV to be the causal rare variant for all pedigrees")
   }
 
   #sample the familial cSV from the pool of potential cRVs with replacement.
