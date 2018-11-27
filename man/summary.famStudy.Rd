@@ -12,24 +12,28 @@
 \item{...}{additional arguments passed to other methods.}
 }
 \value{
-\item{\code{fam_allele_count} }{A matrix that contains counts of the number of SNVs shared among the disease-affected relatives in each pedigree.}
+\item{\code{fam_allele_count} }{A matrix that contains counts of the SNVs shared by the disease-affected relatives in each pedigree.}
 
-\item{\code{pathway_count} }{A data frame that catalogs the total number of SNVs observed in study participants who are affected by disease. See details.}
+\item{\code{pathway_count} }{A data frame that catalogs the SNVs shared among disease-affected study participants. See details.}
 }
 \description{
-Summary function for objects of class \code{famStudy}, that is objects returned by the \code{\link{sim_RVstudy}} function.
+Summary function for objects of class \code{famStudy}, i.e. objects returned by the \code{\link{sim_RVstudy}} function.
 }
 \details{
-The data frame \code{pathway_count} returned by \code{summary.famStudy} contains the following variables:
+The \code{summary.famStudy} function returns a list containing two items.  The first item, \code{fam_allele_count}, is a matrix that contains counts of the SNVs shared by the disease-affected relatives in each pedigree. This matrix will contain a row of counts for each pedigree in the supplied \code{famSutdy} object.  The first column in \code{fam_allele_count} is named \code{FamID} and identifies each pedigree by their family identification number.  The remaining columns in \code{fam_allele_count} are named according to the respective marker names of the shared SNVs.
+
+The second item returned by \code{summary.famStudy} is a data frame named \code{pathway_count}, which catalogs the SNVs shared among disease-affected study participants.  This data frame contains the following variables:
 \tabular{lll}{
 \strong{name} \tab \strong{type} \tab \strong{description} \cr
-\code{chrom} \tab numeric \tab the chromosome that the SNV resides on\cr
-\code{position} \tab numeric \tab is the position of the SNV in base pairs when \code{pos_in_bp = TRUE}\cr
-\code{marker} \tab character \tab A unique character identifier for the SNV. \cr
+\code{chrom} \tab numeric \tab chromosome identification number \cr
+\code{position} \tab numeric \tab the position of the SNV \cr
+\code{marker} \tab character \tab a unique character identifier for the SNV \cr
 \code{total} \tab numeric \tab the number of SNV copies observed in disease-affected study participants. \cr
-\code{is_crv} \tab logical \tab  identifies causal rare variants (cRVs) as \code{TRUE}.  Note familial cRVs are sampled, with replacement from the SNVs for which \code{is_crv} is TRUE. \cr
-\code{pathwaySNV} \tab logical \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. Please note, this variable is only created if when the variable \code{pathwaySNV} is included in the \code{SNV_map} data frame of the \code{famStudy} object. See \code{\link{sim_RVstudy}} for more details.\cr
+\code{is_crv} \tab logical \tab  identifies causal rare variants (cRVs) as \code{TRUE} \cr
+\code{pathwaySNV} \tab logical \tab identifies SNVs located within the pathway of interest as \code{TRUE}. \cr
 }
+
+Please note, the variable \code{pathwaySNV} is omitted when missing from the \code{SNV_map} data frame in the \code{famStudy} object. See \code{\link{sim_RVstudy}} for more details.
 }
 \examples{
 library(SimRVSequences)
