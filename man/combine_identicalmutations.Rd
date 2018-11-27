@@ -25,3 +25,4 @@ A list containing:
 \description{
 Assuming that all mutations are of the same type (in SLIM simulation), different mutations at the same site are actually identical mutations from different lineages. This function re-codes these mutations so that they are only cataloged once.
 }
+\keyword{internal}

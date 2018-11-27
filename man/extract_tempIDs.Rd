@@ -17,3 +17,4 @@ data.frame with x and y positions of mutations
 \description{
 Determine i and j positions of mutations for sparse matrix
 }
+\keyword{internal}

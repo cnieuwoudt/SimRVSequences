@@ -119,7 +119,7 @@ create_slimMap <- function(exon_df, mutation_rate = 1E-8, recomb_rate = 1E-8){
 #' @param recomb_map The recombination map provided to slim
 #'
 #' @return A re-mapped mutation data frame
-#' @export
+#' @keywords internal
 reMap_mutations <- function(mutationDF, recomb_map){
   #split into data for different chromosomes, because it
   #makes myhead hurt to think this as 1 chomosome
@@ -401,7 +401,7 @@ read_slim <- function(file_path,
 #' @param rarePos numeric vector. position of variations
 #'
 #' @return data.frame with x and y positions of mutations
-#' @export
+#' @keywords internal
 extract_tempIDs <- function(mutString, rarePos){
   tids <- as.numeric(strsplit(mutString, split = " ", fixed = TRUE)[[1]][-c(1:2)]) + 1
   #Subset colID by tids (tempID) and retain the colIDs that are non-zero,
@@ -423,7 +423,7 @@ extract_tempIDs <- function(mutString, rarePos){
 #' @return  A list containing:
 #' @return \item{\code{hapmat} }{A sparse matrix of haplotypes. See details.}
 #' @return \item{\code{mutmap}}{A data frame cataloging SNVs in \code{hapmap}.}
-#' @export
+#' @keywords internal
 #'
 combine_identicalmutations <- function(mutmap, hapmat, pCount, keep_maf){
 

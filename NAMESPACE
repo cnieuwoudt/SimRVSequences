@@ -2,10 +2,7 @@
 
 S3method(summary,famStudy)
 export(combine_exons)
-export(combine_identicalmutations)
 export(create_slimMap)
-export(extract_tempIDs)
-export(reMap_mutations)
 export(read_slim)
 export(sim_RVstudy)
 importFrom(Matrix,colSums)
