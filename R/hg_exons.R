@@ -2,7 +2,7 @@
 #'
 #' This data set catalogs combined exon segments from the 22 human autosomes.
 #'
-#' The \code{hg_exons} data set catalogs the positions of exons residing in the 22 human autosomes. The data contained in \code{hg_exons} was collected from the hg 38 reference genome with the UCSC Genome Browser. The variable \code{chrom} is the chromosome on which the exon resides, \code{exonStart} is the position of the first base pair in the exon, and \code{exonEnd} is the position of the last base pair in the exon.  The variable \code{NCBIref} is the NCBI reference sequence accession numbers for the coding region in which the exon resides.  In \code{hg_exons} overlapping exons have been combined into a single observation. When exons from genes with different NCBI accession numbers have been combined the variable \code{NCBIref} will contain multiple accession numbers separated by commas.  We note that different accession numbers may exist for transcript variants of the same gene.
+#' The \code{hg_exons} data set catalogs the positions of exons residing in the 22 human autosomes. The data contained in \code{hg_exons} was collected from the hg 38 reference genome with the UCSC Genome Browser's Table Brower Tool.  In \code{hg_exons} overlapping exons have been combined into a single observation. When exons from genes with different NCBI accession numbers have been combined the variable \code{NCBIref} will contain multiple accession numbers separated by commas.  We note that different accession numbers may exist for transcript variants of the same gene.
 #'
 #'
 #' @docType data
@@ -13,8 +13,8 @@
 #' @format A data set with 223565 rows and 4 variables:
 #' \describe{
 #'   \item{chrom}{Numeric. The chromosome number.}
-#'   \item{exonStart}{Numeric. The position of the first base pair.}
-#'   \item{exonStop}{Numeric. The position of the last base pair.}
+#'   \item{exonStart}{Numeric. The position of the first base pair in the combined exon segment.}
+#'   \item{exonStop}{Numeric. The position of the last base pair in the combined exon segment.}
 #'   \item{NCBIref}{Character. The NCBI reference sequence accession number of the gene(s) in which the exon(s) reside.}
 #' }
 "hg_exons"
