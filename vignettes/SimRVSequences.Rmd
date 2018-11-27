@@ -459,7 +459,7 @@ class(study_summary)
 names(study_summary)
 ```
 
-From the output above, we see that when supplied an object of class `famStudy` the `summary` function returns a list containing two items: `fam_allele_count` and `pathway_count`.  The item `fam_allele_count` is a matrix that includes a count of the SNVs shared among the disease-affected relatives in each pedigree.
+From the output above, we see that when supplied an object of class `famStudy` the `summary` function returns a list containing two items: `fam_allele_count` and `pathway_count`.  The item `fam_allele_count` is a matrix that includes counts of the SNVs shared among the disease-affected relatives in each pedigree.
 
 ```{r}
 # view fam_allele_count
@@ -510,8 +510,8 @@ The methods provided by `SimRVSequences` are described as follows.
 * Method to assist with importing SLiM data to `R`.
   3. `read_slim`: This function is used to import to `R` data stored to a .txt file by SLiM's outputfull() method (see section 3.2).
 * Methods to assist with simulation and basic manipulation of SNV data for pedigrees
-  4. `sim_RVstudy`: This function is used to simulate the SNV data for a sample of pedigrees (see section 5).
-  5.  `count_affectedRV`: This function counts the number of copies of an SNV shared among the disease-affected relatives in each pedigree (see section 5).
+  4. `sim_RVstudy`: This function is used to simulate the SNV data for a sample of pedigrees (see section 5.1).
+  5.  `summary.famStudy`: This function is used to obtain a summary of the SNVs shared by the disease-affected relatives in each pedigree (see section 5.3).
 
 # Timing
 
