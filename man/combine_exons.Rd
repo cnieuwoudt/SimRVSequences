@@ -7,7 +7,7 @@
 combine_exons(exon_data)
 }
 \arguments{
-\item{exon_data}{data.frame. This data.frame must include named variables: \code{chrom}, a chromosome identifer; \code{exonStart}, the first position of the exon in base pairs; and \code{exonEnd}, the last position of the exon in base pairs.}
+\item{exon_data}{data.frame. This data frame must include named variables: \code{chrom}, a chromosome identifer; \code{exonStart}, the first position of the exon in base pairs; and \code{exonEnd}, the last position of the exon in base pairs.}
 }
 \value{
 A data frame of combined exon segments.  This data frame includes the variables: \code{chrom}, a chromosome identifier; \code{exonStart}, the first position of the combined exon segment in base pairs; and \code{exonEnd}, the last position of the combined exon segment in base pairs.

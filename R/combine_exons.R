@@ -2,7 +2,7 @@
 #'
 #' Combine overlapping exons into a single observation
 #'
-#' @param exon_data data.frame. This data.frame must include named variables: \code{chrom}, a chromosome identifer; \code{exonStart}, the first position of the exon in base pairs; and \code{exonEnd}, the last position of the exon in base pairs.
+#' @param exon_data data.frame. This data frame must include named variables: \code{chrom}, a chromosome identifer; \code{exonStart}, the first position of the exon in base pairs; and \code{exonEnd}, the last position of the exon in base pairs.
 #'
 #' @return A data frame of combined exon segments.  This data frame includes the variables: \code{chrom}, a chromosome identifier; \code{exonStart}, the first position of the combined exon segment in base pairs; and \code{exonEnd}, the last position of the combined exon segment in base pairs.
 #' @export
