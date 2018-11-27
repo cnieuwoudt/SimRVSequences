@@ -23,5 +23,5 @@ A list containing:
 \item{\code{mutmap}}{A data frame cataloging SNVs in \code{hapmap}.}
 }
 \description{
-Assuming that all mutations are of the same type (in SLIM simulation), different mutations at the same site are actually identical mutations from different lineages. This function re-code these mutations so that they are only cataloged once.
+Assuming that all mutations are of the same type (in SLIM simulation), different mutations at the same site are actually identical mutations from different lineages. This function re-codes these mutations so that they are only cataloged once.
 }
