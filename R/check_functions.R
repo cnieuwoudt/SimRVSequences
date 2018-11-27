@@ -117,7 +117,7 @@ check_ped <- function(ped_file){
     })
 
     if (any(dadRVcounts == rep(0, length(inhrt_fromDad)))) {
-      stop("\n Detecting de novo mutation. \n Please check that variable DA1, which represents the \n paternally inherited allele, is properly specified in ped_files.")
+      stop("\n de novo mutation present \n sim_RVstudy cannot simulate de novo mutations. \n Please respecify the variable DA1 in ped_files.")
     }
   }
 
@@ -128,14 +128,14 @@ check_ped <- function(ped_file){
     })
 
     if (any(momRVcounts == rep(0, length(inhrt_fromMom)))) {
-      stop("\n Detecting de novo mutation. \n Please check that variable DA2, which represents the \n maternally inherited allele, is properly specified in ped_files.")
+      stop("\n de novo mutation present \n sim_RVstudy cannot simulate de novo mutations. \n Please respecify the variable DA2 in ped_files.")
     }
   }
 
   #check to make sure that only 1 founder introduced the causal rare variant
   if (sum(ped_file[is.na(ped_file$dadID), c("DA1", "DA2")]) > 1) {
-    stop("\n Assumption violated.",
-         "\n Reformat ped_files so that only one cRV is introduced per pedigree.")
+    stop("\n cRV introduced by multiple pedigree founders",
+         "\n Reformat DA1 and DA2 in ped_files so that only one cRV is introduced per pedigree.")
   }
 
 }
