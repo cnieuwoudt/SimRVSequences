@@ -2,15 +2,15 @@
 % Please edit documentation in R/combine_exons.R
 \name{combine_exons}
 \alias{combine_exons}
-\title{Combine overlapping exons into a single observation}
+\title{Combine overlapping exons}
 \usage{
 combine_exons(exon_data)
 }
 \arguments{
-\item{exon_data}{data.frame. This data.frame must include named variables: 'chrom', a chromosome identifer; 'exonStart', the first position of the exon in base pairs; and 'exonEnd', the last position of the exon in base pairs.}
+\item{exon_data}{data.frame. This data.frame must include named variables: \code{chrom}, a chromosome identifer; \code{exonStart}, the first position of the exon in base pairs; and \code{exonEnd}, the last position of the exon in base pairs.}
 }
 \value{
-A matrix of exon unions, i.e. non-overlapping observations, by chromosome.
+A data frame of combined exon segments.  This data frame includes the variables: \code{chrom}, a chromosome identifier; \code{exonStart}, the first position of the combined exon segment in base pairs; and \code{exonEnd}, the last position of the combined exon segment in base pairs.
 }
 \description{
 Combine overlapping exons into a single observation
@@ -24,21 +24,8 @@ exDat <- data.frame(chrom     = c(1, 1, 1, 2, 2, 2),
 
 exDat
 
-# supply exDat to combine_exons to combine overlapping segments
-# into a single observation.
+# supply exDat to combine_exons to combine
+# overlapping exon segments
 combine_exons(exDat)
-
-data(hg_exons)
-head(hg_exons)
-
-hg2 <- combine_exons(hg_exons)
-# notice that the combine_exons function disregards all
-# variables other than 'chrom', 'exonStart', and 'exonEnd'
-head(hg2)
-
-# However, since the exons in hg_exons have already been
-# combined into non-overlapping segments, the relevant
-# variables remain unchanged
-all(hg_exons[, c(1:3)] == hg2)
 
 }
