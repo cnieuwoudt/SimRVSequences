@@ -9,14 +9,14 @@
   \item{chrom}{Numeric. The chromosome number.}
   \item{exonStart}{Numeric. The position of the first base pair.}
   \item{exonStop}{Numeric. The position of the last base pair.}
-  \item{NCBIref}{Character. The NCBI reference seqence accession number of the gene(s) in which the exon(s) reside.}
+  \item{NCBIref}{Character. The NCBI reference sequence accession number of the gene(s) in which the exon(s) reside.}
   \item{gene}{Character. The name of the gene.}
 }}
 \usage{
 hg_apopPath
 }
 \description{
-This data set catalouges combined exon segments from the 25 genes that have the highest interaction with the \emph{TNFSF10} gene, a known member of the human apoptosis pathway.
+This data set catalogs combined exon segments from the 25 genes that have the highest interaction with the \emph{TNFSF10} gene, a known member of the human apoptosis pathway.
 }
 \details{
 The \code{hg_apopPath} data set catalogs the positions of exons residing in the 25 genes that have the highest interaction with the \emph{TNFSF10} gene.  The data contained in the \code{hg_apopPath} data set was collected from the hg 38 reference genome with the UCSC Genome Browser.  The 25 genes that have the highest interaction with the \emph{TNFSF10} gene were identified by the UCSC Genome Browser's Gene Interaction Tool.  In \code{hg_apopPath} overlapping exons have been combined into a single observation. When exons from genes with different NCBI accession numbers have been combined the variable \code{NCBIref} will contain multiple accession numbers separated by commas.  We note that different accession numbers may exist for transcript variants of the same gene.
