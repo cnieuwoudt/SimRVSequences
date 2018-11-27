@@ -17,7 +17,4 @@ A dataframe with the same format as \code{markerDF}, but with a variable \code{p
 \description{
 Identify SNVs located in a specified pathway
 }
-\examples{
-#FIND SHORT WORKING EXAMPLE
-
-}
+\keyword{internal}

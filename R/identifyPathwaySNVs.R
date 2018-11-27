@@ -4,10 +4,7 @@
 #' @param pathwayDF A data frame containing pathway data.  See details.
 #'
 #' @return A dataframe with the same format as \code{markerDF}, but with a variable \code{pathwaySNV} marked FALSE for all variants located outside exons in \code{pathwayDF}, or with derived allele frequency greater than \code{carrier_prob}.
-#' @export
-#'
-#' @examples
-#' #FIND SHORT WORKING EXAMPLE
+#' @keywords internal
 #'
 identify_pathwaySNVs <- function(markerDF, pathwayDF){
 
