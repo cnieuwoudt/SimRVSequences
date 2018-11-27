@@ -20,7 +20,7 @@ EXmuts
 This data set catalogs the 500 single-nucleotide variants contained in the \code{EXhaps} dataset.  This dataset is intended to accompany the \code{EXhaps} dataset; each row of \code{EXmuts} describes a column (i.e. SNV) in \code{EXhaps}.
 }
 \details{
-Together, the \code{EXmuts} and \code{EXhaps} datasets represent example output of the \code{read_slim} function.  The \code{EXhaps} data set represents the sparse matrix \code{Haplotypes} returned by \code{read_slim}, and the \code{EXmuts} data set represents the \code{Mutations} data frame returned by \code{read_slim}.  This toy data set is used primarily for demonstration, and does not represent a complete sample of all mutations that would accompany a genome-wide, exon-only sequence data.
+Together, the \code{EXmuts} and \code{EXhaps} datasets represent example output of the \code{read_slim} function.  The \code{EXhaps} data set represents the sparse matrix \code{Haplotypes} returned by \code{read_slim}, and the \code{EXmuts} data set represents the \code{Mutations} data frame returned by \code{read_slim}.  This toy data set is used primarily for demonstration and does not represent the wide spectrum of mutations that would be observed in genome-wide, exon-only sequence data.
 }
 \seealso{
 \code{\link{EXhaps}}, \code{\link{read_slim}}
