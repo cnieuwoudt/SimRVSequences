@@ -54,7 +54,7 @@ The \code{sim_RVstudy} function is used to simulate single-nucleotide variant (S
 
 For a detailed description of the model employed by \code{sim_RVstudy}, please refer to section 6 of the vignette.
 
-Please note that \code{sim_RVstudy} was not created with the intention of simulating sequence data for pedigrees that contain inbreeding or loops.  Hence, \strong{certain types of inbreeding and/or loops cannot be accomodated}. Please see examples.
+Please note that \code{sim_RVstudy} was not created with the intention of simulating sequence data for pedigrees that contain inbreeding or loops.  Hence, \strong{certain types of inbreeding and/or loops cannot be accommodated}. Please see examples.
 
 The data frame of pedigrees, \code{ped_files}, supplied to \code{sim_RVstudy} must contain the variables:
 \tabular{lll}{
@@ -115,7 +115,7 @@ imb_ped1 <- study_peds[study_peds$FamID == 3, ]
 imb_ped1[imb_ped1$ID == 18, c("momID")] = 7
 plot(imb_ped1)
 
-# Notice that this instance of inbreeding can be accomodated
+# Notice that this instance of inbreeding can be accommodated
 # by the sim_RVstudy function
 seqDat = sim_RVstudy(ped_files = imb_ped1,
                      SNV_map = EXmuts,
