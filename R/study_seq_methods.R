@@ -24,12 +24,23 @@ is.famStudy <- function(x) {
 #'
 #' Summary function for objects of class \code{famStudy}, that is objects returned by the \code{\link{sim_RVstudy}} function.
 #'
+#' The data frame \code{pathway_count} returned by \code{summary.famStudy} contains the following variables:
+#' \tabular{lll}{
+#' \strong{name} \tab \strong{type} \tab \strong{description} \cr
+#' \code{chrom} \tab numeric \tab the chromosome that the SNV resides on\cr
+#' \code{position} \tab numeric \tab is the position of the SNV in base pairs when \code{pos_in_bp = TRUE}\cr
+#' \code{marker} \tab character \tab A unique character identifier for the SNV. \cr
+#' \code{total} \tab numeric \tab the number of SNV copies observed in disease-affected study participants. \cr
+#' \code{is_crv} \tab logical \tab  identifies causal rare variants (cRVs) as \code{TRUE}.  Note familial cRVs are sampled, with replacement from the SNVs for which \code{is_crv} is TRUE. \cr
+#' \code{pathwaySNV} \tab logical \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. Please note, this variable is only created if when the variable \code{pathwaySNV} is included in the \code{SNV_map} data frame of the \code{famStudy} object. See \code{\link{sim_RVstudy}} for more details.\cr
+#' }
+#'
 #' @param object An object of class \code{famStudy}, returned by the \code{sim_RVstudy} function.
 #' @param ... additional arguments passed to other methods.
 #' @importFrom Matrix colSums
 #'
 #' @return \item{\code{fam_allele_count} }{A matrix that contains counts of the number of SNVs shared among the disease-affected relatives in each pedigree.}
-#' @return \item{\code{pathway_count} }{A data frame that catalogs the total number of SNVs observed in study participants who are affected by disease.  When the variable \code{pathwaySNV} is included in the \code{SNV_map} data frame of the \code{famStudy} object, this data frame will identify SNVs in the pathway of interest as \code{TRUE}.}
+#' @return \item{\code{pathway_count} }{A data frame that catalogs the total number of SNVs observed in study participants who are affected by disease. See details.}
 #'
 #' @seealso \code{\link{sim_RVstudy}}
 #' @export
