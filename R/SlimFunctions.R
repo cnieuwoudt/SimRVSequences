@@ -177,7 +177,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 
 #' Import SLiM data to R
 #'
-#'To import SLiM data into \code{R}, we provide the \code{read_slim} function, which has been tested for SLiM versions 2.0-3.1.  Presently, the \code{read_slim} function is only appropriate for single-nucleotide variant (SNV) data produced by SLiM's outputFull() method.  We do not support output in MS or VCF data format, i.e. produced by outputVCFsample() or outputMSSample() in SLiM.
+#'To import SLiM data into \code{R}, we provide the \code{read_slim} function, which has been tested for SLiM versions 2.0-3.1. \strong{The \code{read_slim} function is only appropriate for single-nucleotide variant (SNV) data produced by SLiM's outputFull() method.}  We do not support output in MS or VCF data format, i.e. produced by outputVCFsample() or outputMSSample() in SLiM.
 #'
 #' In addition to reducing the size of the data, the argument \code{keep_maf} has practicable applicability.  In family-based studies, common SNVs are generally filtered out prior to analysis.  Users who intend to study common variants in addition to rare variants may need to run chromosome specific analyses to allow for allocation of large data sets in \code{R}.
 #'
@@ -187,7 +187,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #'
 #' The \code{read_slim} function returns a list containing two items:
 #' \enumerate{
-#' \item \code{Haplotypes} A sparse matrix of class dgCMatrix. The columns in {Haplotypes} represent distinct SNVs, while the rows repesent individual haplotypes. We note that this matrix contains two rows of data for each diploid individual in the population: one row for the maternally ihnherited haplotype and the other for the paternally inherited haplotype.
+#' \item \code{Haplotypes} A sparse matrix of class dgCMatrix (see \code{\link{dgCMatrix-class}}). The columns in {Haplotypes} represent distinct SNVs, while the rows represent individual haplotypes. We note that this matrix contains two rows of data for each diploid individual in the population: one row for the maternally ihnherited haplotype and the other for the paternally inherited haplotype.
 #' \item \code{Mutations} A data frame cataloging SNVs in \code{Haplotypes}. The variables in the \code{Mutations} data set are described as follows:
 #' \tabular{ll}{
 #' \code{colID} \tab Associates the rows, i.e. SNVs, in \code{Mutations} to the columns of \code{Haplotypes}. \cr
@@ -195,15 +195,14 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' \code{position} \tab The position of the SNV in base pairs. \cr
 #' \code{afreq} \tab The derived allele frequency of the SNV. \cr
 #' \code{marker} \tab A unique character identifier for the SNV.\cr
-#' \code{pathwaySNV} \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. Note that this variable is omitted when users do not supply \code{pathway_df} to \code{read_slim}. \cr
+#' \code{pathwaySNV} \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. Please note: this variable will be omitted when \code{pathwaySNV} is not supplied to \code{read_slim}.\cr
 #' }}
-#'
 #'
 #' @param file_path character.  The file path of the .txt output file created by the outputFull() method in SLiM.
 #' @param keep_maf numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf = 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R. See details.
 #' @param recomb_map data frame. (Optional) A recombination map of the same format as the data frame returned by \code{\link{create_slimMap}}. See details.
 #' @param pathway_df data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  See details.
-#' @param single_SNVtype logical. This argument indicates if all SNVs are of the same type, i.e. have the same fitness effects.  When \code{single_SNVtype = TRUE} we recode SNVs at the same locus to a single mutation since SNVs of the same type are identical in every respect with the exception of lineage . By default, \code{single_SNVtype = TRUE}. See details.
+#' @param single_SNVtype logical. This argument indicates if all SNVs are of the same type, i.e. have the same fitness effects.  When \code{single_SNVtype = TRUE} SNVs at the same locus are stored as a single mutation since they are identical in every respect with the exception of lineage . By default, \code{single_SNVtype = TRUE}. See details.
 #'
 #' @return  A list containing:
 #' @return \item{\code{Haplotypes} }{A sparse matrix of haplotypes. See details.}
@@ -216,19 +215,6 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' \emph{R package version 1.2-14}. https://CRAN.R-project.org/package=Matrix
 #'
 #' @seealso \code{\link{create_slimMap}}, \code{\link{combine_exons}}, \code{\link{dgCMatrix-class}}
-#'
-#' @examples
-#'
-#' # If create_slimMap was used to create the recombination
-#' # map for SLiM from the hg_exons data set, and if the .txt file
-#' # produced by SLiM's outputFull() method is saved as "slimOut.txt"
-#' # in the current working directory we import "slimOut.txt" to R
-#' # using the following command.
-#'
-#' \dontrun{
-#' s_out <- read_slim(file_path  = "slimOut.txt",
-#'                    recomb_map = create_slimMap(hg_exons))
-#' }
 #'
 read_slim <- function(file_path,
                       keep_maf = 0.01,
