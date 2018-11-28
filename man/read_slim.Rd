@@ -45,8 +45,10 @@ The \code{read_slim} function returns a list containing two items:
 \code{position} \tab The position of the SNV in base pairs. \cr
 \code{afreq} \tab The derived allele frequency of the SNV. \cr
 \code{marker} \tab A unique character identifier for the SNV.\cr
-\code{pathwaySNV} \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. Please note: this variable will be omitted when \code{pathwaySNV} is not supplied to \code{read_slim}.\cr
+\code{pathwaySNV} \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. \cr
 }}
+
+Please note: the variable \code{pathwaySNV} will be omitted when \code{pathway_df} is not supplied to \code{read_slim}.
 }
 \references{
 Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.

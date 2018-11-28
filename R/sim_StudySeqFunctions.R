@@ -129,21 +129,20 @@ remove_allWild <- function(f_haps, SNV_map){
 #'
 #' Simulate single-nucleotide variant (SNV) data for a sample of pedigrees.
 #'
-#' The \code{sim_RVstudy} function is used to simulate single-nucleotide variant (SNV) data for a sample of pedigrees.  Please note that this function is NOT appropriate for users who wish to simulate genotype conditional on phenotype.  Instead, \code{sim_RVstudy} employs the following algorithm.
+#' The \code{sim_RVstudy} function is used to simulate single-nucleotide variant (SNV) data for a sample of pedigrees.  Please note: this function is NOT appropriate for users who wish to simulate genotype conditional on phenotype.  Instead, \code{sim_RVstudy} employs the following algorithm.
 #'
 #' \enumerate{
 #' \item For each pedigree, we sample a single \strong{causal rare variant (cRV)} from a pool of SNVs specified by the user.
 #' \item Upon identifying the familial cRV we sample founder haplotypes from haplotype data conditional on the founder's cRV status at the familial cRV locus.
 #' \item Proceeding forward in time, from founders to more recent generations, for each parent/offspring pair we:
 #' \enumerate{
-#' \item simulate recombination and formation of parental gametes, according to the model proposed by Voorrips and Maliepaard (2012), and then
+#' \item simulate recombination and formation of gametes, according to the model proposed by Voorrips and Maliepaard (2012), and then
 #' \item perform a conditional gene drop to model inheritance of the cRV (cite bioRxiv).
 #' }}
 #'
+#' It is important to note that due to the forwards-in-time algorithm used by \code{sim_RVstudy}, \strong{certain types of inbreeding and/or loops cannot be accommodated}. Please see examples.
+#'
 #' For a detailed description of the model employed by \code{sim_RVstudy}, please refer to section 6 of the vignette.
-#'
-#' Please note that \code{sim_RVstudy} was not created with the intention of simulating sequence data for pedigrees that contain inbreeding or loops.  Hence, \strong{certain types of inbreeding and/or loops cannot be accommodated}. Please see examples.
-#'
 #'
 #' The data frame of pedigrees, \code{ped_files}, supplied to \code{sim_RVstudy} must contain the variables:
 #' \tabular{lll}{
@@ -173,14 +172,14 @@ remove_allWild <- function(f_haps, SNV_map){
 #' \code{is_CRV} \tab logical \tab  identifies causal rare variants (cRVs) as \code{TRUE}.  Note familial cRVs are sampled, with replacement from the SNVs for which \code{is_crv = TRUE}. \cr
 #' }
 #'
-#' Please note that when the variable \code{is_CRV} is missing from \code{SNV_map}, we sample a single SNV to be the causal rare variant for all pedigrees in the study.  The sampled SNV is identified in the returned \code{SNV_map}.  Please refer to section 3.3 of the vignette for additional details regarding the specification of the variable \code{is_CRV}.
+#' Please note that when the variable \code{is_CRV} is missing from \code{SNV_map}, we sample a single SNV to be the causal rare variant for all pedigrees in the study, which is identified in the returned \code{famStudy} object.
 #'
 #' @param ped_files Data frame. A data frame of pedigrees for which to simulate sequence data, see details.
 #' @param haplos sparseMatrix. A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.  Rows are assumed to be haplotypes, while columns represent SNVs.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, users may supply the sparse matrix \code{Haplotypes} returned by \code{read_slim}.
 #' @param SNV_map Data frame. A data frame that catalogs the SNVs in \code{haplos}.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, the data frame \code{Mutations} is of the proper format for \code{SNV_map}.  However, users must add the variable \code{is_CRV} to this data frame, see details.
-#' @param affected_only Logical. When \code{affected_only = TRUE}, we only simulate SNV data for the affected individuals and the family members that connect them along a line of descent.  When \code{affected_only = FALSE}, SNV data is simulated for the entire pedigree. By default, \code{affected_only = TRUE}.
+#' @param affected_only Logical. When \code{affected_only = TRUE}, we only simulate SNV data for the disease-affected individuals and the family members that connect them along a line of descent.  When \code{affected_only = FALSE}, SNV data is simulated for the entire study. By default, \code{affected_only = TRUE}.
 #' @param pos_in_bp Logical. This argument indicates if the positions in \code{SNV_map} are listed in base pairs.  By default, \code{pos_in_bp = TRUE}. If the positions in \code{SNV_map} are listed in centiMorgan please set \code{pos_in_bp = FALSE} instead.
-#' @param remove_wild Logical.  A logical argument that determines if SNVs not carried by any member of the study should be removed from the data.  By default, \code{remove_wild = TRUE}.
+#' @param remove_wild Logical.  When \code{remove_wild = TRUE} the data is reduced by removing SNVs which are not observed in any of the study participants; otherwise if \code{remove_wild = FALSE} no data reduction occurs.  By default, \code{remove_wild = TRUE}.
 #' @param gamma_params Numeric list of length 2. The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2*2.63)}, as discussed in Voorrips and Maliepaard (2012).
 #' @param burn_in Numeric. The "burn-in" distance in centiMorgan, as defined by Voorrips and Maliepaard (2012), which is required before simulating the location of the first chiasmata with interference. By default, \code{burn_in = 1000}.
 #' The burn in distance in cM. By default, \code{burn_in = 1000}.
@@ -191,6 +190,7 @@ remove_allWild <- function(f_haps, SNV_map){
 #' @return \item{\code{ped_haplos}}{A sparse matrix that contains the simulated haplotypes for each pedigree member in \code{ped_files}.}
 #' @return \item{\code{haplo_map}}{A data frame that maps the haplotypes (i.e. rows) in \code{ped_haplos} to the individuals in \code{ped_files}.}
 #' @return \item{\code{SNV_map}}{A data frame cataloging the SNVs in \code{ped_haplos}.}
+#' @return Objects of class \code{famStudy} are discussed in detail in section 5.2 of the vignette.
 #'
 #' @references Roeland E. Voorrips and Chris A Maliepaard. (2012). \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
 #' @references Christina Nieuwoudt and Jinko Graham. (??) Future bioRxiv article.

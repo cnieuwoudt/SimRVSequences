@@ -15,9 +15,9 @@ sim_RVstudy(ped_files, haplos, SNV_map, affected_only = TRUE,
 
 \item{SNV_map}{Data frame. A data frame that catalogs the SNVs in \code{haplos}.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, the data frame \code{Mutations} is of the proper format for \code{SNV_map}.  However, users must add the variable \code{is_CRV} to this data frame, see details.}
 
-\item{affected_only}{Logical. When \code{affected_only = TRUE}, we only simulate SNV data for the affected individuals and the family members that connect them along a line of descent.  When \code{affected_only = FALSE}, SNV data is simulated for the entire pedigree. By default, \code{affected_only = TRUE}.}
+\item{affected_only}{Logical. When \code{affected_only = TRUE}, we only simulate SNV data for the disease-affected individuals and the family members that connect them along a line of descent.  When \code{affected_only = FALSE}, SNV data is simulated for the entire study. By default, \code{affected_only = TRUE}.}
 
-\item{remove_wild}{Logical.  A logical argument that determines if SNVs not carried by any member of the study should be removed from the data.  By default, \code{remove_wild = TRUE}.}
+\item{remove_wild}{Logical.  When \code{remove_wild = TRUE} the data is reduced by removing SNVs which are not observed in any of the study participants; otherwise if \code{remove_wild = FALSE} no data reduction occurs.  By default, \code{remove_wild = TRUE}.}
 
 \item{pos_in_bp}{Logical. This argument indicates if the positions in \code{SNV_map} are listed in base pairs.  By default, \code{pos_in_bp = TRUE}. If the positions in \code{SNV_map} are listed in centiMorgan please set \code{pos_in_bp = FALSE} instead.}
 
@@ -36,25 +36,27 @@ A object of class \code{famStudy}.  Objects of class \code{famStudy} are lists t
 \item{\code{haplo_map}}{A data frame that maps the haplotypes (i.e. rows) in \code{ped_haplos} to the individuals in \code{ped_files}.}
 
 \item{\code{SNV_map}}{A data frame cataloging the SNVs in \code{ped_haplos}.}
+
+Objects of class \code{famStudy} are discussed in detail in section 5.2 of the vignette.
 }
 \description{
 Simulate single-nucleotide variant (SNV) data for a sample of pedigrees.
 }
 \details{
-The \code{sim_RVstudy} function is used to simulate single-nucleotide variant (SNV) data for a sample of pedigrees.  Please note that this function is NOT appropriate for users who wish to simulate genotype conditional on phenotype.  Instead, \code{sim_RVstudy} employs the following algorithm.
+The \code{sim_RVstudy} function is used to simulate single-nucleotide variant (SNV) data for a sample of pedigrees.  Please note: this function is NOT appropriate for users who wish to simulate genotype conditional on phenotype.  Instead, \code{sim_RVstudy} employs the following algorithm.
 
 \enumerate{
 \item For each pedigree, we sample a single \strong{causal rare variant (cRV)} from a pool of SNVs specified by the user.
 \item Upon identifying the familial cRV we sample founder haplotypes from haplotype data conditional on the founder's cRV status at the familial cRV locus.
 \item Proceeding forward in time, from founders to more recent generations, for each parent/offspring pair we:
 \enumerate{
-\item simulate recombination and formation of parental gametes, according to the model proposed by Voorrips and Maliepaard (2012), and then
+\item simulate recombination and formation of gametes, according to the model proposed by Voorrips and Maliepaard (2012), and then
 \item perform a conditional gene drop to model inheritance of the cRV (cite bioRxiv).
 }}
 
-For a detailed description of the model employed by \code{sim_RVstudy}, please refer to section 6 of the vignette.
+It is important to note that due to the forwards-in-time algorithm used by \code{sim_RVstudy}, \strong{certain types of inbreeding and/or loops cannot be accommodated}. Please see examples.
 
-Please note that \code{sim_RVstudy} was not created with the intention of simulating sequence data for pedigrees that contain inbreeding or loops.  Hence, \strong{certain types of inbreeding and/or loops cannot be accommodated}. Please see examples.
+For a detailed description of the model employed by \code{sim_RVstudy}, please refer to section 6 of the vignette.
 
 The data frame of pedigrees, \code{ped_files}, supplied to \code{sim_RVstudy} must contain the variables:
 \tabular{lll}{
@@ -84,7 +86,7 @@ The data frame \code{SNV_map} catalogs the SNVs in \code{haplos}. The variables 
 \code{is_CRV} \tab logical \tab  identifies causal rare variants (cRVs) as \code{TRUE}.  Note familial cRVs are sampled, with replacement from the SNVs for which \code{is_crv = TRUE}. \cr
 }
 
-Please note that when the variable \code{is_CRV} is missing from \code{SNV_map}, we sample a single SNV to be the causal rare variant for all pedigrees in the study.  The sampled SNV is identified in the returned \code{SNV_map}.  Please refer to section 3.3 of the vignette for additional details regarding the specification of the variable \code{is_CRV}.
+Please note that when the variable \code{is_CRV} is missing from \code{SNV_map}, we sample a single SNV to be the causal rare variant for all pedigrees in the study, which is identified in the returned \code{famStudy} object.
 }
 \examples{
 library(SimRVSequences)

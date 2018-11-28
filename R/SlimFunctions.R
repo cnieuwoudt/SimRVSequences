@@ -27,11 +27,11 @@
 #'
 #' Only three of the variables returned by \code{create_slimMap} are required by SLiM to simulate exon-only data: \code{recRate}, \code{mutRate}, and \code{endPos}.  The other variables seen in the output above are used by the \code{\link{read_slim}} function to re-map mutations to their correct positions when importing SLiM data to \code{R}.
 #'
-#' Please note: SLiM is written in a scripting language called Eidos. Unlike an \code{R} array, the first position in an Eidos array is 0.  Therefore, users must shift the variable \code{endPos} forward 1 unit before supplying this data to SLiM. See example.
+#' Please note: SLiM is written in a scripting language called Eidos. Unlike an \code{R} array, the first position in an Eidos array is 0.  Therefore, users must shift the variable \code{endPos} forward 1 unit before supplying this variable to SLiM. See example.
 #'
 #' @param exon_df Data frame. A data frame that contains the positions of each exon to simulate.  This data frame must contain the variables \code{chrom}, \code{exonStart}, and \code{exonEnd}.  See details.
-#' @param mutation_rate Numeric.  The per-site per-generation mutation rate, assumed to be constant across the genome. By default, \code{mutation_rate= 1E-8}, as in Harris.
-#' @param recomb_rate Numeric.  The per-site per-generation mutation rate, assumed to be constant across the genome. By default, \code{mutation_rate= 1E-8}, as in Harris.
+#' @param mutation_rate Numeric.  The per-site per-generation mutation rate, assumed to be constant across the genome. By default, \code{mutation_rate= 1E-8}, as in Harris and Nielson (2016).
+#' @param recomb_rate Numeric.  The per-site per-generation mutation rate, assumed to be constant across the genome. By default, \code{mutation_rate= 1E-8}, as in Harris and Nielson (2016)
 #'
 #' @return A recombination map that may be used in conjunction with SLiM (Haller and Messer 2017).  See details and example.
 #'
@@ -195,8 +195,10 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' \code{position} \tab The position of the SNV in base pairs. \cr
 #' \code{afreq} \tab The derived allele frequency of the SNV. \cr
 #' \code{marker} \tab A unique character identifier for the SNV.\cr
-#' \code{pathwaySNV} \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. Please note: this variable will be omitted when \code{pathwaySNV} is not supplied to \code{read_slim}.\cr
+#' \code{pathwaySNV} \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. \cr
 #' }}
+#'
+#' Please note: the variable \code{pathwaySNV} will be omitted when \code{pathway_df} is not supplied to \code{read_slim}.
 #'
 #' @param file_path character.  The file path of the .txt output file created by the outputFull() method in SLiM.
 #' @param keep_maf numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf = 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R. See details.

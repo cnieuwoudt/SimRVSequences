@@ -9,9 +9,9 @@ create_slimMap(exon_df, mutation_rate = 1e-08, recomb_rate = 1e-08)
 \arguments{
 \item{exon_df}{Data frame. A data frame that contains the positions of each exon to simulate.  This data frame must contain the variables \code{chrom}, \code{exonStart}, and \code{exonEnd}.  See details.}
 
-\item{mutation_rate}{Numeric.  The per-site per-generation mutation rate, assumed to be constant across the genome. By default, \code{mutation_rate= 1E-8}, as in Harris.}
+\item{mutation_rate}{Numeric.  The per-site per-generation mutation rate, assumed to be constant across the genome. By default, \code{mutation_rate= 1E-8}, as in Harris and Nielson (2016).}
 
-\item{recomb_rate}{Numeric.  The per-site per-generation mutation rate, assumed to be constant across the genome. By default, \code{mutation_rate= 1E-8}, as in Harris.}
+\item{recomb_rate}{Numeric.  The per-site per-generation mutation rate, assumed to be constant across the genome. By default, \code{mutation_rate= 1E-8}, as in Harris and Nielson (2016)}
 }
 \value{
 A recombination map that may be used in conjunction with SLiM (Haller and Messer 2017).  See details and example.
@@ -45,7 +45,7 @@ The data frame returned by \code{create_slimMap} contains variables required by 
 
 Only three of the variables returned by \code{create_slimMap} are required by SLiM to simulate exon-only data: \code{recRate}, \code{mutRate}, and \code{endPos}.  The other variables seen in the output above are used by the \code{\link{read_slim}} function to re-map mutations to their correct positions when importing SLiM data to \code{R}.
 
-Please note: SLiM is written in a scripting language called Eidos. Unlike an \code{R} array, the first position in an Eidos array is 0.  Therefore, users must shift the variable \code{endPos} forward 1 unit before supplying this data to SLiM. See example.
+Please note: SLiM is written in a scripting language called Eidos. Unlike an \code{R} array, the first position in an Eidos array is 0.  Therefore, users must shift the variable \code{endPos} forward 1 unit before supplying this variable to SLiM. See example.
 }
 \examples{
 #load hg_exons data
