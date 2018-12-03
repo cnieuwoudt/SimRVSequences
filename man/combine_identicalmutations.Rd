@@ -4,21 +4,19 @@
 \alias{combine_identicalmutations}
 \title{Combine identical mutations}
 \usage{
-combine_identicalmutations(mutmap, hapmat, pCount, keep_maf)
+combine_identicalmutations(mutmap, hapmat, mut_type)
 }
 \arguments{
-\item{mutmap}{data.frame The SNV_map with identical mutations}
+\item{mutmap}{data.frame. The SNV_map with identical mutations}
 
-\item{hapmat}{sparseMatrix The sparseMatrix of haplotypes}
+\item{hapmat}{sparseMatrix. The sparseMatrix of haplotypes}
 
-\item{pCount}{the population count}
-
-\item{keep_maf}{numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf = 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed.}
+\item{mut_type}{character. the name of the mutation type for which to re-code identical mutations}
 }
 \value{
 A list containing:
 
-\item{\code{hapmat} }{A sparse matrix of haplotypes. See details.}
+\item{\code{hapmat}}{A sparse matrix of haplotypes. See details.}
 
 \item{\code{mutmap}}{A data frame cataloging SNVs in \code{hapmap}.}
 }

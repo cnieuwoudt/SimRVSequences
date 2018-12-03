@@ -5,7 +5,7 @@
 \title{Import SLiM data to R}
 \usage{
 read_slim(file_path, keep_maf = 0.01, recomb_map = NULL,
-  pathway_df = NULL, single_SNVtype = TRUE)
+  pathway_df = NULL, recode_identical = TRUE)
 }
 \arguments{
 \item{file_path}{character.  The file path of the .txt output file created by the outputFull() method in SLiM.}
@@ -16,7 +16,7 @@ read_slim(file_path, keep_maf = 0.01, recomb_map = NULL,
 
 \item{pathway_df}{data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  See details.}
 
-\item{single_SNVtype}{logical. This argument indicates if all SNVs are of the same type, i.e. have the same fitness effects.  When \code{single_SNVtype = TRUE} SNVs at the same locus are stored as a single mutation since they are identical in every respect with the exception of lineage . By default, \code{single_SNVtype = TRUE}. See details.}
+\item{recode_identical}{logical. This argument indicates if all SNVs are of the same type, i.e. have the same fitness effects.  When \code{recode_identical = TRUE} SNVs at the same locus are stored as a single mutation since they are identical in every respect with the exception of lineage . By default, \code{recode_identical = TRUE}. See details.}
 }
 \value{
 A list containing:
