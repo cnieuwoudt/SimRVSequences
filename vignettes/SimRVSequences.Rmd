@@ -135,7 +135,7 @@ Our `read_slim` function has four arguments:
 2. `recomb_map`: (Optional) A recombination map of the same format as the data frame returned by `create_slimMap`.  Users who followed the instructions in section 3.1, may supply the output from `create_slimMap` to this argument. 
 3. `keep_maf`: The largest allele frequency for retained SNVs, by default `keep_maf = 0.01`.  All variants with allele frequency greater than `keep_maf` will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R.
 4. `pathway_df`: (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with our `combine_exons` function (see appendix for details).*
-5. `recode_identical`  This is a logical argument that indicates if all SNVs are of the same type, i.e. have the same fitness effects.  When `recode_identical = TRUE` we recode recurrent SNVs at the same locus to a single mutation since SNVs of the same type are identical in every respect, save lineage. By default, `recode_identical = TRUE`.
+5. `recode_identical`  This is a logical argument that indicates if identical SNVs should be cataloged a single observation.  By default, `recode_identical = TRUE` so that recurrent SNVs at the same locus are recorded as a single observation.
 
 To clarify, the argument `recomb_map` is used to remap mutations to their actual locations and chromosomes.  This is necessary when data has been simulated over non-contiguous regions such as exon-only data.  If `recomb_map` is not provided, we assume that the SNV data has been simulated over a contiguous segment starting with the first base pair on chromosome 1.
 
@@ -143,8 +143,7 @@ In addition to reducing the size of the data, the argument `keep_maf` has practi
 
 The data frame `pathway_df` allows users to identify SNVs located within a pathway of interest when importing the data.  For example, consider the apoptosis sub-pathway centered about the *TNFSF10* gene based on the 25 genes that have the highest interaction with this gene in the UCSC Genome Browser's Gene Interaction Tool [5, 6, 10].  The data for this sub-pathway is contained in the `hg_apopPath` data set.
 
-When `TRUE`, the logical argument `recode_identical` indicates that all mutations were simulated with the same fitness effects in SLiM.  
-SLiM can model many types of mutations; e.g. SLiM can simulataneously model neutral and deleterious mutations.  When different types of mutations occur at the same locus, carriers will experience different fitness effects depending on the carried mutation.  However, when mutations at the same (locus) location have the same fitness effects, they represent the same mutation from different lineages.  When the argument `recode_identical = TRUE` we recode identical mutations, which are stored separately, to a single mutation.  This convention allows for both reduction in storage and correct estimation of the derived allele frequency of the mutation.  Users who 
+When `TRUE`, the logical argument `recode_identical` indicates that identical SNVs should be recorded as a single observation.  SLiM can model many types of mutations; e.g. neutral, benefical, and deleterious mutations.  When different types of mutations occur at the same locus carriers will experience different fitness effects depending on the carried mutation.  However, when mutations at the same location have the same fitness effects, they represent an identical mutation from different lineages.  Even so, SLiM stores identical mutations separately and calculates their prevalence independently.  When the argument `recode_identical = TRUE` we recode identical mutations to be stored as single mutation and calculate their derived allele frequency based on their combined prevalence.  This convention allows for both reduction in storage and correct estimation of the derived allele frequency of the mutation.  Users who prefer to store identical mutations from independent lineages as unique entries should set `recode_identical = FALSE`.
 
 ```{r}
 # load the hg_apopPath data
@@ -181,7 +180,7 @@ data(EXmuts)
 head(EXmuts, n = 4)
 ```
 
-The `EXmuts` data frame is used to catalog the SNVs in `EXhaps`.  Each row in `EXmuts` represents an SNV. The variable `colID` associates the rows in `EXmuts` to the columns of `EXhaps`, `chrom` is the chromosome the SNV resides in, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of the SNV, `marker` is a unique character identifier for the SNV, and `pathwaySNV` identifies SNVs located within the sub-pathway as `TRUE`.
+The `EXmuts` data frame is used to catalog the SNVs in `EXhaps`.  Each row in `EXmuts` represents an SNV. The variable `colID` associates the rows in `EXmuts` to the columns of `EXhaps`, `chrom` is the chromosome the SNV resides in, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of the SNV, `marker` is a unique character identifier for the SNV, `type` is the name of the mutation (specified by the user in SLiM), `pop` is the population in which the mutation arose, `selCoeff` is the selection coefficient, `domCoeff` is the dominance coefficient, and `pathwaySNV` identifies SNVs located within the sub-pathway as `TRUE`.
 
 ```{r}
 # import the EXhaps dataset
@@ -412,7 +411,7 @@ dim(study_seq$ped_haplos)
 dim(EXhaps)
 ```
 
-Notice that `ped_haplos` only has 25 columns (i.e. mutations) even though `EXhaps`, which was supplied to `sim_RVstudy`, has a total of 500 columns.  This occurs when the `remove_wild` setting is used to remove superfluous SNVs from our data.  That is, when no one in the study carries a mutated allele at an SNV locus, that marker is removed from the data.  Since we are focused on rare variation, and since `EXhaps` and `study_peds` are small toy data sets the reduction in data is quite significant.
+Notice that `ped_haplos` only has 24 columns (i.e. mutations) even though `EXhaps`, which was supplied to `sim_RVstudy`, has a total of 500 columns.  This occurs when the `remove_wild` setting is used to remove superfluous SNVs from our data.  That is, when no one in the study carries a mutated allele at an SNV locus, that marker is removed from the data.  Since we are focused on rare variation, and since `EXhaps` and `study_peds` are small toy data sets the reduction in data is quite significant.
 
 ### The `SNV_map` data frame
 In this subsection we discuss the `SNV_map` data frame contained in the `famStudy` object. Recall that one of `sim_RVstudy`'s arguments is also named `SNV_map`.  When the `remove_wild` argument of `sim_RVstudy` is set to `FALSE`, the data frame supplied to `SNV_map` will be returned unchanged.  However, when `remove_wild` is set to `TRUE`, the `SNV_map` contained in the `famStudy` object will be a reduced data frame that contains only SNVs that are carried by at least one study participant. 
@@ -422,7 +421,7 @@ In this subsection we discuss the `SNV_map` data frame contained in the `famStud
 head(study_seq$SNV_map, n = 4)
 ```
 
-The output `SNV_map` catalogs the SNVs, i.e. columns,  in `ped_haplos`.  For example, the first column in `ped_haplos` is a SNV located on chromosome 1 at position 21568178.  
+The output `SNV_map` catalogs the SNVs, i.e. columns,  in `ped_haplos`.  For example, the first column in `ped_haplos` is a SNV located on chromosome 1 at position 45043357.  
 
 ### The `haplo_map` data frame
 Next, we look at the `haplo_map` data frame contained in the `famStudy` object.  The `haplo_map` data frame is used to map the haplotypes (i.e. rows) in `ped_haplos` to the individuals in `ped_files`.
@@ -467,7 +466,7 @@ From the output above, we see that when supplied an object of class `famStudy` t
 study_summary$fam_allele_count
 ```
 
-Looking at the output above, we see that only one affected relative in family 1 carries a copy of the first marker, `1_236566020`.  It is noteworthy that the disease-affected relative in families 1 and 4 carry so many copies of SNV `2_201284953`.  Not too surprisingly, this is the causal rare variant for these two families.
+Looking at the output above, we see that only one affected relative in family 1 carries a copy of the first marker, `1_45043357`.  It is noteworthy that the disease-affected relative in families 1 and 4 carry so many copies of SNV `2_201284953`.  Not too surprisingly, this is the causal rare variant for these two families.
 
 The item `pathway_count` is a data frame that catalogs the total number of SNVs observed in disease-affected study participants.
 
@@ -476,7 +475,7 @@ The item `pathway_count` is a data frame that catalogs the total number of SNVs 
 study_summary$pathway_count
 ```
 
-From `pathway_count`, we see that there are several SNVs carried by more than 1 disease-affected study participants; however, only 4 of the SNVs carried by more than one individual reside in the pathway of interest.
+From `pathway_count`, we see that there are several SNVs carried by more than 1 disease-affected study participants; however, only 5 of the SNVs carried by more than one individual reside in the pathway of interest.
 
 # `SimRVSequences` Model
 
