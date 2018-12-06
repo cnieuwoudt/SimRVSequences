@@ -210,6 +210,11 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' @return \item{\code{Haplotypes} }{A sparse matrix of haplotypes. See details.}
 #' @return \item{\code{Mutations}}{A data frame cataloging SNVs in \code{Haplotypes}. See details.}
 #' @importFrom Matrix sparseMatrix
+#' @importFrom magrittr %>%
+#' @importFrom dplyr group_by
+#' @importFrom dplyr mutate
+#' @importFrom rlang .data
+#'
 #' @export
 #'
 #' @references Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
@@ -224,7 +229,7 @@ read_slim <- function(file_path,
                       pathway_df = NULL,
                       recode_identical = TRUE){
   #NOTE: Time to read file ~19 secs
-  print("Reading Slim File")
+  message("Reading Slim File")
   exDat = readLines(file_path)
 
   #The default output for Slim  is a .txt file with the following headings:
@@ -265,21 +270,19 @@ read_slim <- function(file_path,
   # Mutations #
   #-----------#
   #NOTE: time to create Mutations data set ~4 secs
-  print("Creating Mutations Dataset")
-  #create mutation dataset from slim's Mutation output
+  message("Creating Mutations Dataset")
+
+  #extract mutation data from slim's Mutation output
   #only retaining the tempID, position, and prevalence of each mutation
-  MutData <- do.call(rbind,
-                     lapply((MutHead + 1):(IndHead - 1), function(x){
-                       as.numeric(unlist(strsplit(exDat[x], split = " ", fixed = TRUE))[c(1, 4, 9)])
-                     })
-  )
-
-  MutData <- as.data.frame(MutData)
-  colnames(MutData) <- c("tempID", "position", "prevalence")
-
-  #store the mutation types
-  MutData$type <- sapply((MutHead + 1):(IndHead - 1), function(x){
-    unlist(strsplit(exDat[x], split = " ", fixed = TRUE))[3]})
+  MutOut <- do.call(rbind, strsplit(exDat[(MutHead + 1):(IndHead - 1)], split = " ", fixed = TRUE))
+  MutData <- data.frame(tempID = as.numeric(MutOut[, 1]),
+                        type = MutOut[, 3],
+                        position = as.numeric(MutOut[, 4]),
+                        selCoef = as.numeric(MutOut[, 5]),
+                        domCoef = as.numeric(MutOut[, 6]),
+                        pop = MutOut[, 7],
+                        #genNo = as.numeric(MutOut[, 8]),
+                        prevalence = as.numeric(MutOut[, 9]))
 
   #add 1 to temp ID so that we can easily associate mutations
   #to columns by default slim's first tempID is 0, not 1.
@@ -294,8 +297,8 @@ read_slim <- function(file_path,
   #by the population size
   if (recode_identical) {
     calc_afreq <- MutData %>%
-      group_by(type, position) %>%
-      mutate(afreq = sum(prevalence)/(2*popCount))
+      group_by(.data$type, .data$position) %>%
+      mutate(afreq = sum(.data$prevalence)/(2*popCount))
     MutData$afreq <- calc_afreq$afreq
   } else {
     MutData$afreq <- MutData$prevalence/(2*popCount)
@@ -320,7 +323,7 @@ read_slim <- function(file_path,
   #NOTE: jpos is the most computationally expensive task (uses strsplit)
   #this chuck takes ~2.2 minutes to run (for genome-wide, exon-only data)
   #This is an improvement from the old time: ~ 6 mins
-  print("Creating Sparse Haplotypes Matrix")
+  message("Creating Sparse Haplotypes Matrix")
 
   #determine future row and column position of each mutation listed in genomes
   #row will correspond to person, column will correspond to the tempID of the
@@ -357,7 +360,7 @@ read_slim <- function(file_path,
   # For simplicity, we recode these mutations so that they are only cataloged
   # once.
   if (recode_identical) {
-    print("Recoding Identical Mutations")
+    message("Recoding Identical Mutations")
 
     #For each mutation type, check to see if there
     #are any identical mutations to re-code
@@ -389,7 +392,7 @@ read_slim <- function(file_path,
   # Re-map Mutations #
   #------------------#
   if (!is.null(recomb_map)) {
-    print("Remapping Mutations")
+    message("Remapping Mutations")
     RareMutData <- reMap_mutations(mutationDF = RareMutData,
                                    recomb_map)
   } else {
@@ -403,14 +406,14 @@ read_slim <- function(file_path,
 
   #reduce RareMutData, to the columns we actually need
   #really should clean this up soon
-  RareMutData <- RareMutData[, c("colID", "chrom", "position", "afreq", "marker", "type")]
+  RareMutData <- RareMutData[, c("colID", "chrom", "position", "afreq", "marker", "type", "pop", "selCoef", "domCoef")]
 
   #----------------------#
   # Identify Pathway RVs #
   #----------------------#
   #if pathway data has been supplied, identify pathway SNVs
   if (!is.null(pathway_df)) {
-    print("Identifying Pathway SNVs")
+    message("Identifying Pathway SNVs")
     RareMutData <- identify_pathwaySNVs(markerDF = RareMutData,
                                         pathwayDF = pathway_df)
   }
@@ -434,7 +437,6 @@ extract_tempIDs <- function(mutString, rarePos){
   #i.e. the rare varaints
   rarePos[tids][rarePos[tids] > 0]
 }
-
 
 #' Combine identical mutations
 #'
@@ -471,9 +473,7 @@ combine_identicalmutations <- function(mutmap, hapmat, mut_type){
     rowSums(hapmat[, x])
   })
 
-  keep_SNVcol <- sapply(col_loc, function(x){
-    x[1]
-  })
+  keep_SNVcol <- sapply(col_loc, function(x){x[1]})
 
   #replace with combined haplotype data
   hapmat[, keep_SNVcol] <- do.call(cbind, comb_mut)

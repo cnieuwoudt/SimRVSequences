@@ -8,12 +8,15 @@ Description: Routines to simulate single-nucleotide variant data for family-base
 Depends:
     R (>= 3.5.0)
 Imports:
+    SimRVPedigree (>= 0.1.0),
+    kinship2 (>= 1.6.4),
+    intervals (>= 0.15.1),
     reshape2 (>= 1.4.1),
     stats (>= 3.3.0),
     Matrix (>= 1.2-12),
-    SimRVPedigree (>= 0.1.0),
-    kinship2 (>= 1.6.4),
-    intervals (>= 0.15.1)
+    dplyr (>= 0.7.5), 
+    magrittr (>= 1.5),
+    rlang (>= 0.2.0)
 Suggests:
     knitr (>= 1.13),
     rmarkdown (>= 0.9.6),
