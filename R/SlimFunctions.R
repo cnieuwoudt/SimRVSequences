@@ -185,6 +185,8 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #'
 #' The data frame \code{pathway_df} allows users to identify SNVs located within a pathway of interest.  When supplied, we expect that \code{pathwayDF} does not contain any overlapping segments.  \emph{All overlapping exons in \code{pathway_df} MUST be combined into a single observation.  Users may combine overlapping exons with the \code{\link{combine_exons}} function.}
 #'
+#' When \code{TRUE}, the logical argument \code{recode_recurrent} indicates that recurrent SNVs should be recorded as a single observation.  SLiM can model many types of mutations; e.g. neutral, benefical, and deleterious mutations.  When different types of mutations occur at the same position carriers will experience different fitness effects depending on the carried mutation.  However, when mutations at the same location have the same fitness effects, they represent a recurrent mutation.  Even so, SLiM stores recurrent mutations separately and calculates their prevalence independently.  When the argument \code{recode_recurrent = TRUE} we store recurrent mutations as a single observation and calculate the derived allele frequency based on their combined prevalence.  This convention allows for both reduction in storage and correct estimation of the derived allele frequency of the mutation.  Users who prefer to store recurrent mutations from independent lineages as unique entries should set \code{recode_recurrent = FALSE}.
+#'
 #' The \code{read_slim} function returns a list containing two items:
 #' \enumerate{
 #' \item \code{Haplotypes} A sparse matrix of class dgCMatrix (see \code{\link{dgCMatrix-class}}). The columns in {Haplotypes} represent distinct SNVs, while the rows represent individual haplotypes. We note that this matrix contains two rows of data for each diploid individual in the population: one row for the maternally ihnherited haplotype and the other for the paternally inherited haplotype.
@@ -204,7 +206,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' @param keep_maf numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf = 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R. See details.
 #' @param recomb_map data frame. (Optional) A recombination map of the same format as the data frame returned by \code{\link{create_slimMap}}. See details.
 #' @param pathway_df data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  See details.
-#' @param recode_identical logical. This argument indicates if all SNVs are of the same type, i.e. have the same fitness effects.  When \code{recode_identical = TRUE} SNVs at the same locus are stored as a single mutation since they are identical in every respect with the exception of lineage . By default, \code{recode_identical = TRUE}. See details.
+#' @param recode_recurrent logical. This argument indicates if all SNVs are of the same type, i.e. have the same fitness effects.  When \code{recode_recurrent = TRUE} SNVs at the same locus are stored as a single mutation since they are identical in every respect with the exception of lineage . By default, \code{recode_recurrent = TRUE}. See details.
 #'
 #' @return  A list containing:
 #' @return \item{\code{Haplotypes} }{A sparse matrix of haplotypes. See details.}
@@ -227,7 +229,7 @@ read_slim <- function(file_path,
                       keep_maf = 0.01,
                       recomb_map = NULL,
                       pathway_df = NULL,
-                      recode_identical = TRUE){
+                      recode_recurrent = TRUE){
   #NOTE: Time to read file ~19 secs
   message("Reading Slim File")
   exDat = readLines(file_path)
@@ -278,9 +280,9 @@ read_slim <- function(file_path,
   MutData <- data.frame(tempID = as.numeric(MutOut[, 1]),
                         type = MutOut[, 3],
                         position = as.numeric(MutOut[, 4]),
-                        selCoef = as.numeric(MutOut[, 5]),
-                        domCoef = as.numeric(MutOut[, 6]),
-                        pop = MutOut[, 7],
+                        #selCoef = as.numeric(MutOut[, 5]),
+                        #domCoef = as.numeric(MutOut[, 6]),
+                        #pop = MutOut[, 7],
                         #genNo = as.numeric(MutOut[, 8]),
                         prevalence = as.numeric(MutOut[, 9]))
 
@@ -295,7 +297,7 @@ read_slim <- function(file_path,
   #allele frequecy by first summing the prevelance
   #for the identical mutations and then dividing
   #by the population size
-  if (recode_identical) {
+  if (recode_recurrent) {
     calc_afreq <- MutData %>%
       group_by(.data$type, .data$position) %>%
       mutate(afreq = sum(.data$prevalence)/(2*popCount))
@@ -359,7 +361,7 @@ read_slim <- function(file_path,
   # the same site are actually identical mutations from different lineages.
   # For simplicity, we recode these mutations so that they are only cataloged
   # once.
-  if (recode_identical) {
+  if (recode_recurrent) {
     message("Recoding Identical Mutations")
 
     #For each mutation type, check to see if there
@@ -406,7 +408,7 @@ read_slim <- function(file_path,
 
   #reduce RareMutData, to the columns we actually need
   #really should clean this up soon
-  RareMutData <- RareMutData[, c("colID", "chrom", "position", "afreq", "marker", "type", "pop", "selCoef", "domCoef")]
+  RareMutData <- RareMutData[, c("colID", "chrom", "position", "afreq", "marker")]
 
   #----------------------#
   # Identify Pathway RVs #

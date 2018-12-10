@@ -5,7 +5,7 @@
 \title{Import SLiM data to R}
 \usage{
 read_slim(file_path, keep_maf = 0.01, recomb_map = NULL,
-  pathway_df = NULL, recode_identical = TRUE)
+  pathway_df = NULL, recode_recurrent = TRUE)
 }
 \arguments{
 \item{file_path}{character.  The file path of the .txt output file created by the outputFull() method in SLiM.}
@@ -16,7 +16,7 @@ read_slim(file_path, keep_maf = 0.01, recomb_map = NULL,
 
 \item{pathway_df}{data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  See details.}
 
-\item{recode_identical}{logical. This argument indicates if all SNVs are of the same type, i.e. have the same fitness effects.  When \code{recode_identical = TRUE} SNVs at the same locus are stored as a single mutation since they are identical in every respect with the exception of lineage . By default, \code{recode_identical = TRUE}. See details.}
+\item{recode_recurrent}{logical. This argument indicates if all SNVs are of the same type, i.e. have the same fitness effects.  When \code{recode_recurrent = TRUE} SNVs at the same locus are stored as a single mutation since they are identical in every respect with the exception of lineage . By default, \code{recode_recurrent = TRUE}. See details.}
 }
 \value{
 A list containing:
@@ -34,6 +34,8 @@ In addition to reducing the size of the data, the argument \code{keep_maf} has p
 The argument \code{recomb_map} is used to remap mutations to their actual locations and chromosomes.  This is necessary when data has been simulated over non-contiguous regions such as exon-only data.  If \code{\link{create_slimMap}} was used to create the recombination map for SLiM, simply supply the output of \code{create_slimMap} to \code{recomb_map}.  If \code{recomb_map} is not provided we assume that the SNV data has been simulated over a contiguous segment starting with the first base pair on chromosome 1.
 
 The data frame \code{pathway_df} allows users to identify SNVs located within a pathway of interest.  When supplied, we expect that \code{pathwayDF} does not contain any overlapping segments.  \emph{All overlapping exons in \code{pathway_df} MUST be combined into a single observation.  Users may combine overlapping exons with the \code{\link{combine_exons}} function.}
+
+When \code{TRUE}, the logical argument \code{recode_recurrent} indicates that recurrent SNVs should be recorded as a single observation.  SLiM can model many types of mutations; e.g. neutral, benefical, and deleterious mutations.  When different types of mutations occur at the same position carriers will experience different fitness effects depending on the carried mutation.  However, when mutations at the same location have the same fitness effects, they represent a recurrent mutation.  Even so, SLiM stores recurrent mutations separately and calculates their prevalence independently.  When the argument \code{recode_recurrent = TRUE} we store recurrent mutations as a single observation and calculate the derived allele frequency based on their combined prevalence.  This convention allows for both reduction in storage and correct estimation of the derived allele frequency of the mutation.  Users who prefer to store recurrent mutations from independent lineages as unique entries should set \code{recode_recurrent = FALSE}.
 
 The \code{read_slim} function returns a list containing two items:
 \enumerate{
