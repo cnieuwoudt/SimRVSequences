@@ -207,10 +207,10 @@ remove_allWild <- function(f_haps, SNV_map){
 #' data(EXmuts)
 #' data(EXhaps)
 #'
-#' #create variable is_CRV in EXmuts to identify causal
-#' #rare variants, from which to sample familial variants.
+#' #create variable is_CRV in EXmuts to identify the causal
+#' #rare variants from which to sample familial cRVs.
 #' EXmuts$is_CRV = FALSE
-#' EXmuts$is_CRV[c(26, 73, 75, 238, 278)] = TRUE
+#' EXmuts$is_CRV[c(26, 139, 223, 228, 472)] = TRUE
 #'
 #' #supply required inputs to the sim_RVstudy function
 #' seqDat = sim_RVstudy(ped_files = study_peds,
@@ -258,7 +258,7 @@ sim_RVstudy <- function(ped_files, haplos, SNV_map,
   check_SNV_map(SNV_map)
 
   if (!"marker" %in% colnames(SNV_map)) {
-    SNV_map$marker <- paste0(SNV_map$chrom, sep = "_", SNV_map$position)
+    SNV_map$marker <- make.unique(paste0(SNV_map$chrom, sep = "_", SNV_map$position))
   }
 
   #check to see if DA1 and DA2 are both missing, if so
@@ -325,7 +325,7 @@ sim_RVstudy <- function(ped_files, haplos, SNV_map,
             "\n ... randomly sampling one SNV to be the cRV for all pedigrees.")
   }
 
-  #sample the familial cSV from the pool of potential cRVs with replacement.
+  #sample the familial cRV from the pool of potential cRVs with replacement.
   Fam_RVs <- sample(x = SNV_map$marker[SNV_map$is_CRV],
                     size = length(FamIDs),
                     replace = TRUE)
