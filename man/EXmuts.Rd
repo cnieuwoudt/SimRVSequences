@@ -6,9 +6,9 @@
 \title{Example Mutations dataset}
 \format{A data set with 500 rows and 6 variables:
 \describe{
-  \item{colID}{Numeric. The corresponding column number of the SVN in the EXgen dataset.}
+  \item{colID}{Numeric. The corresponding column number of the SVN in the \code{EXhaps} dataset.}
   \item{chrom}{Numeric. The chromosome number.}
-  \item{position}{Numeric. The location of the SNV, in base pairs.}
+  \item{position}{Numeric. The location of the SNV on the chromosome, in base pairs.}
   \item{afreq}{Numeric. The derived allele frequency of the SNV.}
   \item{marker}{Character. The names of the genes contained in the combined exon.}
   \item{pathwaySNV}{Logical. Indicates if the SNV is located within the pathway.}
