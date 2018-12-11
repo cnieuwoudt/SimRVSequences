@@ -11,41 +11,39 @@ check_SNV_map <- function(SNV_map){
 
   ## Check colID variable
   if (!"colID" %in% colnames(SNV_map)) {
-    stop("The variable 'colID' is missing from SNV_map.")
+    stop('The variable "colID" is missing from SNV_map.')
   }
   if (any(is.na(SNV_map$colID))) {
-    stop("The variable 'colID' in the SNV_map dataset contains missing values.")
+    stop('Error SNV_map: The variable "colID" contains missing values.')
+  }
+  if (any(duplicated(SNV_map$colID))) {
+    stop('Error SNV_map: The variable "colID" contains duplicate values.')
   }
 
   ## Check chrom variable
   if (!"chrom" %in% colnames(SNV_map)) {
-    stop("The variable 'chrom' is missing from SNV_map.")
+    stop('The variable "chrom" is missing from SNV_map.')
   }
   if (any(is.na(SNV_map$chrom))) {
-    stop("The variable 'chrom' in the SNV_map dataset contains missing values.")
+    stop('Error SNV_map: The variable "chrom" contains missing values.')
   }
 
   ## Check position variable
   if (!"position" %in% colnames(SNV_map)) {
-    stop("The variable 'position' is missing from SNV_map.")
+    stop('The variable "position" is missing from SNV_map.')
   }
 
   if (any(is.na(SNV_map$position))) {
-    stop("The variable 'position' in the SNV_map dataset contains missing values.")
-  }
-
-  # Check to see that we do not have multiple SNVs at the same postion
-  if (nrow(unique(SNV_map[, c("chrom", "position")])) != nrow(SNV_map)) {
-    stop("SNV_map contains multiple SNVs located at the same position on the same chromosome.")
+    stop('Error SNV_map: The variable "position" contains missing values.')
   }
 
   # Check to see if marker variable exists, and if so do all SNVs have a unique name
   if ("marker" %in% colnames(SNV_map)) {
     if (length(unique(SNV_map$marker)) != nrow(SNV_map)) {
-      stop("Expecting each SNV to have a unique marker name in SNV_map.")
+      stop('Expecting each SNV to have a unique marker name in SNV_map.')
     }
     if (any(is.na(SNV_map$marker))) {
-      stop("The variable 'marker' in the SNV_map dataset contains missing values.")
+      stop('Error SNV_map: The variable "marker" contains missing values.')
     }
   }
 
@@ -54,7 +52,7 @@ check_SNV_map <- function(SNV_map){
   #the SNV
   if (!is.null(SNV_map$is_CRV)) {
     if (sum(SNV_map$is_CRV) == 0) {
-      stop("In SNV_map: is_CRV exists, but is FALSE for all markers.")
+      stop('In SNV_map: is_CRV exists, but is FALSE for all markers.')
     }
   }
 
