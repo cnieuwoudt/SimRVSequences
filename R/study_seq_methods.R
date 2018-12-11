@@ -61,7 +61,7 @@ is.famStudy <- function(x) {
 #' #create variable is_CRV in EXmuts to identify the causal
 #' #rare variants from which to sample familial cRVs.
 #' EXmuts$is_CRV = FALSE
-#' EXmuts$is_CRV[c(26, 73, 75, 238, 278)] = TRUE
+#' EXmuts$is_CRV[c(26, 139, 223, 228, 472)] = TRUE
 #'
 #' #supply required inputs to the sim_RVstudy function
 #' seqDat = sim_RVstudy(ped_files = study_peds,
