@@ -7,12 +7,10 @@ output:
     number_sections: yes
     toc: yes
     toc_depth: 3
-  pdf_document:
-    toc: yes
-    toc_depth: '3'
-setspace: doublespacing
 vignette: |
-  %\VignetteIndexEntry{Vignette Title} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Vignette Title} 
+  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEncoding{UTF-8}{inputenc}
 ---
 
 <style type="text/css">
@@ -181,7 +179,7 @@ data(EXmuts)
 head(EXmuts, n = 4)
 ```
 
-The `EXmuts` data frame is used to catalog the SNVs in `EXhaps`.  Each row in `EXmuts` represents an SNV. The variable `colID` associates the rows in `EXmuts` to the columns of `EXhaps`, `chrom` is the chromosome the SNV resides in, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of the SNV, `marker` is a unique character identifier for the SNV, `type` is the name of the mutation (specified by the user in SLiM), `pop` is the population in which the mutation arose, `selCoeff` is the selection coefficient, `domCoeff` is the dominance coefficient, and `pathwaySNV` identifies SNVs located within the sub-pathway as `TRUE`.
+The `EXmuts` data frame is used to catalog the SNVs in `EXhaps`.  Each row in `EXmuts` represents an SNV. The variable `colID` associates the rows in `EXmuts` to the columns of `EXhaps`, `chrom` is the chromosome the SNV resides in, `position` is the position of the SNV in base pairs, `afreq` is the derived allele frequency of the SNV, `marker` is a unique character identifier for the SNV, and `pathwaySNV` identifies SNVs located within the sub-pathway as `TRUE`.
 
 ```{r}
 # import the EXhaps dataset
