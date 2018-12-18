@@ -122,7 +122,7 @@ create_slimMap <- function(exon_df, mutation_rate = 1E-8, recomb_rate = 1E-8){
 #' @keywords internal
 reMap_mutations <- function(mutationDF, recomb_map){
   #split into data for different chromosomes, because it
-  #makes myhead hurt to think this as 1 chomosome
+  #makes myhead hurt to think about this as 1 chromosome
   bychr <- lapply(sort(unique(recomb_map$chrom)), function(x){
     recomb_map[recomb_map$chrom == x, ]
   })
@@ -408,7 +408,12 @@ read_slim <- function(file_path,
 
   #reduce RareMutData, to the columns we actually need
   #really should clean this up soon
-  RareMutData <- RareMutData[, c("colID", "chrom", "position", "afreq", "marker")]
+  RareMutData <- RareMutData[, c("colID", "chrom", "position",
+                                 "afreq", "marker")]
+
+  # RareMutData <- RareMutData[, c("colID", "chrom", "position",
+  #                                "afreq", "marker", "type",
+  #                                "selCoef", "domCoef", "pop")]
 
   #----------------------#
   # Identify Pathway RVs #
