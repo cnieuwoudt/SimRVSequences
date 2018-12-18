@@ -516,7 +516,7 @@ The methods provided by `SimRVSequences` are described as follows.
 
 **All of the following timing estimates were performed on a Windows OS with an i7-4790 @ 3.60GHz and 12 GB of RAM.**
 
-Importing genome-wide, exon-only SNV data for 10,000 diploid individuals from the .txt file produced by SLiM's outputfull() method, using the `read_slim` function required approximately 2.7 minutes.  The imported data originally contained a total of 306,825 SNVs over 20,000 haplotypes.
+Importing genome-wide, exon-only SNV data for 10,000 diploid individuals from the .txt file produced by SLiM's outputfull() method, using the `read_slim` function required approximately 4 minutes.  The imported data originally contained a total of 306,825 SNVs over 20,000 haplotypes.
 
 For timing of `sim_RVstudy`, we explore the effects of the `affected_only` and `remove_wild` arguments.  When `affected_only = TRUE`, sequence data is only simulated for disease-affected relatives and the family members that connect them along a line of descent, otherwise if `affected_only = FALSE` sequence data is simulated for the entire pedigree.  When `remove_wild = TRUE` the size of the data is reduced by removing from the data SNVs not carried by any study participant; otherwise if `remove_wild = FALSE` no data reduction occurs.
 
