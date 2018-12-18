@@ -28,12 +28,12 @@ combine_exons <- function(exon_data){
     stop("exon_data does not include named columns: 'chrom', 'exonStart', and 'exonEnd'.")
   }
 
-  exstart = which(colnames(exon_data) == "exonStart")
-  exend = which(colnames(exon_data) == "exonEnd")
+  #just in case, order
+  exon_data <- exon_data[order(exon_data$chrom, exon_data$exonStart, exon_data$exonEnd), ]
 
   cexons <- do.call(rbind, lapply(unique(exon_data$chrom), function(x){
     combine_exons_by_chrom(chrom = x,
-                           start_stop_dat = exon_data[exon_data$chrom == x, c(exstart, exend)])
+                           start_stop_dat = exon_data[exon_data$chrom == x, c("exonStart", "exonEnd")])
   }))
 
  return(as.data.frame(cexons))
@@ -52,9 +52,22 @@ combine_exons <- function(exon_data){
 #' @return a matrix with combined exons for a single chromosome
 #' @keywords internal
 combine_exons_by_chrom <- function(chrom, start_stop_dat){
+
   #combine exons in this chromosome using the interval_union
   #and Intervals functions provided by the intervals package
   ex_mat <- interval_union(Intervals(start_stop_dat))@.Data
+
+
+  #check to see if any exons are directly next to one another,
+  #if so shift end point so that they get combined into a single segment
+  adjacent_exons <- which((ex_mat[-1, 1] - ex_mat[-nrow(ex_mat), 2]) == 1)
+  test_var <- length(adjacent_exons) > 0
+  while (test_var) {
+    ex_mat[adjacent_exons, 2] <- ex_mat[(adjacent_exons + rep(1, length(adjacent_exons))), 2]
+    ex_mat <- interval_union(Intervals(ex_mat))@.Data
+    adjacent_exons <- which((ex_mat[-1, 1] - ex_mat[-nrow(ex_mat), 2]) == 1)
+    test_var <- length(adjacent_exons) > 0
+  }
 
   #add chromosome variable
   ex_mat <- cbind(rep(chrom, nrow(ex_mat)), ex_mat)
