@@ -47,7 +47,7 @@ In section 3 we demonstrate how the methods provided by `SimRVSequences` can aid
 
 # Prepare Single Nucleotide Variant Data
 
-Before we can simulate genetic data for a sample of pedigrees, we require single nucleotide variant (SNV) data for the pedigree founders. There are several publicly available programs which can aide in this task (e.g. msprime and fastsimcoal), however, we have found the Eiods program SLiM [3] to be the most practical for simulation of genome-wide, exon-only SNV data for a large number of unrelated individuals.   
+Before we can simulate genetic data for a sample of pedigrees, we require single nucleotide variant (SNV) data for the pedigree founders. There are several publicly available programs which can aid in this task (e.g. msprime and fastsimcoal), however, we have found the Eiods program SLiM [3] to be the most practical for simulation of genome-wide, exon-only SNV data for a large number of unrelated individuals.   
 
 One of SLiM's many features is that it simulates recombination hotspots using a user-specified recombination map.  This recombination map may be utilized to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  In section 3.1 we demonstrate how the `create_slimMap` function may be used to generate the recombination map required by SLiM to simulate exon-only SNV data over the entire human genome.
 
