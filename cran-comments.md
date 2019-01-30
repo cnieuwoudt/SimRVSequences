@@ -1,6 +1,6 @@
 ## Test environments
 * local Windows OS install, R 3.5.0
-* ubuntu 14.04.5 LTS (on travis-ci), R 3.5.2
+* ubuntu 14.05.5 LTS (on travis-ci), R 3.4.2
 * win-builder (release)
 
 ## R CMD check results
