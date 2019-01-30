@@ -41,7 +41,7 @@ To simulate sequence data for a family-based study users are expected to provide
  
 Presently, we streamline this process for pedigrees simulated by the `R` package `SimRVPedigree` [8] and exon-only SNV data produced by SLiM [3]. The flow chart in Figure 1 illustrates the preparation required for each of the above inputs.  We note that simulation of SNV data with SLiM is NOT accomplished in `R`.  However, we do provide pre and post processing methods to assist with importing and formatting the SNV data simulated by SLiM.  
 
-![**Figure 1.** Data preparation flow chart.  Tasks completed in `R` are enclosed in rectangular frames while the SLiM simulation component is enclosed in a parallelogram.](C:/Users/cnieuwoudt/Documents/SimRVSequences/vignettes/flowchart.png)
+![**Figure 1.** Data preparation flow chart.  Tasks completed in `R` are enclosed in rectangular frames while the SLiM simulation component is enclosed in a parallelogram.](flowchart.png)
 
 In section 3 we demonstrate how the methods provided by `SimRVSequences` can aide in the preparation of the SNV data, and in section 4 we briefly review simulating pedigree data using the `SimRVPedigree` package.
 
@@ -495,7 +495,7 @@ In this section we describe the model assumptions employed by `SimRVSequences` t
     + Case 2: If the **parent carries the cRV but the offspring does not**, we sample the inherited gamete from the two possible parental gametes that do not carry the cRV. For example, in the father to offspring transmission in Figure 2, we choose from the paternal gametes represented by the bottom two chromatids.
     + Case 3: If the **parent is not a carrier of the cRV**, then the cRV status of the offspring is irrelevant for this parent's transmission because the offspring cannot inherit it from this parent.  In this scenario, we sample the inherited gamete from the four parental gametes with equal probability.  For example, this would be the case in the mother to offspring transmission in figure 2, since she is not a carrier of the cRV.
 
-![**Figure 2.**  A family trio with possible maternal and paternal recombinant chromatids for a diploid organism with a single set of homologous chromosomes. The cRV locus is indicated by a dashed vertical line over the chromatids, and the cRV is indicated by a black vertical bar within the chromatids.  The top two chromatids of the father contain the only copies of the cRV.](C:/Users/cnieuwoudt/Documents/SimRVSequences/vignettes/singlechromgametes.png)
+![**Figure 2.**  A family trio with possible maternal and paternal recombinant chromatids for a diploid organism with a single set of homologous chromosomes. The cRV locus is indicated by a dashed vertical line over the chromatids, and the cRV is indicated by a black vertical bar within the chromatids.  The top two chromatids of the father contain the only copies of the cRV.](singlechromgametes.png)
 
 We use these assumptions in our algorithm to simulate sequence data for pedigrees (see introduction.)
 
