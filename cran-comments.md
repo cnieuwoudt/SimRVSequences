@@ -7,12 +7,9 @@
 0 errors | 0 warnings | 1 note
 
 Possibly mis-spelled words in DESCRIPTION:
-SNV (11:38)
-nucleotide (10:42)
+  nucleotide (10:42)
 
-
-These are not misspelled words.
-SNV is the abbreviation for "single-nucleotide variant".
+This is the correct spelling for nucleotide, as in "single-nucleotide variant".
 
 
 ## Downstream Dependencies
