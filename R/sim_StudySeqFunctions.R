@@ -206,8 +206,8 @@ remove_allWild <- function(f_haps, SNV_map){
 #' data(EXmuts)
 #' data(EXhaps)
 #'
-#' #create variable is_CRV in EXmuts to identify the causal
-#' #rare variants from which to sample familial cRVs.
+#' # create variable 'is_CRV' in EXmuts.  This variable identifies the pool of
+#' # causal rare variants  from which to sample familial cRVs.
 #' EXmuts$is_CRV = FALSE
 #' EXmuts$is_CRV[c(26, 139, 223, 228, 472)] = TRUE
 #'
@@ -217,10 +217,11 @@ remove_allWild <- function(f_haps, SNV_map){
 #'                      haplos = EXhaps)
 #'
 #'
-#' # Inbreeding example
+#' # Inbreeding examples
 #' # Due to the forward-in-time model used by sim_RVstudy certain types of
-#' # inbreeding and/or loops may cause fatal errors when using sim_RVstudy.
-#' # The following examples demonstrate this limitation.
+#' # inbreeding and/or loops *may* cause fatal errors when using sim_RVstudy.
+#' # The following examples demonstrate: (1) imbreeding that can be accommodated
+#' # under this model, and (2) when this limitation is problematic.
 #'
 #' # Create inbreeding in family 1 of study_peds
 #' imb_ped1 <- study_peds[study_peds$FamID == 3, ]
