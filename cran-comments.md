@@ -7,10 +7,13 @@
 0 errors | 0 warnings | 1 note
 
 Possibly mis-spelled words in DESCRIPTION:
-  Jinko (12:9)
-Nieuwoudt (11:15)
+SNV (11:38)
+nucleotide (10:42)
 
-These are not misspelled words, these are names of authors.
+
+These are not misspelled words.
+SNV is the abbreviation for "single-nucleotide variant".
+
 
 ## Downstream Dependencies
 Currently, there are no downstream dependencies for this package.
