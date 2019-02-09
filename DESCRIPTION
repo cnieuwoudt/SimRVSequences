@@ -7,8 +7,7 @@ Authors@R: c(person("Christina", "Nieuwoudt",
                     email = "cnieuwou@sfu.ca"),
              person("Jinko", "Graham", role = "aut"))
 Maintainer: Christina Nieuwoudt <cnieuwou@sfu.ca>
-Description: Routines to simulate single-nucleotide variant data for pedigrees 
-    and methods to facilitate use of SNV data simulated by SLIM.
+Description: Routines to simulate single-nucleotide variant data for pedigrees. 
 Depends:
     R (>= 3.5.0)
 Imports:
