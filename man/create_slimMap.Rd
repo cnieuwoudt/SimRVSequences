@@ -20,7 +20,7 @@ A recombination map that may be used in conjunction with SLiM (Haller and Messer
 Create a recombination map that can be used with SLiM (Haller and Messer 2017).
 }
 \details{
-The Eidos program SLiM (Haller and Messer 2017) is a versatile forwards-in-time evolutionary simulator.  One of SLiM's many features is that it can simulate recombination hotspots using a user-specified recombination map.  This recombination map may be utilized to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  The \code{create_slimMap} function may be used to generate the recombination map required by SLiM to simulate exon-only SNV data.
+The Eidos program SLiM (Haller and Messer 2017) is a versatile forwards-in-time evolutionary simulator.  SLiM simulates recombination hotspots by way of a user-specified recombination map.  This recombination map may be utilized to simulate mutations over unlinked regions (i.e. in different chromosomes) or in linked but non-contiguous regions (i.e in exon-only data).  The \code{create_slimMap} function may be used to generate the recombination map required by SLiM to simulate exon-only SNV data.
 
 We expect that \code{exon_df} does not contain any overlapping segments.  Prior to supplying the exon data to \code{create_slimMap} users must combine overlapping exons into a single observation.  The \code{\link{combine_exons}} function may be used to accomplish this task.
 
