@@ -51,7 +51,7 @@ The \code{sim_RVstudy} function is used to simulate single-nucleotide variant (S
 \item Proceeding forward in time, from founders to more recent generations, for each parent/offspring pair we:
 \enumerate{
 \item simulate recombination and formation of gametes, according to the model proposed by Voorrips and Maliepaard (2012), and then
-\item perform a conditional gene drop to model inheritance of the cRV (cite bioRxiv).
+\item perform a conditional gene drop to model inheritance of the cRV.
 }}
 
 It is important to note that due to the forwards-in-time algorithm used by \code{sim_RVstudy}, \strong{certain types of inbreeding and/or loops cannot be accommodated}. Please see examples.
@@ -110,15 +110,14 @@ seqDat = sim_RVstudy(ped_files = study_peds,
 # Inbreeding example
 # Due to the forward-in-time model used by sim_RVstudy certain types of
 # inbreeding and/or loops may cause fatal errors when using sim_RVstudy.
-# The following two examples are used to demonstrate this.
+# The following examples demonstrate this limitation.
 
 # Create inbreeding in family 1 of study_peds
 imb_ped1 <- study_peds[study_peds$FamID == 3, ]
 imb_ped1[imb_ped1$ID == 18, c("momID")] = 7
 plot(imb_ped1)
 
-# Notice that this instance of inbreeding can be accommodated
-# by the sim_RVstudy function
+# Notice that this instance of inbreeding can be accommodated by our model.
 seqDat = sim_RVstudy(ped_files = imb_ped1,
                      SNV_map = EXmuts,
                      haplos = EXhaps)
@@ -139,8 +138,6 @@ seqDat = sim_RVstudy(ped_files = imb_ped2,
 }
 \references{
 Roeland E. Voorrips and Chris A Maliepaard. (2012). \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
-
-Christina Nieuwoudt and Jinko Graham. (??) Future bioRxiv article.
 }
 \seealso{
 \code{\link{sim_RVped}}, \code{\link{read_slim}}, \code{\link{summary.famStudy}}

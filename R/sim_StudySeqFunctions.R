@@ -137,7 +137,7 @@ remove_allWild <- function(f_haps, SNV_map){
 #' \item Proceeding forward in time, from founders to more recent generations, for each parent/offspring pair we:
 #' \enumerate{
 #' \item simulate recombination and formation of gametes, according to the model proposed by Voorrips and Maliepaard (2012), and then
-#' \item perform a conditional gene drop to model inheritance of the cRV (cite bioRxiv).
+#' \item perform a conditional gene drop to model inheritance of the cRV.
 #' }}
 #'
 #' It is important to note that due to the forwards-in-time algorithm used by \code{sim_RVstudy}, \strong{certain types of inbreeding and/or loops cannot be accommodated}. Please see examples.
@@ -193,7 +193,6 @@ remove_allWild <- function(f_haps, SNV_map){
 #' @return Objects of class \code{famStudy} are discussed in detail in section 5.2 of the vignette.
 #'
 #' @references Roeland E. Voorrips and Chris A Maliepaard. (2012). \emph{The simulation of meiosis in diploid and tetraploid organisms using various genetic models}. BMC Bioinformatics, 13:248.
-#' @references Christina Nieuwoudt and Jinko Graham. (??) Future bioRxiv article.
 #'
 #' @export
 #'
@@ -221,15 +220,14 @@ remove_allWild <- function(f_haps, SNV_map){
 #' # Inbreeding example
 #' # Due to the forward-in-time model used by sim_RVstudy certain types of
 #' # inbreeding and/or loops may cause fatal errors when using sim_RVstudy.
-#' # The following two examples are used to demonstrate this.
+#' # The following examples demonstrate this limitation.
 #'
 #' # Create inbreeding in family 1 of study_peds
 #' imb_ped1 <- study_peds[study_peds$FamID == 3, ]
 #' imb_ped1[imb_ped1$ID == 18, c("momID")] = 7
 #' plot(imb_ped1)
 #'
-#' # Notice that this instance of inbreeding can be accommodated
-#' # by the sim_RVstudy function
+#' # Notice that this instance of inbreeding can be accommodated by our model.
 #' seqDat = sim_RVstudy(ped_files = imb_ped1,
 #'                      SNV_map = EXmuts,
 #'                      haplos = EXhaps)
