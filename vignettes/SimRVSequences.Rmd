@@ -333,7 +333,7 @@ The columns displayed in the output above are described as follows:
  14. `Gen`: the individual's generation number relative to the eldest pedigree founder.  That is, the seed founder will have `Gen = 1`, his or her offspring will have `Gen = 2`, etc. 
  15. `proband`: a proband identifier: `proband = TRUE` if the individual is the proband, and `FALSE` otherwise.
 
-Not all of the variables above are required to simulate SNV data; the required variables are: `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.  Please note, if `DA` and `DA2` are not provided, the pedigree is assumed to be fully-sporadic, i.e. `DA1 = DA2 = 0` for all members. 
+Not all of the variables above are required to simulate SNV data; the required variables are: `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.  Please note, if `DA1` and `DA2` are not provided, the pedigree is assumed to be fully-sporadic, i.e. `DA1 = DA2 = 0` for all members. 
 
 To learn more about simulating pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette.
 
@@ -355,7 +355,7 @@ Optional Arguments:
 5. `remove_wild` A logical argument that determines if SNVs not carried by any member of the study should be removed from the data.  By default, `remove_wild = TRUE`.
 6.  `pos_in_bp` A logical argument which indicates if the positions in `SNV_map` are listed in base pairs.  By default, `pos_in_bp = TRUE`. If the positions in `SNV_map` are listed in centiMorgan set `pos_in_bp = FALSE` instead.
 7. `gamma_params` The respective shape and rate parameters of the gamma distribution used to simulate the distance between chiasmata.  By default, `gamma_params = c(2.63, 2*2.63)`, as in [11].
-8. `burn-in` The "burn-in" distance in centiMorgan, as defined by [11], which is required before simulating the location of the first chiasmata with interference. By default, `burn_in = 1000`.
+8. `burn_in` The "burn-in" distance in centiMorgan, as defined by [11], which is required before simulating the location of the first chiasmata with interference. By default, `burn_in = 1000`.
 
 Assuming readers have followed the steps outlined in sections 3 and 4, we may execute the `sim_RVstudy` function as follows.
 
@@ -487,7 +487,7 @@ In this section we describe the model assumptions employed by `SimRVSequences` t
     + For the pedigree founders who do NOT introduce a cRV we sample their haplotypes from the haplotypes that do not carry ANY of the cRVs in our pool. Hence, fully sporadic families will not segregate any cRVs, nor will any non-carrier individual who marries into a genetic family.  
 4. We use a conditional gene-drop algorithm to model inheritance from parent to offspring, which can be described as follows.
   * First, we simulate the formation of a parent's gametes.
-    1. Following [11], we model genetic recombination with chiasmata interference.  To accomplish this the distance between chiasmata is modeled by a gamma distribution.  Additionally, we use a "burn-in" process  before the start of the chromosome to simulate the location of the first chiasmata.  The default parameter settings for the gamma distribution are `shape = 2.63` and `rate = 2*2.63`, and `burn_in = 1000`.  To model recombination without chiasmata interference, i.e. according to Haldane's model, set `shape = 1` and `rate = 2` and `burn_in = 0`. **Please note, presently `SimRVSequences` only permits simulation of recombination in autosomes, i.e. non-sex chromosomes.**
+    1. Following [11], we model genetic recombination with chiasmata interference.  To accomplish this the distance between chiasmata is modelled by a gamma distribution.  Additionally, we use a "burn-in" process  before the start of the chromosome to simulate the location of the first chiasmata.  The default parameter settings for the gamma distribution are `shape = 2.63` and `rate = 2*2.63`, and `burn_in = 1000`.  To model recombination without chiasmata interference, i.e. according to Haldane's model, set `shape = 1` and `rate = 2` and `burn_in = 0`. **Please note, presently `SimRVSequences` only permits simulation of recombination in autosomes, i.e. non-sex chromosomes.**
     2. We assume no chromatid interference so that non-sister chromatids are equally likely to participate in a crossover event.
     3. To simulate the formation of gametes we assume that homologous chromatids are assigned to one of four gamete cells with equal probability.  This assignment occurs independently for non-homologous chromosomes.  
   * We use a conditional gene drop algorithm to determine which of the four gametes is transmitted from parent to offspring by considering the cRV status of the parent and the offspring, as follows.
