@@ -225,6 +225,25 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #'
 #' @seealso \code{\link{create_slimMap}}, \code{\link{combine_exons}}, \code{\link{dgCMatrix-class}}
 #'
+#' @example
+#' # Suppose that the output from SLiM's outputFull() method is saved
+#' # in the current working directory and is named "slimOut.txt".
+#' # To import "slimOut.txt" we supply it to read_slim as follows.
+#'
+#' \dontrun{
+#' s_out <- read_slim(file_path  = "slimOut.txt")
+#' }
+#'
+#' # If the create_slimMap function was used in combination with the hg_exons
+#' # dataset to create the recombination map to simulate exon-only sequence data
+#' # in SLiM, we supply the recombination map to the argument recomb_map when
+#' # importing the data.
+#'
+#' #' \dontrun{
+#' s_out <- read_slim(file_path  = "slimOut.txt",
+#'                    recomb_map = create_slimMap(hg_exons))
+#' }
+#'
 read_slim <- function(file_path,
                       keep_maf = 0.01,
                       recomb_map = NULL,
