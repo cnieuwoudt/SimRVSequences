@@ -20,6 +20,21 @@ Additionally, we have included an extensive discussion of all methods and datase
 0 errors | 0 warnings | 1 note
 
 Possibly mis-spelled words in DESCRIPTION:
+  Jinko (13:9)
+  Nieuwoudt (12:15)
+
+These are not mis-spelled words, these are the names of authors.  
+
+## February 9, 2019 Submission
+## Test environments
+* local Windows OS install, R 3.5.0
+* ubuntu 14.04.5 LTS (on travis-ci), R 3.5.2
+* win-builder (release)
+
+## R CMD check results
+0 errors | 0 warnings | 1 note
+
+Possibly mis-spelled words in DESCRIPTION:
   nucleotide (10:42)
 
 This is the correct spelling for nucleotide, as in "single-nucleotide variant".
