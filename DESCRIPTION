@@ -7,7 +7,10 @@ Authors@R: c(person("Christina", "Nieuwoudt",
                     email = "cnieuwou@sfu.ca"),
              person("Jinko", "Graham", role = "aut"))
 Maintainer: Christina Nieuwoudt <cnieuwou@sfu.ca>
-Description: Routines to simulate single-nucleotide variant data for pedigrees. 
+Description: Methods to simulate genetic sequence data for pedigrees, with 
+    functionality to simulate genetic heterogeneity among pedigrees.
+    Christina Nieuwoudt, Angela Brooks-Wilson, 
+    and Jinko Graham (2019) <doi:10.1101/534552>.
 Depends:
     R (>= 3.5.0)
 Imports:
