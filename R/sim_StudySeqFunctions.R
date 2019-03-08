@@ -28,8 +28,8 @@ condition_haplos_no_cSNV <- function(haplos, RV_pool_loc){
 #' @param RV_pool_loc The column locations of each SNV in the pool of candidate SNVs.
 #'
 #' @return list of familial founder genotypes
-#' @keywords internal
 #'
+#' @keywords internal
 sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
                        haplos, RV_col_loc, RV_pool_loc) {
 
@@ -93,7 +93,6 @@ sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
 #' @return A list (by family) of haplotype matrices and ID vectors and the reduce marker data set.
 #' @importFrom Matrix colSums
 #' @keywords internal
-#'
 remove_allWild <- function(f_haps, SNV_map){
 
   #determine which columns are all zero in founder haplotype data.

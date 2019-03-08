@@ -14,7 +14,6 @@
 #'
 #' @return offspring_seq. The genetic data that the offspring inherits from this parent.  This will be a recombined sequence.
 #' @keywords internal
-#'
 reconstruct_fromHaplotype <- function(parental_genotypes,
                                       CSNV_map,
                                       inherited_haplotype,
@@ -85,7 +84,6 @@ reconstruct_fromHaplotype <- function(parental_genotypes,
 #'
 #' @return offspring_sequences
 #' @keywords internal
-#'
 sim_seq <- function(ped_file, founder_genos,
                     SNV_map, chrom_map, RV_marker,
                     burn_in = 1000, gamma_params = c(2.63, 2.63/0.5)){

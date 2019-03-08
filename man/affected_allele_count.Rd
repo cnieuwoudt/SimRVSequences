@@ -19,7 +19,4 @@ A list of sharing counts, in the same order as the SNVs in \code{ped_haps}.
 \description{
 Determine total number of alleles shared by affecteds in a family
 }
-\examples{
-#no examples yet
-}
 \keyword{internal}

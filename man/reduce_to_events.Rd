@@ -24,12 +24,4 @@ would be reduced to c(1, 2). That is, there is only one crossover from haplotype
 
 We don't actually return the coded vector at this point.  We only need the code for the first haplotype, after applying this function every crossover will be meaningful. That is the coded vector will never contain repeats after this function runs.
 }
-\examples{
-\dontrun{
-haplo_vec <- sample(x = c(2, 3), size = 10, replace = TRUE)
-chias_vec <- cumsum(rgamma(9, shape = 2.63, rate = 2*2.63))
-reduce_to_events(gamete_haplo = haplo_vec,
-                 chias_locations = chias_vec)
-}
-}
 \keyword{internal}

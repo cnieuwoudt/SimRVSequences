@@ -18,11 +18,11 @@
 #' @inheritParams sim_RVstudy
 #' @param chrom_map Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.
 #'
-#' @return A list of chiasmata postions.
-#' @keywords internal
-#'
 #' @importFrom stats rexp
 #' @importFrom stats rgamma
+#'
+#' @return A list of chiasmata postions.
+#' @keywords internal
 sim_chiasmataPositions <- function(chrom_map,
                                    burn_in = 1000,
                                    gamma_params = c(2.63, 2.63/0.5)){
@@ -78,27 +78,12 @@ sim_chiasmataPositions <- function(chrom_map,
 #' @param allele_IDs List of length 2. The identification numbers for the respective paternal and maternal alleles of the individual for whom we wish to simulate recombination. (Can accomodate numeric or string entries)
 #'
 #' @return haploid_mat. A matrix with rows representing recombined haplotypes along with an identifier that defines which group each haploid will be associated with after meiosis II.
-#' @keywords internal
 #'
 #' @references Thompson, E. (2000). \emph{Statistical Inference from Genetic Data on Pedigrees.} NSF-CBMS Regional Conference Series in Probability and Statistics, 6, I-169. Retrieved from http://www.jstor.org.proxy.lib.sfu.ca/stable/4153187
 #'
 #' @seealso \code{\link{sim_chiasmataPositions}}
 #'
-#' @examples
-#' \dontrun{
-#' my_chrom_map <- data.frame(start = 0, stop = 200, center = 40)
-#' sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
-#' chias_count_BC(sim_chias_pos, 40)
-#' sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
-#'                      allele_IDs = c(2, 3))
-#'
-#'
-#' system.time(for (i in 1:10000) {
-#' sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
-#' sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
-#'                      allele_IDs = c(2, 3))
-#' })
-#' }
+#' @keywords internal
 sim_haploidFormation <- function(num_chiasmata,
                                  allele_IDs) {
 

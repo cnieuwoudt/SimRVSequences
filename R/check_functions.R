@@ -4,7 +4,6 @@
 #'
 #' @inheritParams sim_RVstudy
 #' @keywords internal
-#'
 check_SNV_map <- function(SNV_map){
   #check to see if SNV_map contains the column information we expect
   # and check to see if we have any missing values.
@@ -65,7 +64,6 @@ check_SNV_map <- function(SNV_map){
 #' @param ped_file data.frame The pedigree.
 #'
 #' @keywords internal
-#'
 check_ped <- function(ped_file){
 
   #gather all mom and dad IDs for non-founders
@@ -146,7 +144,6 @@ check_ped <- function(ped_file){
 #' @inheritParams sim_RVstudy
 #'
 #' @keywords internal
-#'
 check_peds <- function(ped_files){
 
   if (!"FamID" %in% colnames(ped_files) |

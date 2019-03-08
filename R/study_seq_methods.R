@@ -14,8 +14,8 @@ famStudy <- function(study_data) {
 #' @param x An R object.
 #'
 #' @return Logical. Indicates if \code{x} is of class \code{ped}.
-#' @keywords internal
 #'
+#' @keywords internal
 is.famStudy <- function(x) {
   return(inherits(x, "famStudy"))
 }
@@ -127,10 +127,8 @@ summary.famStudy <- function(object, ...){
 #' @importFrom Matrix colSums
 #'
 #' @return A list of sharing counts, in the same order as the SNVs in \code{ped_haps}.
-#' @keywords internal
 #'
-#' @examples
-#' #no examples yet
+#' @keywords internal
 affected_allele_count <- function(ped_haps, hap_map, ped_file){
   #determine the locations (rows) of the affecteds in ped_haps
   aff_IDs <- ped_file$ID[ped_file$affected]

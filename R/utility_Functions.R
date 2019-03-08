@@ -47,14 +47,6 @@ get_parOffInfo <- function(ped_file){
 #'
 #' @return The locations of crossovers
 #' @keywords internal
-#'
-#' @examples
-#' \dontrun{
-#' haplo_vec <- sample(x = c(2, 3), size = 10, replace = TRUE)
-#' chias_vec <- cumsum(rgamma(9, shape = 2.63, rate = 2*2.63))
-#' reduce_to_events(gamete_haplo = haplo_vec,
-#'                  chias_locations = chias_vec)
-#'}
 reduce_to_events <- function(gamete_haplo, chias_locations){
   if(sum(gamete_haplo == gamete_haplo[1]) == length(gamete_haplo)){
     cross_loc = numeric(0)
@@ -91,7 +83,6 @@ reduce_to_events <- function(gamete_haplo, chias_locations){
 #'
 #' @return Boolean
 #' @keywords internal
-#'
 is_odd <- function(x) {x %% 2 != 0}
 
 
@@ -101,7 +92,6 @@ is_odd <- function(x) {x %% 2 != 0}
 #'
 #' @return Boolean
 #' @keywords internal
-#'
 is_int <- function(x) {x %% 1 == 0}
 
 #' Remove unaffected relatives
@@ -168,7 +158,6 @@ affected_onlyPed = function(ped_file){
 #'
 #' @return pos_CM The postion in centiMorgans
 #' @keywords internal
-#'
 convert_BP_to_cM <- function(pos_BP){ pos_BP/1000000 }
 
 #' Convert from centiMorgan to basepairs
@@ -179,7 +168,6 @@ convert_BP_to_cM <- function(pos_BP){ pos_BP/1000000 }
 #'
 #' @return pos_BP The postion in basepairs
 #' @keywords internal
-#'
 convert_CM_to_BP <- function(pos_CM){ pos_CM*1000000 }
 
 

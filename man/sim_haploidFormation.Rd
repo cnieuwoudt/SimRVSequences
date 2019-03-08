@@ -26,22 +26,6 @@ After simulating recombination among the bundle, we simulate meiosis I and II, b
 \item (Meiosis II: Each cell from meiosis I splits into two gametes) Each pair of homologous chromosomes are separated into two gametes with equal probability and independently from the assortment of non-homologous chromosome.
 }
 }
-\examples{
-\dontrun{
-my_chrom_map <- data.frame(start = 0, stop = 200, center = 40)
-sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
-chias_count_BC(sim_chias_pos, 40)
-sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
-                     allele_IDs = c(2, 3))
-
-
-system.time(for (i in 1:10000) {
-sim_chias_pos <- sim_chiasmataPositions(my_chrom_map)
-sim_haploidFormation(num_chiasmata = length(sim_chias_pos),
-                     allele_IDs = c(2, 3))
-})
-}
-}
 \references{
 Thompson, E. (2000). \emph{Statistical Inference from Genetic Data on Pedigrees.} NSF-CBMS Regional Conference Series in Probability and Statistics, 6, I-169. Retrieved from http://www.jstor.org.proxy.lib.sfu.ca/stable/4153187
 }
