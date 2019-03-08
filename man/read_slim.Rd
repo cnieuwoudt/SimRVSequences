@@ -8,7 +8,7 @@ read_slim(file_path, keep_maf = 0.01, recomb_map = NULL,
   pathway_df = NULL, recode_recurrent = TRUE)
 }
 \arguments{
-\item{file_path}{character.  The file path of the .txt output file created by the outputFull() method in SLiM.}
+\item{file_path}{character.  The file path or URL of the .txt output file created by the outputFull() method in SLiM.}
 
 \item{keep_maf}{numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf = 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R. See details.}
 
@@ -53,11 +53,7 @@ The \code{read_slim} function returns a list containing two items:
 Please note: the variable \code{pathwaySNV} will be omitted when \code{pathway_df} is not supplied to \code{read_slim}.
 }
 \examples{
-# Suppose that the output from SLiM's outputFull() method is saved
-# in the current working directory and is named "slimOut.txt".
-# To import "slimOut.txt" we supply it to read_slim as follows.
-
-# specify the URL of the example SLiM output data
+# Specify the URL of the example output data simulated by SLiM.
 file_url <-
 'https://raw.githubusercontent.com/cnieuwoudt/Example--SLiMSim/master/example_SLIMout.txt'
 s_out <- read_slim(file_url)

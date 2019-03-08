@@ -202,7 +202,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #'
 #' Please note: the variable \code{pathwaySNV} will be omitted when \code{pathway_df} is not supplied to \code{read_slim}.
 #'
-#' @param file_path character.  The file path of the .txt output file created by the outputFull() method in SLiM.
+#' @param file_path character.  The file path or URL of the .txt output file created by the outputFull() method in SLiM.
 #' @param keep_maf numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf = 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R. See details.
 #' @param recomb_map data frame. (Optional) A recombination map of the same format as the data frame returned by \code{\link{create_slimMap}}. See details.
 #' @param pathway_df data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  See details.
@@ -226,11 +226,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' @seealso \code{\link{create_slimMap}}, \code{\link{combine_exons}}, \code{\link{dgCMatrix-class}}
 #'
 #' @examples
-#' # Suppose that the output from SLiM's outputFull() method is saved
-#' # in the current working directory and is named "slimOut.txt".
-#' # To import "slimOut.txt" we supply it to read_slim as follows.
-#'
-#' # specify the URL of the example SLiM output data
+#' # Specify the URL of the example output data simulated by SLiM.
 #' file_url <-
 #' 'https://raw.githubusercontent.com/cnieuwoudt/Example--SLiMSim/master/example_SLIMout.txt'
 #' s_out <- read_slim(file_url)
