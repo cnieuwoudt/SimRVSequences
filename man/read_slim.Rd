@@ -57,20 +57,24 @@ Please note: the variable \code{pathwaySNV} will be omitted when \code{pathway_d
 # in the current working directory and is named "slimOut.txt".
 # To import "slimOut.txt" we supply it to read_slim as follows.
 
-\dontrun{
-s_out <- read_slim(file_path  = "slimOut.txt")
-}
+# specify the URL of the example SLiM output data
+file_url <-
+'https://raw.githubusercontent.com/cnieuwoudt/Example--SLiMSim/master/example_SLIMout.txt'
+s_out <- read_slim(file_url)
 
-# If the create_slimMap function was used in combination with the hg_exons
-# dataset to create the recombination map to simulate exon-only sequence data
-# in SLiM, we supply the recombination map to the argument recomb_map when
-# importing the data.
+summary(s_out)
 
-\dontrun{
-s_out <- read_slim(file_path  = "slimOut.txt",
-                   recomb_map = create_slimMap(hg_exons))
-}
 
+# As seen above, read_slim returns two items.  The first is a sparse matrix
+# named Haplotypes, which contains the haplotypes for each indiviual in the
+# simulation.  The second item is a data set named Mutations, which catalogs
+# the mutations in the Haplotypes matrix.
+
+# View the first 5 lines of the mutation data
+head(s_out$Mutations, n = 5)
+
+# view the first 20 mutations on the first 10 haplotypes
+s_out$Haplotypes[1:10, 1:20]
 }
 \references{
 Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
