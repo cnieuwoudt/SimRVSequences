@@ -225,7 +225,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #'
 #' @seealso \code{\link{create_slimMap}}, \code{\link{combine_exons}}, \code{\link{dgCMatrix-class}}
 #'
-#' @example
+#' @examples
 #' # Suppose that the output from SLiM's outputFull() method is saved
 #' # in the current working directory and is named "slimOut.txt".
 #' # To import "slimOut.txt" we supply it to read_slim as follows.
@@ -239,7 +239,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' # in SLiM, we supply the recombination map to the argument recomb_map when
 #' # importing the data.
 #'
-#' #' \dontrun{
+#' \dontrun{
 #' s_out <- read_slim(file_path  = "slimOut.txt",
 #'                    recomb_map = create_slimMap(hg_exons))
 #' }
@@ -477,8 +477,8 @@ extract_tempIDs <- function(mutString, rarePos){
 #' @return  A list containing:
 #' @return \item{\code{hapmat}}{A sparse matrix of haplotypes. See details.}
 #' @return \item{\code{mutmap}}{A data frame cataloging SNVs in \code{hapmap}.}
-#' @keywords internal
 #'
+#' @keywords internal
 combine_identicalmutations <- function(mutmap, hapmat, mut_type){
 
   #store the information for this mutation type

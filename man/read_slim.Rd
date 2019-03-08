@@ -52,6 +52,26 @@ The \code{read_slim} function returns a list containing two items:
 
 Please note: the variable \code{pathwaySNV} will be omitted when \code{pathway_df} is not supplied to \code{read_slim}.
 }
+\examples{
+# Suppose that the output from SLiM's outputFull() method is saved
+# in the current working directory and is named "slimOut.txt".
+# To import "slimOut.txt" we supply it to read_slim as follows.
+
+\dontrun{
+s_out <- read_slim(file_path  = "slimOut.txt")
+}
+
+# If the create_slimMap function was used in combination with the hg_exons
+# dataset to create the recombination map to simulate exon-only sequence data
+# in SLiM, we supply the recombination map to the argument recomb_map when
+# importing the data.
+
+\dontrun{
+s_out <- read_slim(file_path  = "slimOut.txt",
+                   recomb_map = create_slimMap(hg_exons))
+}
+
+}
 \references{
 Haller, B., Messer, P. W. (2017). \emph{Slim 2: Flexible, interactive forward genetic simulations}. Molecular Biology and Evolution; 34(1), pp. 230-240.
 
