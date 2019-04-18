@@ -1,3 +1,10 @@
+## Re-submission April 18, 2019
+In this resubmission we have
+  * Corrected the sampling probability for causal rare variants in sim_RVstudy.  Previously, was sampling with equal probability, now sampling according to allele frequency in the population.
+  * 
+  
+
+
 ## Re-submission March 8, 2019
 In this re-submission we have 
   * removed examples from unexported functions, and
