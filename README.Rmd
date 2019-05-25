@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 
 # SimRVSequences
 
-The goal of SimRVSequences is to simulate single nucleotide variant (SNV) data for pedigrees. 
+SimRVSequences provides routines to simulate single nucleotide variant (SNV) data for pedigrees. 
 
 ## Installation
 
