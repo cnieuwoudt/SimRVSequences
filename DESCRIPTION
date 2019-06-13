@@ -26,6 +26,7 @@ Imports:
 Suggests:
     knitr (>= 1.13),
     rmarkdown (>= 0.9.6),
+    vcfR (>= 1.8.0),
     testthat
 License: GNU General Public License
 Encoding: UTF-8
