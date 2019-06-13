@@ -9,7 +9,7 @@ famStudy <- function(study_data) {
   return(study_data)
 }
 
-#' Check to see if object is of class ped
+#' Check to see if object is of class famStudy
 #'
 #' @param x An R object.
 #'
