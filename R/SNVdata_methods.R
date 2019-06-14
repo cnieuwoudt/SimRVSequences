@@ -28,7 +28,7 @@ is.SNVdata <- function(x) {
 #' @export
 #'
 #' @examples
-#' exdata = import_SNVdata(0)
+#' exdata = import_SNVdata(21)
 #'
 #' head(exdata$Mutations)
 #' exdata$Haplotypes[1:20, 1:10]
