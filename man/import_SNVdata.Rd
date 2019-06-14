@@ -16,7 +16,7 @@ An object of class \code{SNVdata} or a list of objects of class \code{SNVdata}, 
 Import 1000 genomes exon data formatted for sim_RVstudy
 }
 \examples{
-exdata = import_SNVdata(19)
+exdata = import_SNVdata(21)
 
 head(SNVdata_chrom21$Mutations)
 SNVdata_chrom21$Haplotypes[1:20, 1:10]

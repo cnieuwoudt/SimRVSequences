@@ -28,7 +28,7 @@ is.SNVdata <- function(x) {
 #' @export
 #'
 #' @examples
-#' exdata = import_SNVdata(19)
+#' exdata = import_SNVdata(0)
 #'
 #' head(SNVdata_chrom21$Mutations)
 #' SNVdata_chrom21$Haplotypes[1:20, 1:10]
@@ -59,8 +59,8 @@ import_SNVdata <- function(chrom){
     Haplotypes <- do.call(cbind, lapply(chrom_dat, `[[`, 1))
     Mutations <- do.call(rbind, lapply(chrom_dat, `[[`, 2))
   } else {
-    Haplotypes <- chrom_dat$Haplotypes
-    Mutations <- chrom_dat$Mutations
+    Haplotypes <- chrom_dat[[1]]$Haplotypes
+    Mutations <- chrom_dat[[1]]$Mutations
   }
 
   return(SNVdata(list(Haplotypes = Haplotypes, Mutations = Mutations)))
