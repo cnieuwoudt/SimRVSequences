@@ -30,8 +30,8 @@ is.SNVdata <- function(x) {
 #' @examples
 #' exdata = import_SNVdata(0)
 #'
-#' head(SNVdata_chrom21$Mutations)
-#' SNVdata_chrom21$Haplotypes[1:20, 1:10]
+#' head(exdata$Mutations)
+#' exdata$Haplotypes[1:20, 1:10]
 import_SNVdata <- function(chrom){
 
   if (any(chrom == 0)){
