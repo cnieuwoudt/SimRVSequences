@@ -1,0 +1,214 @@
+---
+title: "Format VCF Files"
+author: "Christina Nieuwoudt, Wendy Wang, Brad McNeney, and Jinko Graham"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+vignette: |
+  %\VignetteIndexEntry{Vignette Title} 
+  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEncoding{UTF-8}{inputenc}
+---
+
+<style type="text/css">
+
+body{ /* Normal  */
+   font-size: 12px;
+}
+</style>
+
+# Introduction
+
+ADD INTRODUCTION
+
+NOTE: SNV data only
+
+
+
+In this vigentte we demonstrate how to:
+
+1. import a vcf file (see section XX),
+2. format haplotype data (see section XX),
+3. format mutation data (see section XX), 
+4. create an object of class `SNVdata` (see section XX).
+
+Alternatively, we also provide pre-formatted SNV data from *... describe data*.  This data can be obtained using the `import_SNVdata` function, which we demonstrate in section XX.
+
+# Importing VCF files with vcfR
+```{r}
+# load the SimRVSequences library
+library(SimRVSequences)
+```
+
+
+We will demonstrate how to import vcf data using vcfR [add citation].
+
+```{r}
+# load the vcfR package
+library(vcfR)
+
+# set the file path of the vcf 
+# ***** MUST FIX *****
+# TODO: read from GitHub
+file_path <- "C:/Users/cnieuwoudt/Documents/GitHub/1000-Genomes-Exon-Data/Exon Data/exons_chr21.vcf.gz"
+#
+# library(curl)
+# download.file("https://github.com/cnieuwoudt/1000-Genomes-Exon-Data/raw/master/Exon Data/exons_chr21.vcf.gz", destfile = "/tmp/test.csv", method = "curl")
+
+# file path used for writing/testing for quick knit
+#file_path <- "C:/Data/chr21/ALL.chr21.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf/chr21.first.vcf"
+
+# import vcf file 
+vcf_chrom21 <- read.vcfR(file_path)
+
+# determine class of vcf_chrom21
+class(vcf_chrom21)
+
+# determine the structure of vcf_chrom21
+str(vcf_chrom21)
+```
+
+From the output above, we see that `vcf_chrom21` is an object of class `vcfR` with 3 slots.  The first slot `@meta` contains meta data (see section XX), the second slot `@fix` contains the fixed data (see section XX), and the slot `@gt` contians the genotype data (see section XX).  For additional information regarding objects of class `vcfR` execute `help("vcfR-class")` in the console.
+
+# Formatting Haplotype Data
+
+We now demonstrate how to convert the genotype data to haplotype data formatted as a sparse matrix.
+
+```{r}
+# View genotype data
+vcf_chrom21@gt[1:5, 1:5]
+```
+
+From the output above, we see that the first column in `vcf_chrom21@gt` does not contain genotype data, but rather a variable named `FORMAT`.  Following this variable, each column in `vcf_chrom21@gt` represents an individual identified by a unique character string, e.g. "HG00096".  Each row in `vcf_chrom21@gt` represents a mutation.
+
+```{r}
+# Store the genotype data and remove the variable named "FORMAT"
+genos <- vcf_chrom21@gt[, -1]
+
+# View the first 5 mutations (i.e. rows) for 
+# the first 3 individuals (i.e. columns)
+genos[1:5, 1:3]
+```
+
+To convert this genotype data to a sparseMatrix we supply the genotypes data to the `genos2sparseMatrix` function, which may be used to convert genotype data for diploid organisms.  To accomplish this, `genos2sparseMatrix` relies on the `Matrix` package [1], which is used to create sparse matries of class dgCMatrix.  
+
+```{r}
+# Convert to sparseMatrix
+Haplotypes <- genos2sparseMatrix(genotypes = genos)
+```
+
+We note that `genos2sparseMatrix` transposes the supplied data.  Thus, in the returned sparse matrix individuals are stored as rows and mutations are stored as columns. Additionally, since this is a diploid population, each individual will have two rows of data.  That is, the haplotype data for the first indivdiual in `genos`, named "HG00096", is stored in rows 1 and 2 of `Haplotypes`, the haplotype data for the second indivdiual in `genos`, named "HG00097", is stored in rows 3 and 4 of `Haplotypes`, and so on.
+
+```{r}
+# View haplotype data for the first 3 **diploid** individuals and first 5 mutations
+Haplotypes[1:6, 1:5]
+```
+
+From the output above we see that `Haplotypes` is a sparse matrix of class `dgCMatrix`.  Entries of `1` represent a mutated allele, while the wild type is represented as '`.`'.   For additional information regarding objects of class `dgCMatrix` execute `help("dgCMatrix-class")` in the console.
+
+# Formatting Mutation Data
+
+Fixed data contains information for each mutation in a vcf file.  We now demonstrate how to use the `vcfR2tidy` function to format the fixed data.
+
+```{r}
+# Extract and store the mutation data using vcfR2tidy
+#
+# NOTE: setting info_only = TRUE since we do not need 
+# to re-process the genotype data
+#
+# The argument "info_fields" specify which variables to include 
+# "info_types" indicates the respective variable type for each
+# "info_fields" variable.
+muts <- vcfR2tidy(vcf_chrom21, 
+                  info_only = TRUE,
+                  info_fields = c("AF", "AC", "NS", "AN",
+                                  "EAS_AF", "EUR_AF", "AFR_AF", 
+                                  "AMR_AF", "SAS_AF", "DP"),
+                  info_types = c(AF = "n", AC = "i", NS = "i", AN = "i",
+                                 EAS_AF = "n", EUR_AF = "n", AFR_AF = "n", 
+                                 AMR_AF = "n", SAS_AF = "n", DP = "i"))
+
+#determine the structure of muts
+str(muts)
+```
+
+```{r}
+#muts$meta contains variable descriptions for the INFO variables
+muts$meta
+```
+
+```{r}
+# store as dataframe and create colID variable to  
+# identify the column positon of the mutation
+# RECALL: mutations are columns and individuals are 
+# rows in the sparseMatrix "Haplotypes"
+Mutations <- as.data.frame(muts$fix)
+Mutations <- cbind(seq(1:dim(Haplotypes)[2]), Mutations)
+head(Mutations)
+``` 
+
+```{r}
+#rename columns for consistency with read_slim output
+#According to muts$meta the variable "AF" is the estimated allele freq,
+#i.e. the variable we previously named "afreq" in the Mutations output
+#returned by read_slim.
+colnames(Mutations)[c(1:3, 7)] = c("colID", "chrom", "position", "afreq")
+head(Mutations)
+```
+
+# Create an Object of Class `SNVdata`
+
+Objects of class `SNVdata` inherit from a `list` and contain the following items:
+
+1. The haplotype data; format: sparseMatrix
+2. The mutation data; format: dataframe
+3. (optional) sample data; format-free
+4. (optional) meta data; format-free
+
+```{r}
+#create SNVdata object for chromosome 22 without sample or meta data
+SNVdata_chrom22 <- SNVdata(Haplotypes = Haplotypes, 
+                           Mutations = Mutations)
+
+class(SNVdata_chrom22)
+
+summary(SNVdata_chrom22)
+```
+
+
+```{r}
+#create SNVdata for chromosome 22 with sample and meta data
+```
+
+
+# Import 1000 Genomes Exon Data with `import_SNVdata`
+
+The SNVdata objects for each chromosome are stored in the "Formatted-SNVdata" folder in the GitHub repository.
+
+The `import_SNVdata` function allows users to import formatted SNV data for each chromosome.  The `import_SNVdata` function has two arguments:
+
+  1. `chrom` A number or list of numbers that specify which non-sex chromosomes to import.
+  2. `pathway_df` (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with our `combine_exons` function.  For additional information regarding the `combine_exons` function please  execute `help(combine_exons)` in the console.*
+
+#### Import data for one chromosomes, chromosome 22
+```{r}
+#import SNV data for chromosome 22, and time
+a = Sys.time()
+EXdata = import_SNVdata(22)
+b = Sys.time()
+difftime(b, a, units = "secs")
+
+class(EXdata)
+summary(EXdata)
+
+#Note the size of "haplotypes"
+dim(EXdata$Haplotypes)
+```
+
+# References
+[1] Douglas Bates and Martin Maechler (2018). 
+  **Matrix: Sparse and Dense Matrix Classes and Methods**. 
+  *R package version 1.2-14*. https://CRAN.R-project.org/package=Matrix
