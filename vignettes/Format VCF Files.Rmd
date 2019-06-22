@@ -1,5 +1,5 @@
 ---
-title: "Formatting vcf Files for SimRVSequences"
+title: "Format VCF Files"
 author: "Christina Nieuwoudt, Wendy Wang, Brad McNeney, and Jinko Graham"
 date: "`r Sys.Date()`"
 output:
