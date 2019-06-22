@@ -28,8 +28,8 @@ test_that("Warning: some pedigrees do not contain affecteds and affected_only = 
 
 
   expect_warning(sim_RVstudy(ped_files = red_peds,
-                             SNV_map = EXmuts,
-                             haplos = EXhaps))
+                             SNV_data = SNVdata(Haplotypes = EXhaps,
+                                                Mutations = EXmuts)))
 })
 
 
@@ -39,15 +39,15 @@ test_that("Error: pedigrees do not contain any affecteds and affected_only = TRU
   red_peds$affected = FALSE
 
   expect_error(sim_RVstudy(ped_files = red_peds,
-                             SNV_map = EXmuts,
-                             haplos = EXhaps))
+                           SNV_data = SNVdata(Haplotypes = EXhaps,
+                                              Mutations = EXmuts)))
 })
 
 test_that("Warning if is_CRV is missing from SNV_map", {
 
   expect_warning(sim_RVstudy(ped_files = study_peds,
-                             SNV_map = toy_muts[, -5],
-                             haplos = toy_haps,
+                             SNV_data = SNVdata(Haplotypes = toy_haps,
+                                                Mutations = toy_muts[, -5]),
                              remove_wild = FALSE,
                              affected_only = TRUE))
 })
@@ -55,8 +55,8 @@ test_that("Warning if is_CRV is missing from SNV_map", {
 test_that("Error: nrow(SNV_map) != ncol(haplos)", {
 
   expect_error(sim_RVstudy(ped_files = study_peds,
-                           SNV_map = EXmuts[-1, ],
-                           haplos = EXhaps))
+                           SNV_data = SNVdata(Haplotypes = EXhaps,
+                                              Mutations = EXmuts[-1, ])))
 })
 
 test_that("Error if mutiple RV founders in pedigree", {
@@ -72,8 +72,8 @@ test_that("Error if mutiple RV founders in pedigree", {
   red_peds$DA1[sample(founder_locs, size = 3)] <- 1
 
   expect_error(sim_RVstudy(ped_files = red_peds,
-                           SNV_map = toy_muts,
-                           haplos = toy_haps,
+                           SNV_data = SNVdata(Haplotypes = toy_haps,
+                                              Mutations = toy_muts),
                            remove_wild = FALSE,
                            affected_only = TRUE))
 })
@@ -94,8 +94,8 @@ test_that("Error if de novo mutations detected", {
   red_peds$DA2[de_novo_subject] <- 1
 
   expect_error(sim_RVstudy(ped_files = red_peds,
-                           SNV_map = toy_muts,
-                           haplos = toy_haps,
+                           SNV_data = SNVdata(Haplotypes = toy_haps,
+                                              Mutations = toy_muts),
                            remove_wild = FALSE,
                            affected_only = FALSE))
 })
@@ -119,8 +119,8 @@ toy_muts$afreq <- round(runif(10, min = 0, max = 0.005), digits = 6)
 test_that("rows of haplo_map are equal to rows ped_haplos", {
 
   study_seq <- sim_RVstudy(ped_files = study_peds,
-                           SNV_map = toy_muts,
-                           haplos = toy_haps,
+                           SNV_data = SNVdata(Haplotypes = toy_haps,
+                                              Mutations = toy_muts),
                            remove_wild = FALSE,
                            affected_only = TRUE)
 
@@ -147,8 +147,8 @@ test_that("sproadic families to do carry ANY crvs in pool", {
 
   #simulate sequence data for study
   study_seq <- sim_RVstudy(ped_files = sp_peds,
-                           SNV_map = toy_muts2,
-                           haplos = toy_haps,
+                           SNV_data = SNVdata(Haplotypes = toy_haps,
+                                              Mutations = toy_muts2),
                            remove_wild = FALSE,
                            affected_only = TRUE)
 
@@ -174,8 +174,8 @@ test_that("affecteds from genetic families carry the correct number of cRVs at f
 
   #simulate sequence data for study
   study_seq <- sim_RVstudy(ped_files = study_peds[study_peds$FamID == test_fam, ],
-                           SNV_map = toy_muts2,
-                           haplos = toy_haps,
+                           SNV_data = SNVdata(Haplotypes = toy_haps,
+                                              Mutations = toy_muts2),
                            remove_wild = FALSE,
                            affected_only = TRUE)
 

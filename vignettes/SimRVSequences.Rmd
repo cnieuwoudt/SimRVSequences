@@ -358,9 +358,14 @@ Assuming readers have followed the steps outlined in sections 3 and 4, we may ex
 ```{r}
 set.seed(11956)
 # simulate SNV data using sim_RVstudy
+# study_seq <- sim_RVstudy(ped_files = study_peds, 
+#                          SNV_map = EXmuts,
+#                          haplos = EXhaps)
+
 study_seq <- sim_RVstudy(ped_files = study_peds, 
-                         SNV_map = EXmuts,
-                         haplos = EXhaps)
+                         SNV_data = SNVdata(Haplotypes = EXhaps,
+                                            Mutations = EXmuts))
+
 
 # determine the class of study seq
 class(study_seq)

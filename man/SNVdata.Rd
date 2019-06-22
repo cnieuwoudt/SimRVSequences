@@ -4,10 +4,16 @@
 \alias{SNVdata}
 \title{Constructor function for an object of class famStudy}
 \usage{
-SNVdata(SNV_data)
+SNVdata(Haplotypes, Mutations, Samples = NULL, MetaData = NULL)
 }
 \arguments{
-\item{SNV_data}{The list of items returned by the \code{read_slim} and \code{import_exons} function.}
+\item{Haplotypes}{sparseMatrix. A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.  Rows are assumed to be haplotypes, while columns represent SNVs.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, users may supply the sparse matrix \code{Haplotypes} returned by \code{read_slim}.}
+
+\item{Mutations}{Data frame. A data frame that catalogs the SNVs in \code{haplos}.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, the data frame \code{Mutations} is of the proper format for \code{SNV_map}.  However, users must add the variable \code{is_CRV} to this data frame, see details.}
+
+\item{Samples}{Format-free.  Describe me...}
+
+\item{MetaData}{Format-free.  Describe me...}
 }
 \value{
 an object of class \code{SNVdata}.

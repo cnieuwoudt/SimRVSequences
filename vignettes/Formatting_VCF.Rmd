@@ -167,7 +167,7 @@ Objects of class `SNVdata` inherit from a `list` and contain the following items
 
 ```{r}
 #create SNVdata object for chromosome 22 without sample or meta data
-SNVdata_chrom22 <- SNVdata(list(Haplotypes = Haplotypes, Mutations = Mutations))
+SNVdata_chrom22 <- SNVdata(Haplotypes = Haplotypes, Mutations = Mutations)
 
 class(SNVdata_chrom22)
 

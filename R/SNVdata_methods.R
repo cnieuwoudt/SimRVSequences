@@ -1,10 +1,31 @@
 #' Constructor function for an object of class famStudy
 #'
-#' @param SNV_data The list of items returned by the \code{read_slim} and \code{import_exons} function.
+#' @param Haplotypes sparseMatrix. A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.  Rows are assumed to be haplotypes, while columns represent SNVs.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, users may supply the sparse matrix \code{Haplotypes} returned by \code{read_slim}.
+#' @param Mutations Data frame. A data frame that catalogs the SNVs in \code{haplos}.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, the data frame \code{Mutations} is of the proper format for \code{SNV_map}.  However, users must add the variable \code{is_CRV} to this data frame, see details.
+#' @param Samples Format-free.  Describe me...
+#' @param MetaData Format-free.  Describe me...
 #'
 #' @return an object of class \code{SNVdata}.
 #' @export
-SNVdata <- function(SNV_data) {
+SNVdata <- function(Haplotypes, Mutations, Samples = NULL, MetaData = NULL) {
+
+  #check SNV_map for possible issues
+  check_SNV_map(Mutations)
+
+  if (!"marker" %in% colnames(Mutations)) {
+    Mutations$marker <- make.unique(paste0(Mutations$chrom, sep = "_", Mutations$position))
+  }
+
+  if (nrow(Mutations) != ncol(Haplotypes)) {
+    stop("\n nrow(Mutations) != ncol(Haplotypes). \n Mutations must catalog every SNV in Haplotypes.")
+  }
+
+
+
+  #create list containing all relavant of SNVdata information
+  SNV_data = list(Haplotypes = Haplotypes, Mutations = Mutations,
+                  Samples = Samples, MetaData = MetaData)
+
   class(SNV_data) <- c("SNVdata", class(SNV_data))
   return(SNV_data)
 }
@@ -15,7 +36,7 @@ SNVdata <- function(SNV_data) {
 #'
 #' @return Logical. Indicates if \code{x} is of class \code{ped}.
 #'
-#' @export
+#' @keywords internal
 is.SNVdata <- function(x) {
   return(inherits(x, "SNVdata"))
 }
@@ -75,6 +96,5 @@ import_SNVdata <- function(chrom, pathway_df = NULL){
                                       pathwayDF = pathway_df)
   }
 
-
-  return(SNVdata(list(Haplotypes = Haplotypes, Mutations = Mutations)))
+  return(SNVdata(Haplotypes = Haplotypes, Mutations = Mutations))
 }

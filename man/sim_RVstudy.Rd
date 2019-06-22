@@ -4,16 +4,14 @@
 \alias{sim_RVstudy}
 \title{Simulate sequence data for a sample of pedigrees}
 \usage{
-sim_RVstudy(ped_files, haplos, SNV_map, affected_only = TRUE,
-  remove_wild = TRUE, pos_in_bp = TRUE, gamma_params = c(2.63, 2.63/0.5),
-  burn_in = 1000)
+sim_RVstudy(ped_files, SNV_data, affected_only = TRUE, remove_wild = TRUE,
+  pos_in_bp = TRUE, gamma_params = c(2.63, 2.63/0.5), burn_in = 1000,
+  SNV_map = NULL, haplos = NULL)
 }
 \arguments{
 \item{ped_files}{Data frame. A data frame of pedigrees for which to simulate sequence data, see details.}
 
-\item{haplos}{sparseMatrix. A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.  Rows are assumed to be haplotypes, while columns represent SNVs.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, users may supply the sparse matrix \code{Haplotypes} returned by \code{read_slim}.}
-
-\item{SNV_map}{Data frame. A data frame that catalogs the SNVs in \code{haplos}.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, the data frame \code{Mutations} is of the proper format for \code{SNV_map}.  However, users must add the variable \code{is_CRV} to this data frame, see details.}
+\item{SNV_data}{SNVdata. An object of class \code{SNVdata} created by \code{\link{SNVdata}}.}
 
 \item{affected_only}{Logical. When \code{affected_only = TRUE}, we only simulate SNV data for the disease-affected individuals and the family members that connect them along a line of descent.  When \code{affected_only = FALSE}, SNV data is simulated for the entire study. By default, \code{affected_only = TRUE}.}
 
@@ -25,6 +23,10 @@ sim_RVstudy(ped_files, haplos, SNV_map, affected_only = TRUE,
 
 \item{burn_in}{Numeric. The "burn-in" distance in centiMorgan, as defined by Voorrips and Maliepaard (2012), which is required before simulating the location of the first chiasmata with interference. By default, \code{burn_in = 1000}.
 The burn in distance in cM. By default, \code{burn_in = 1000}.}
+
+\item{SNV_map}{This argument has been deprecated. Users now supply objects of class \code{SNVdata} to argument \code{SNV_data}.}
+
+\item{haplos}{This argument has been deprecated. Users now supply objects of class \code{SNVdata} to argument \code{SNV_data}.}
 }
 \value{
 A object of class \code{famStudy}.  Objects of class \code{famStudy} are lists that include the following named items:
@@ -101,10 +103,13 @@ data(EXhaps)
 EXmuts$is_CRV = FALSE
 EXmuts$is_CRV[c(26, 139, 223, 228, 472)] = TRUE
 
+# create object of class SNVdata
+my_SNVdata <- SNVdata(Haplotypes = EXhaps,
+                      Mutations = EXmuts)
+
 #supply required inputs to the sim_RVstudy function
 seqDat = sim_RVstudy(ped_files = study_peds,
-                     SNV_map = EXmuts,
-                     haplos = EXhaps)
+                     SNV_data = my_SNVdata)
 
 
 # Inbreeding examples
@@ -120,8 +125,7 @@ plot(imb_ped1)
 
 # Notice that this instance of inbreeding can be accommodated by our model.
 seqDat = sim_RVstudy(ped_files = imb_ped1,
-                     SNV_map = EXmuts,
-                     haplos = EXhaps)
+                     SNV_data = my_SNVdata)
 
 # Create different type of inbreeding in family 1 of study_peds
 imb_ped2 <- study_peds[study_peds$FamID == 3, ]
@@ -132,8 +136,7 @@ plot(imb_ped2)
 # error when the sim_RVstudy function is executed
 \dontrun{
 seqDat = sim_RVstudy(ped_files = imb_ped2,
-                     SNV_map = EXmuts,
-                     haplos = EXhaps)
+                     SNV_data = my_SNVdata)
 }
 
 }
