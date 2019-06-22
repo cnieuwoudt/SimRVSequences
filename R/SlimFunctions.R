@@ -187,7 +187,8 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #'
 #' When \code{TRUE}, the logical argument \code{recode_recurrent} indicates that recurrent SNVs should be recorded as a single observation.  SLiM can model many types of mutations; e.g. neutral, beneficial, and deleterious mutations.  When different types of mutations occur at the same position carriers will experience different fitness effects depending on the carried mutation.  However, when mutations at the same location have the same fitness effects, they represent a recurrent mutation.  Even so, SLiM stores recurrent mutations separately and calculates their prevalence independently.  When the argument \code{recode_recurrent = TRUE} we store recurrent mutations as a single observation and calculate the derived allele frequency based on their combined prevalence.  This convention allows for both reduction in storage and correct estimation of the derived allele frequency of the mutation.  Users who prefer to store recurrent mutations from independent lineages as unique entries should set \code{recode_recurrent = FALSE}.
 #'
-#' The \code{read_slim} function returns a list containing two items:
+#'An object of class \code{\link{SNVdata}}, which inherits from a \code{list} and contains:
+#' The \code{read_slim} function returns an object of class \code{\link{SNVdata}}, which inherits from a \code{list} and contains the following two items:
 #' \enumerate{
 #' \item \code{Haplotypes} A sparse matrix of class dgCMatrix (see \code{\link{dgCMatrix-class}}). The columns in {Haplotypes} represent distinct SNVs, while the rows represent individual haplotypes. We note that this matrix contains two rows of data for each diploid individual in the population: one row for the maternally ihnherited haplotype and the other for the paternally inherited haplotype.
 #' \item \code{Mutations} A data frame cataloging SNVs in \code{Haplotypes}. The variables in the \code{Mutations} data set are described as follows:
@@ -208,7 +209,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' @param pathway_df data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  See details.
 #' @param recode_recurrent logical. When \code{TRUE} recurrent SNVs are cataloged a single observation;  by default, \code{recode_recurrent = TRUE}. See details.
 #'
-#' @return  A list containing:
+#' @return  An object of class \code{\link{SNVdata}}, which inherits from a \code{list} and contains:
 #' @return \item{\code{Haplotypes} }{A sparse matrix of haplotypes. See details.}
 #' @return \item{\code{Mutations}}{A data frame cataloging SNVs in \code{Haplotypes}. See details.}
 #' @importFrom Matrix sparseMatrix
@@ -231,10 +232,12 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' 'https://raw.githubusercontent.com/cnieuwoudt/Example--SLiMSim/master/example_SLIMout.txt'
 #' s_out <- read_slim(file_url)
 #'
-#' summary(s_out)
+#' class(s_out)
+#' str(s_out)
 #'
 #'
-#' # As seen above, read_slim returns two items.  The first is a sparse matrix
+#' # As seen above, read_slim returns an object of class SNVdata,
+#' # which  contians two items.  The first is a sparse matrix
 #' # named Haplotypes, which contains the haplotypes for each indiviual in the
 #' # simulation.  The second item is a data set named Mutations, which catalogs
 #' # the mutations in the Haplotypes matrix.
@@ -244,6 +247,8 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #'
 #' # view the first 20 mutations on the first 10 haplotypes
 #' s_out$Haplotypes[1:10, 1:20]
+#'
+#'
 read_slim <- function(file_path,
                       keep_maf = 0.01,
                       recomb_map = NULL,
@@ -445,7 +450,7 @@ read_slim <- function(file_path,
   }
 
 
-  return(list(Haplotypes = GenoData, Mutations = RareMutData))
+  return(SNVdata(Haplotypes = GenoData, Mutations = RareMutData))
 }
 
 
