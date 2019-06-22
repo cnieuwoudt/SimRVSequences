@@ -3,8 +3,12 @@ library(Matrix)
 library(vcfR)
 
 
+urlfile <- 'https://raw.github.com/cnieuwoudt/1000-Genomes-Exon-Data/master/Exon%20Data/20130606_sample_info.xlsx'
+dsin <- read.csv(urlfile)
+
+
 #set the chromosome number of the exon data to import
-chrom_num = 20
+chrom_num = 22
 
 
 file_path = paste0("C:/Users/cnieuwoudt/Documents/GitHub/1000-Genomes-Exon-Data/Exon Data/exons_chr",
@@ -69,6 +73,10 @@ unique(Mutations$EX_TARGET)
 colnames(Mutations)[c(1:3, 7)] = c("colID", "chrom", "position", "afreq")
 head(Mutations)
 
+#Chrom must be a numeric variable.
+#Convert chrom to numeric
+Mutations$chrom <- as.numeric(Mutations$chrom)
+
 #How rare are the SNVs in the exported exon data?
 nrow(Mutations)
 length(which(Mutations$afreq <= 0.01))
@@ -89,14 +97,14 @@ assign(object_name,
        SNVdata(list(Haplotypes = Haplotypes, Mutations = Mutations)))
 
 #store the formatted SNVdata object in the "Formatted SNVdata" folder
-save(SNVdata_chrom20,
+save(SNVdata_chrom22,
      file = paste0("C:/Users/cnieuwoudt/Documents/GitHub/1000-Genomes-Exon-Data/Formatted-SNVdata/SNVdata_chrom", chrom_num, ".rda", sep = ""))
 
 # remove(SNVdata_chrom3)
 #
 # #load the data from my computer, with a new name, to see if format was preserved
 # load(file = paste0("C:/Users/cnieuwoudt/Documents/GitHub/1000-Genomes-Exon-Data/Formatted SNVdata/SNVdata_chrom", chrom_num, ".rda", sep = ""))
-#
-#
+
+
 # #load SNVdata from github repository
 # load(url(paste0("https://github.com/cnieuwoudt/1000-Genomes-Exon-Data/raw/master/Formatted-SNVdata/SNVdata_chrom", chrom_num, ".rda", sep = "")))
