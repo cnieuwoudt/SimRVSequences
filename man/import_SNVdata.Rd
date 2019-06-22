@@ -4,16 +4,21 @@
 \alias{import_SNVdata}
 \title{Import 1000 genomes exon data formatted for sim_RVstudy}
 \usage{
-import_SNVdata(chrom)
+import_SNVdata(chrom, pathway_df = NULL)
 }
 \arguments{
-\item{chrom}{The chromosome number.  Can be a numeric list of chromosome numbers or a character argument set to \code{"ALL"} if data from all chromosomes should be imported.}
+\item{chrom}{Numeric.  The chromosome number(s).  A numeric list of chromosome numbers representing the 1000 genomes exon-data to be imported.}
+
+\item{pathway_df}{Data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`. See Details.}
 }
 \value{
 An object of class \code{SNVdata} or a list of objects of class \code{SNVdata}, i.e. one for each chomosome that was imported.
 }
 \description{
 Import 1000 genomes exon data formatted for sim_RVstudy
+}
+\details{
+We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with our `combine_exons` function.  For additional information regarding the `combine_exons` function please  execute `help(combine_exons)` in the console.
 }
 \examples{
 exdata = import_SNVdata(21)

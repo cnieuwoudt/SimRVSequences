@@ -22,7 +22,12 @@ is.SNVdata <- function(x) {
 
 #' Import 1000 genomes exon data formatted for sim_RVstudy
 #'
-#' @param chrom The chromosome number.  Can be a numeric list of chromosome numbers or a character argument set to \code{"ALL"} if data from all chromosomes should be imported.
+#' Import 1000 genomes exon data formatted for sim_RVstudy
+#'
+#' We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with our `combine_exons` function.  For additional information regarding the `combine_exons` function please  execute `help(combine_exons)` in the console.
+#'
+#' @param chrom Numeric.  The chromosome number(s).  A numeric list of chromosome numbers representing the 1000 genomes exon-data to be imported.
+#' @param pathway_df Data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`. See Details.
 #'
 #' @return An object of class \code{SNVdata} or a list of objects of class \code{SNVdata}, i.e. one for each chomosome that was imported.
 #' @export
@@ -32,13 +37,11 @@ is.SNVdata <- function(x) {
 #'
 #' head(exdata$Mutations)
 #' exdata$Haplotypes[1:20, 1:10]
-import_SNVdata <- function(chrom){
+import_SNVdata <- function(chrom, pathway_df = NULL){
 
-  if (any(chrom == 0)){
-    chrom = seq(1:22)
-  } else if (!(class(chrom) %in% c("numeric", "integer"))){
-    stop("\n chrom must be a numeric list of chromosome numbers.\n
-           Note if chrom = 0, all autosomes are imported (i.e. chroms 1 - 22 )")
+  if (any(!chrom %in% seq(1:22))){
+    stop("\n We expect 'chrom' to be a numeric list of automosome numbers.\n
+           Note: We do not provide sex chromosomes (i.e. chromosomes X and Y)")
   }
 
   #store the object names for the imported data by chromosome number
@@ -62,6 +65,16 @@ import_SNVdata <- function(chrom){
     Haplotypes <- chrom_dat[[1]]$Haplotypes
     Mutations <- chrom_dat[[1]]$Mutations
   }
+
+  #----------------------#
+  # Identify Pathway RVs #
+  #----------------------#
+  #if pathway data has been supplied, identify pathway SNVs
+  if (!is.null(pathway_df)) {
+    Mutations <- identify_pathwaySNVs(markerDF = Mutations,
+                                      pathwayDF = pathway_df)
+  }
+
 
   return(SNVdata(list(Haplotypes = Haplotypes, Mutations = Mutations)))
 }
