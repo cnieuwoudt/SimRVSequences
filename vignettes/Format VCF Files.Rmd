@@ -8,7 +8,7 @@ output:
     toc: yes
     toc_depth: 3
 vignette: |
-  %\VignetteIndexEntry{Vignette Title} 
+  %\VignetteIndexEntry{Format VCF Files} 
   %\VignetteEngine{knitr::rmarkdown} 
   %\VignetteEncoding{UTF-8}{inputenc}
 ---

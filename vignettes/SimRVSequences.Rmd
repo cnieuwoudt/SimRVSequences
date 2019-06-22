@@ -8,7 +8,7 @@ output:
     toc: yes
     toc_depth: 3
 vignette: |
-  %\VignetteIndexEntry{Vignette Title} 
+  %\VignetteIndexEntry{SimRVSequences} 
   %\VignetteEngine{knitr::rmarkdown} 
   %\VignetteEncoding{UTF-8}{inputenc}
 ---
@@ -342,6 +342,7 @@ Simulating SNV data for a sample of ascertained pedigrees is achieved with our `
 Required Arguments:
 
 1. `ped_files` A data frame of pedigrees.  This data frame must contain the variables:  `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.  If `DA1` and `DA2` are not provided we assume the pedigrees are fully sporadic.  See section 4 for additional details regarding these variables.
+2. `SNV_data` An object of class `SNVdata`.
 2. `haplos` A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.  Rows are assumed to be haplotypes, while columns represent SNVs.  If `read_slim` was used to import data, users may supply the sparse matrix `Haplotypes` returned by `read_slim`.
 3. `SNV_map` The rows of the data frame `SNV_map` provide information on the SNVs in `haplos.`  If `read_slim` was used to import data, the data frame `Mutations` returned by this function is of the proper format for `SNV_map` (see section 3.2).  We note that users must add the variable `is_CRV` to this data frame, as discussed in section 3.3.
 
