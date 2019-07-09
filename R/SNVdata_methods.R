@@ -1,13 +1,12 @@
 #' Constructor function for an object of class famStudy
 #'
-#' @param Haplotypes sparseMatrix. A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.  Rows are assumed to be haplotypes, while columns represent SNVs.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, users may supply the sparse matrix \code{Haplotypes} returned by \code{read_slim}.
-#' @param Mutations Data frame. A data frame that catalogs the SNVs in \code{haplos}.  If the \code{\link{read_slim}} function was used to import SLiM data to \code{R}, the data frame \code{Mutations} is of the proper format for \code{SNV_map}.  However, users must add the variable \code{is_CRV} to this data frame, see details.
-#' @param Samples Format-free.  Describe me...
-#' @param MetaData Format-free.  Describe me...
+#' @param Haplotypes sparseMatrix. A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.  Rows are assumed to be haplotypes, while columns represent SNVs.
+#' @param Mutations Data frame. A data frame that catalogs the SNVs in \code{Haplotypes}.
+#' @param Samples A dataframe or matrix describing the individuals in \code{Haplotypes}.
 #'
 #' @return an object of class \code{SNVdata}.
 #' @export
-SNVdata <- function(Haplotypes, Mutations, Samples = NULL, MetaData = NULL) {
+SNVdata <- function(Haplotypes, Mutations, Samples = NULL) {
 
   #check SNV_map for possible issues
   check_SNV_map(Mutations)
@@ -23,8 +22,9 @@ SNVdata <- function(Haplotypes, Mutations, Samples = NULL, MetaData = NULL) {
 
 
   #create list containing all relavant of SNVdata information
-  SNV_data = list(Haplotypes = Haplotypes, Mutations = Mutations,
-                  Samples = Samples, MetaData = MetaData)
+  SNV_data = list(Haplotypes = Haplotypes,
+                  Mutations = Mutations,
+                  Samples = Samples)
 
   class(SNV_data) <- c("SNVdata", class(SNV_data))
   return(SNV_data)
@@ -54,15 +54,17 @@ is.SNVdata <- function(x) {
 #' @export
 #'
 #' @examples
-#' exdata = import_SNVdata(21)
+#' exdata = import_SNVdata(21:22)
+#' unique(exdata$Mutations$chrom)
 #'
 #' head(exdata$Mutations)
 #' exdata$Haplotypes[1:20, 1:10]
+#' head(exdata$Samples)
 import_SNVdata <- function(chrom, pathway_df = NULL){
 
   if (any(!chrom %in% seq(1:22))){
-    stop("\n We expect 'chrom' to be a numeric list of automosome numbers.\n
-           Note: We do not provide sex chromosomes (i.e. chromosomes X and Y)")
+    stop("\n We expect 'chrom' to be a numeric list of automosomes.
+        Note: We do not provide sex chromosomes (i.e. chromosomes X and Y)")
   }
 
   #store the object names for the imported data by chromosome number
@@ -82,10 +84,16 @@ import_SNVdata <- function(chrom, pathway_df = NULL){
     #combine the data from the different chromosomes, for ease of use
     Haplotypes <- do.call(cbind, lapply(chrom_dat, `[[`, 1))
     Mutations <- do.call(rbind, lapply(chrom_dat, `[[`, 2))
+    #reformat colID
+    Mutations$colID <- c(1:dim(Haplotypes)[2])
   } else {
     Haplotypes <- chrom_dat[[1]]$Haplotypes
     Mutations <- chrom_dat[[1]]$Mutations
   }
+
+  #import sample data from GitHub
+  SampleData <- read.csv(url("https://github.com/cnieuwoudt/1000-Genomes-Exon-Data/raw/master/Formatted-SNVdata/SampleData.csv"),
+                         stringsAsFactors = FALSE)
 
   #----------------------#
   # Identify Pathway RVs #
@@ -96,5 +104,5 @@ import_SNVdata <- function(chrom, pathway_df = NULL){
                                       pathwayDF = pathway_df)
   }
 
-  return(SNVdata(Haplotypes = Haplotypes, Mutations = Mutations))
+  return(SNVdata(Haplotypes = Haplotypes, Mutations = Mutations, Samples = SampleData))
 }

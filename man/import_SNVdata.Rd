@@ -21,8 +21,10 @@ Import 1000 genomes exon data formatted for sim_RVstudy
 We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with our `combine_exons` function.  For additional information regarding the `combine_exons` function please  execute `help(combine_exons)` in the console.
 }
 \examples{
-exdata = import_SNVdata(21)
+exdata = import_SNVdata(21:22)
+unique(exdata$Mutations$chrom)
 
 head(exdata$Mutations)
 exdata$Haplotypes[1:20, 1:10]
+head(exdata$Samples)
 }
