@@ -2,10 +2,9 @@ library(SimRVSequences)
 library(Matrix)
 library(vcfR)
 
-
-urlfile <- 'https://raw.github.com/cnieuwoudt/1000-Genomes-Exon-Data/master/Exon%20Data/20130606_sample_info.xlsx'
-dsin <- read.csv(urlfile)
-
+#import Sample Data
+#These are the individuals we have sampled who are unrelated
+SampleData <- read.csv("~/GitHub/1000-Genomes-Exon-Data/Formatted-SNVdata/SampleData.csv", stringsAsFactors=FALSE)
 
 #set the chromosome number of the exon data to import
 chrom_num = 22
@@ -24,9 +23,15 @@ vcf <- read.vcfR(file_path)
 #NOTE: removing the first column since it does not hold genotype data
 genotypes <- vcf@gt[, -1]
 
+#reduce the genotypes to contain only the individuals we are retaining
+#NOTE: people are columns.
+genotypes <- genotypes[, which(colnames(genotypes) %in% SampleData$Sample)]
+dim(genotypes)
+
 #convert genotypes to sparseMatrix format
 Haplotypes <- genos2sparseMatrix(genotypes)
-#dim(Haplotypes)
+dim(Haplotypes)
+Haplotypes[1:10, 1:10]
 
 #------------------------------#
 # extract and format Mutations #
@@ -63,7 +68,6 @@ head(Mutations)
 #VT indicates what type of variant the line represents
 unique(Mutations$VT)
 unique(Mutations$FILTER)
-unique(Mutations$EX_TARGET)
 
 
 #rename columns for consistency with read_slim output
@@ -87,20 +91,23 @@ length(which(Mutations$afreq <= 0.01))/nrow(Mutations)
 
 #Do we have data for every person, i.e. no missing values for any mutation
 unique(Mutations$NS)  #GOOD! no missing values
+unique(Mutations$AN)  #GOOD! no missing values
 
+head(Mutations)
+Mutations <- Mutations[, c(1:5, 7:15, 17)]
 
 #Assign object name based on chromosoem number
 object_name <- paste0("SNVdata_chrom", chrom_num, sep = "")
 
 #assign name based on chromosome number
 assign(object_name,
-       SNVdata(list(Haplotypes = Haplotypes, Mutations = Mutations)))
+       SNVdata(Haplotypes = Haplotypes, Mutations = Mutations))
 
 #store the formatted SNVdata object in the "Formatted SNVdata" folder
 save(SNVdata_chrom22,
      file = paste0("C:/Users/cnieuwoudt/Documents/GitHub/1000-Genomes-Exon-Data/Formatted-SNVdata/SNVdata_chrom", chrom_num, ".rda", sep = ""))
 
-# remove(SNVdata_chrom3)
+# remove(SNVdata_chrom9)
 #
 # #load the data from my computer, with a new name, to see if format was preserved
 # load(file = paste0("C:/Users/cnieuwoudt/Documents/GitHub/1000-Genomes-Exon-Data/Formatted SNVdata/SNVdata_chrom", chrom_num, ".rda", sep = ""))
