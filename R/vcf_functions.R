@@ -59,5 +59,7 @@ genos2sparseMatrix <- function(genotypes){
                             j = unlist(lapply(index_by_person, `[[`, 2)),
                             x = rep(1, length(unlist(lapply(index_by_person, `[[`, 1)))))
 
+  row.names(SM_format) = rep(colnames(genotypes), each = 2)
+
   return(SM_format)
 }
