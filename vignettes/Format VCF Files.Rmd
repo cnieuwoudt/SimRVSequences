@@ -89,6 +89,7 @@ vcf_chrom21@gt[1:4, "HG00096"]
 
 From the output above, we see that for the first three SNPs in the genotypes data the individual with ID "HG00096"" is homozygous for the reference allele, i.e. "0|0".  However, for the fourth SNP we see that this individual is heterozygous for the alternate allele, i.e. "0|1".  We note that since this data has been phased the genotype "0|1" indicates that the individual inherited the reference allele, "0", from his or her father and the alternate allele, "1", from his or her mother.
 
+
 ```{r}
 # Remove the variable named "FORMAT"
 # and store the resulting data as genos 
@@ -99,7 +100,7 @@ genos <- vcf_chrom21@gt[, -1]
 genos[1:5, 1:3]
 ```
 
-To convert this genotype data to a sparseMatrix we supply the genotypes data to the `genos2sparseMatrix` function, which is included in the `SimRVSequences` package. This function may be used to convert phased genotype data for diplod organisms into a sparse matrix. We note that this conversion makes use of the methods provided with the `Matrix` package [1].  
+To convert this genotype data to a sparseMatrix we supply the genotypes data to the `genos2sparseMatrix` function, which is included in the `SimRVSequences` package. This function may be used to convert phased genotype data for diplod organisms into a sparse matrix. We note that this conversion makes use of the methods provided with the `Matrix` package [1]. 
 
 ```{r}
 # load the SimRVSequences library
