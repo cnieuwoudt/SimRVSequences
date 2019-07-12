@@ -122,7 +122,7 @@ From the output above we see that `Haplotypes` is a sparse matrix of class `dgCM
 
 # Format Mutation Data
 
-In addition to genotype data vcf files also contain fixed data.  Fixed data describes the SNPs in the genotype data. 
+We now demonstrate how to manipulate the fixed data contained in the `vcfR` object.  Recall, that the fixed data is stored in the `@fix` slot of the `vcfR` object and is used to describe the SNPs in the genotype data. 
 
 ```{r}
 # View the first five rows of the fixed data
@@ -140,9 +140,9 @@ From the output above, we see that the fixed data contains several variables. Ac
 7. `FILTER` indicates whether or not the site has passed all filters.  When passing all filters `FILTER = PASS`, otherwise `FILTER` is charater string which contains all non-passing filters.
 8. `INFO` contains additional information for each SNP.  Each variable in filter is separated by a semicolon.
 
-For more information on the variables contained in `INFO` we may refer to the metadata in the vcf object.
+Additional information for the variables contained in `INFO` is contained in the metadata for the vcf object.  Recall that meta data in `vcfR` objects is stored in the `@meta` slot.
 ```{r}
-# View the first five rows of the fixed data
+# View the meta data
 vcf_chrom21@meta
 ```
 
