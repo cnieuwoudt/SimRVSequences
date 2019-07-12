@@ -1,5 +1,5 @@
 ---
-title: "Objects of Class SNVdata"
+title: "Format VCF Files"
 author: "Christina Nieuwoudt, Wendy Wang, Brad McNeney, and Jinko Graham"
 date: "`r Sys.Date()`"
 output:
@@ -8,7 +8,7 @@ output:
     toc: yes
     toc_depth: 3
 vignette: |
-  %\VignetteIndexEntry{Objects of Class SNVdata} 
+  %\VignetteIndexEntry{Format VCF Files} 
   %\VignetteEngine{knitr::rmarkdown} 
   %\VignetteEncoding{UTF-8}{inputenc}
 ---
