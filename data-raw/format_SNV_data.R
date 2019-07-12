@@ -107,6 +107,10 @@ assign(object_name,
 save(SNVdata_chrom22,
      file = paste0("C:/Users/cnieuwoudt/Documents/GitHub/1000-Genomes-Exon-Data/Formatted-SNVdata/SNVdata_chrom", chrom_num, ".rda", sep = ""))
 
+# #store the formatted SNVdata object in the "Formatted SNVdata" folder
+# save(vcf_chrom21,
+#      file = paste0("C:/Users/cnieuwoudt/Documents/GitHub/1000-Genomes-Exon-Data/Formatted-SNVdata/vcf_chrom", chrom_num, ".rda", sep = ""))
+
 # remove(SNVdata_chrom9)
 #
 # #load the data from my computer, with a new name, to see if format was preserved
