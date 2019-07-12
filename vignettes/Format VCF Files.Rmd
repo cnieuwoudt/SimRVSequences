@@ -1,5 +1,5 @@
 ---
-title: "Format VCF Files"
+title: "Objects of Class SNVdata"
 author: "Christina Nieuwoudt, Wendy Wang, Brad McNeney, and Jinko Graham"
 date: "`r Sys.Date()`"
 output:
@@ -8,7 +8,7 @@ output:
     toc: yes
     toc_depth: 3
 vignette: |
-  %\VignetteIndexEntry{Format VCF Files} 
+  %\VignetteIndexEntry{Objects of Class SNVdata} 
   %\VignetteEngine{knitr::rmarkdown} 
   %\VignetteEncoding{UTF-8}{inputenc}
 ---
@@ -21,6 +21,13 @@ body{ /* Normal  */
 </style>
 
 # Introduction
+
+In this vignette we demonstrate how users may:
+
+1. import pre-formatted `SNVdata` objects using the `import_SNVdata` function, or
+2. re-format data from vcf files to objects of class `SNVdata`.
+
+
 
 ADD INTRODUCTION
 
@@ -50,7 +57,7 @@ In this vignette we will illustrate how users may format exon data for chromosom
 Importing vcf data using vcfR package [2] is accomplished with the `read.vcfR` function.  To import a vcf file the user supplies the file path to the argument `file` of the `read.vcfR` function. For example, suppose the vcf file named "exons_chr21.vcf.gz" was downloaded from https://github.com/cnieuwoudt/1000-Genomes-Exon-Data/tree/master/Exon%20Data and stored in a folder named "Data" in the "C" directory. We import "exons_chr21.vcf.gz" using the `read.vcfR` function as follows:
 
 ```{r, echo = FALSE}
-load(url("https://github.com/cnieuwoudt/SimRVSequences/raw/master/data-raw/vcf_chrom21.rda"))
+load(url("https://github.com/cnieuwoudt/1000-Genomes-Exon-Data/raw/master/Vignette%20Data/vcf_chrom21.rda"))
 ```
 ```{r}
 # load the vcfR package
@@ -148,7 +155,7 @@ vcf_chrom21@meta
 
 From the output above, we see that the first variable contained in `INFO` is named `AF` and represents the estimated allele frequency for the SNP.
 
-To format the fixed data, including the `INFO` variables, the `vcfR` package offers the `vcfR2tidy` function.  We now demonstrate how to use the `vcfR2tidy` function to format the fixed data.  For additional information regarding the `vcfR2tidy` function please execute `help(vcfR2tidy)` in the console.
+To format the fixed data, including the `INFO` variables, the `vcfR` package offers the `vcfR2tidy` function.  We now demonstrate how to use `vcfR2tidy` to format the fixed data.  For additional information regarding the `vcfR2tidy` function please execute `help(vcfR2tidy)` in the console.
 
 ```{r}
 # Extract and store the mutation data using vcfR2tidy
@@ -206,13 +213,17 @@ head(Mutations)
 
 # Create an Object of Class `SNVdata`
 
-Objects of class `SNVdata` inherit from a `list` and contain the following items:
+The constructor function for objects of class `SNVdata` has three arguments:
 
-1. The haplotype data; format: sparseMatrix
-2. The mutation data; format: dataframe
-3. sample data.
+1. `Haplotypes` A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.
+2. `Mutations` A data frame that catalogs the SNPs in the columns of the `Haplotypes` matrix. `Mutations` must include the following variables:
 
-Haplotype and Mutation data are discussed 
+  * `colID`: a numeric variable which associates the rows in `Mutations` to the columns in `Haplotypes`. 
+  * `chrom`: represents the chromosomal in which the SNP resides.
+  * `position`: represents the chromosomal position of the SNP in base pairs.
+  * `afreq`: (Optional) the derived allele frequency of the SNP.
+3. `Samples` (Optional) this argument allows users to provide data for the individuals whose haplotypes are stored in `Haplotypes`.
+
 
 ```{r}
 file_path <- 'https://raw.githubusercontent.com/cnieuwoudt/1000-Genomes-Exon-Data/master/Formatted-SNVdata/SampleData.csv'
@@ -225,9 +236,6 @@ SampleData <- read.csv(file_path)
 SNVdata_chrom22 <- SNVdata(Haplotypes = Haplotypes, 
                            Mutations = Mutations,
                            Samples = SampleData)
-
-class(SNVdata_chrom22)
-
 str(SNVdata_chrom22)
 ```
 
