@@ -35,9 +35,11 @@ get_SMindex_by_person <- function(person_index, person_genos){
 }
 
 
-#' Convert genotypes to sparse Matrix format.
+#' Convert genotypes to haplotypes.
 #'
-#' @param genotypes The genotypes returned by read.vcfR
+#' This function may be used to convert phased genotype data for diplod organisms into a sparse matrix in which each row represents the phased haplotype data for an individual.
+#'
+#' @param genotypes The genotypes returned by read.vcfR, see details.
 #'
 #' @return A sparseMatrix
 #' @export

@@ -2,16 +2,16 @@
 % Please edit documentation in R/vcf_functions.R
 \name{genos2sparseMatrix}
 \alias{genos2sparseMatrix}
-\title{Convert genotypes to sparse Matrix format.}
+\title{Convert genotypes to haplotypes.}
 \usage{
 genos2sparseMatrix(genotypes)
 }
 \arguments{
-\item{genotypes}{The genotypes returned by read.vcfR}
+\item{genotypes}{The genotypes returned by read.vcfR, see details.}
 }
 \value{
 A sparseMatrix
 }
 \description{
-Convert genotypes to sparse Matrix format.
+This function may be used to convert phased genotype data for diplod organisms into a sparse matrix in which each row represents the phased haplotype data for an individual.
 }
