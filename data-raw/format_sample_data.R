@@ -1,6 +1,5 @@
-S1 <- read.csv("C:/Users/cnieuwoudt/Google Drive/SeqSim/1000GSampleData/SampleInfo1.csv",
-               stringsAsFactors = FALSE)
-
+file_path <- 'https://raw.githubusercontent.com/cnieuwoudt/1000-Genomes-Exon-Data/master/Vignette%20Data/SampleInfo1.csv'
+S1 <- read.csv(file_path)
 
 
 #file_path = paste0("C:/Users/Christina/Documents/GitHub/1000-Genomes-Exon-Data/Exon Data/exons_chr", 21, ".vcf.gz", sep = "")
