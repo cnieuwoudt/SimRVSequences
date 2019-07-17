@@ -22,7 +22,7 @@ Imports:
     Matrix (>= 1.2-12),
     dplyr (>= 0.7.5), 
     magrittr (>= 1.5),
-    rlang (>= 0.2.0),
+    rlang (>= 0.2.0)
 Suggests:
     knitr (>= 1.13),
     rmarkdown (>= 0.9.6),
