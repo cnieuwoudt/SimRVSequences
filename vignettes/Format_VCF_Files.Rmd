@@ -22,18 +22,9 @@ body{ /* Normal  */
 
 # Introduction
 
-In this vignette we demonstrate how users may:
-
-1. import pre-formatted `SNVdata` objects using the `import_SNVdata` function, or
-2. re-format data from vcf files to objects of class `SNVdata`.
-
-
-
 ADD INTRODUCTION
 
 NOTE: following only applicable to SNV data - no indels, cnvs, etc.
-
-
 
 
 In this vigentte we demonstrate how to:
@@ -43,14 +34,7 @@ In this vigentte we demonstrate how to:
 3. format mutation data (see section XX), 
 4. create an object of class `SNVdata` (see section XX).
 
-The data used in this vignette was obtained from 
-
-
 Alternatively, we also provide pre-formatted SNV data from *... describe data (1000 Genomes, exon only, filtered for..., etc.)*.  This data can be obtained using the `import_SNVdata` function, which we demonstrate in section XX.
-
-Describe data used in vignette
-
-In this vignette we will illustrate how users may format exon data for chromosome 21, which is stored as a vcf file, into the appropriate format for use with the `sim_RVstudy` function.  The 
 
 # Importing VCF files with vcfR
 
@@ -75,7 +59,6 @@ vcf_chrom21 <- read.vcfR(vcf_file_path)
 str(vcf_chrom21)
 ```
 
-
 From the output above, we see that `vcf_chrom21` is an object of class `vcfR` with 3 slots.  The first slot `@meta` contains meta data for the vcf file; the second slot `@fix` contains the fixed data, which describes the mutations; and the third slot `@gt` contians the genotype data.  We discuss these components in detail in the following sections.  Specifically, in section section XX we discuss genotype data and in section XX we discuss the fixed data and the meta data. For additional information regarding objects of class `vcfR` execute `help("vcfR-class")` in the console.
 
 # Format Haplotype Data{#Haps}
@@ -96,7 +79,6 @@ vcf_chrom21@gt[1:4, "HG00096"]
 
 From the output above, we see that for the first three SNPs in the genotypes data the individual with ID "HG00096"" is homozygous for the reference allele, i.e. "0|0".  However, for the fourth SNP we see that this individual is heterozygous for the alternate allele, i.e. "0|1".  We note that since this data has been phased the genotype "0|1" indicates that the individual inherited the reference allele, "0", from his or her father and the alternate allele, "1", from his or her mother.
 
-
 ```{r}
 # Remove the variable named "FORMAT"
 # and store the resulting data as genos 
@@ -114,18 +96,21 @@ To convert this genotype data to a sparseMatrix we supply the genotypes data to 
 library(SimRVSequences)
 
 # Convert to sparseMatrix
-Haplotypes <- genos2sparseMatrix(genotypes = genos)
+haplotypes <- genos2sparseMatrix(genotypes = genos)
 ```
 
-We note that `genos2sparseMatrix` transposes the supplied genotype data.  Thus, in the returned matrix individuals are stored as rows and mutations are stored as columns. Additionally, since this is a diploid population, each individual will have two rows of data.  That is, the haplotype data for the first indivdiual in `genos`, named "HG00096", is stored in rows 1 and 2 of `Haplotypes`, the haplotype data for the second indivdiual in `genos`, named "HG00097", is stored in rows 3 and 4 of `Haplotypes`, and so on. 
+We note that `genos2sparseMatrix` transposes the supplied genotype data.  Thus, in the returned matrix individuals are stored as rows and mutations are stored as columns. Additionally, since this is a diploid population, each individual will have two rows of data.  That is, the haplotype data for the first indivdiual in `genos`, named "HG00096", is stored in rows 1 and 2 of `haplotypes`, the haplotype data for the second indivdiual in `genos`, named "HG00097", is stored in rows 3 and 4 of `haplotypes`, and so on. 
 
 ```{r}
+# View dimensions of haplotypes
+dim(haplotypes)
+
 # View haplotype data for the first  
 # 3 diploid individuals and first 5 SNPs
-Haplotypes[1:6, 1:5]
+haplotypes[1:6, 1:5]
 ```
 
-From the output above we see that `Haplotypes` is a sparse matrix of class `dgCMatrix`.  Entries of `1` represent a mutated allele, while the wild type is represented as '`.`'.   For additional information regarding objects of class `dgCMatrix` execute `help("dgCMatrix-class")` in the console.
+From the output above we see that `haplotypes` is a sparse matrix of class `dgCMatrix`.  Entries of `1` represent a mutated allele, while the wild type is represented as '`.`'.   For additional information regarding objects of class `dgCMatrix` execute `help("dgCMatrix-class")` in the console.
 
 # Format Mutation Data
 
@@ -155,7 +140,7 @@ vcf_chrom21@meta
 
 From the output above, we see that the first variable contained in `INFO` is named `AF` and represents the estimated allele frequency for the SNP.
 
-To format the fixed data, including the `INFO` variables, the `vcfR` package offers the `vcfR2tidy` function.  We now demonstrate how to use `vcfR2tidy` to format the fixed data.  For additional information regarding the `vcfR2tidy` function please execute `help(vcfR2tidy)` in the console.
+To format the fixed data, including the `INFO` variables, the `vcfR` package offers the `vcfR2tidy` function.  We now demonstrate how to use `vcfR2tidy` to format the fixed data.  For additional information on the `vcfR2tidy` function please execute `help(vcfR2tidy)` in the console.
 
 ```{r}
 # Extract and store the mutation data using vcfR2tidy
@@ -192,23 +177,23 @@ From the previous discussion, we know that the fixed data returned by `vcf2tidy`
 
 ```{r}
 # store the fixed item in muts data as dataframe 
-Mutations <- as.data.frame(muts$fix)
+mutations <- as.data.frame(muts$fix)
 
 # Create the variable colID to identify the column positon of the mutation.
 # NOTE: Since mutations have retained their order, we can accomplish this task 
 # using the seq function.  Since the mutations are stored in the columns of
-# the Haplotypes matrix we determine the length of our sequence as the number of 
-# columns in Haplotypes.
-Mutations <- cbind(seq(1:dim(Haplotypes)[2]), Mutations)
-head(Mutations)
+# the haplotypes matrix we determine the length of our sequence as the number of 
+# columns in haplotypes.
+mutations <- cbind(seq(1:dim(haplotypes)[2]), mutations)
+head(mutations)
 ``` 
 
 ```{r}
 #rename columns for consistency with expected format
 #According to muts$meta the variable "AF" is the estimated allele freq,
-#i.e. the variable we expect to be named "afreq" in the Mutations dataset.
-colnames(Mutations)[c(1:3, 7)] = c("colID", "chrom", "position", "afreq")
-head(Mutations)
+#i.e. the variable we expect to be named "afreq" in the mutations dataset.
+colnames(mutations)[c(1:3, 7)] = c("colID", "chrom", "position", "afreq")
+head(mutations)
 ```
 
 # Create an Object of Class `SNVdata`
@@ -218,34 +203,73 @@ The constructor function for objects of class `SNVdata` has three arguments:
 1. `Haplotypes` A sparse matrix of haplotype data, which contains the haplotypes for unrelated individuals representing the founder population.
 2. `Mutations` A data frame that catalogs the SNPs in the columns of the `Haplotypes` matrix. `Mutations` must include the following variables:
 
-  * `colID`: a numeric variable which associates the rows in `Mutations` to the columns in `Haplotypes`. 
-  * `chrom`: represents the chromosomal in which the SNP resides.
-  * `position`: represents the chromosomal position of the SNP in base pairs.
-  * `afreq`: (Optional) the derived allele frequency of the SNP.
+    * `colID`: a numeric variable which associates the rows in `Mutations` to the columns in `Haplotypes`. 
+    * `chrom`: represents the chromosomal in which the SNP resides.
+    * `position`: represents the chromosomal position of the SNP in base pairs.
+    * `afreq`: (Optional) the derived allele frequency of the SNP.
 3. `Samples` (Optional) this argument allows users to provide data for the individuals whose haplotypes are stored in `Haplotypes`.
 
+The sample data for the individuals whose genotypes are contained in the vcf file for chromosome 21 can be obtained as follows:
 
+```{r}
+file_path <- 'https://raw.githubusercontent.com/cnieuwoudt/1000-Genomes-Exon-Data/master/Vignette%20Data/SampleInfo1.csv'
+SampleInfo <- read.csv(file_path)
+```
+
+```{r}
+#View the first 6 lines of the sample data
+head(SampleInfo)
+```
+
+From the output above, we see that this data set includes a population description for the individuals as well as information on any relations that are included in this dataset.  Since we are interested in unrelated individuals we want to remove any relatives from the data.  This dataset includes 42 individuals who have been listed as third order or higher relatives.  We reduced the data by randomly sampling one relative from each set of related individuals.  This resulted in the removal of 22 individuals.  Additionally, we removed any individuals from the sample data that were not included vcf data, which resulted in the removal of another 930 individuals. Users interested in following the sample-reduction process may find our script at: https://github.com/cnieuwoudt/SimRVSequences/blob/master/data-raw/format_sample_data.R.
+
+To import the reduced sample data, we execute the following commands:
 ```{r}
 file_path <- 'https://raw.githubusercontent.com/cnieuwoudt/1000-Genomes-Exon-Data/master/Formatted-SNVdata/SampleData.csv'
 SampleData <- read.csv(file_path)
+
+# view the first 6 lines of SampleData
+head(SampleData)
 ```
 
+Next, we must reduce the haplotype data to include only the individuals who are contained in SampleData.  We achieve this as follows:
+
+```{r}
+# recall that the row names in the haplotypes matrix are the sample IDs
+row.names(haplotypes)[1:5]
+
+# Remove the individuals not contained in SampleData
+haplotypes <- haplotypes[row.names(haplotypes) %in% SampleData$Sample, ]
+
+# View the new dimensions of haplotypes
+dim(haplotypes)
+```
+
+Comparing the dimensions above to the dimensions that were seen in section XX \@ref{Haps}, we see that 44 rows have been removed, which corresponds to the removal of 22 diploid individuals.
+
+Finally, we are ready to create an object of class `SNVdata`.  To create this object we supply the required arguments to the `SNVdata` construtor function as follows.
 
 ```{r}
 #create SNVdata object for chromosome 21 without sample or meta data
-SNVdata_chrom22 <- SNVdata(Haplotypes = Haplotypes, 
-                           Mutations = Mutations,
+SNVdata_chrom22 <- SNVdata(Haplotypes = haplotypes, 
+                           Mutations = mutations,
                            Samples = SampleData)
 str(SNVdata_chrom22)
 ```
 
 
-
+Note that for rare SNP data this object is much smaller than the `vcfR` object for the same data set.  To determine the size of each of these objects we use the `object_size` function from the `pryr` package. 
 ```{r}
-#create SNVdata for chromosome 22 with sample and meta data
+library(pryr)
+
+# Determine size of vcfR object for chromosome 21
+object_size(vcf_chrom21)
+
+# Determine size of SNVdata object for chromosome 21
+object_size(SNVdata_chrom22)
 ```
 
-
+We note that while the size reduction between the `vcfR` and `SNVdata` object for this chromosome is quite drastic, the size SNVdata object is very similar to the size of the zipped vcf file for chromosome 21.  Even so, we note this format may be very useful for large sparse genomic data sets in R.
 
 # Import 1000 Genomes Exon Data with `import_SNVdata`
 
@@ -256,19 +280,24 @@ The `import_SNVdata` function allows users to import formatted SNV data for each
   1. `chrom` A number or list of numbers that specify which non-sex chromosomes to import.
   2. `pathway_df` (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with our `combine_exons` function.  For additional information regarding the `combine_exons` function please  execute `help(combine_exons)` in the console.*
 
-#### Import data for one chromosomes, chromosome 22
 ```{r}
-#import SNV data for chromosome 21, and time
-a = Sys.time()
-EXdata = import_SNVdata(21)
-b = Sys.time()
-difftime(b, a, units = "secs")
+# load the hg_apopPath dataset
+data("hg_apopPath")
 
-class(EXdata)
+#import SNV data for chromosomes 21 and 22 and identify 
+#SNPs located in the pathway defined by hg_apopPath 
+EXdata = import_SNVdata(21:22, pathway_df = hg_apopPath)
+
+# determine the structure of EXdata
 str(EXdata)
+```
 
-#Note the size of "haplotypes"
-dim(EXdata$Haplotypes)
+
+Note that any SNPs in the pathway contained in the `hg_apopPath` data will be identified by the variable `pathwaySNV` in the `Mutations` data frame of `EXdata`.
+
+```{r}
+# View the first 6 SNPs contained in the pathway of interest
+head(EXdata$Mutations[EXdata$Mutations$pathwaySNV, ])
 ```
 
 # References
