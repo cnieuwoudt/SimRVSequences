@@ -28,6 +28,7 @@ NOTE: following only applicable to SNV data - no indels, cnvs, etc.
 
 We are pleased to announce that `SimRVSequences` (>= 0.2.0) features formatted exon-data from the 1000 genomes project.  *Describe data (accessed on, exon only, filtered for..., etc.)*  Additionally, we demonstrate how users can format vcf files which contain genotype data for use with the `sim_RVstudy` function.
 
+Filtering Conditions: snps only
 
 TO NOTE:
   * this vignette is intended to for users who wish to format SNP data, and is not intended to format of other types of variants (e.g. indels, cnvs, etc)
@@ -259,10 +260,10 @@ Finally, we are ready to create an object of class `SNVdata`.  To create this ob
 
 ```{r}
 #create SNVdata object for chromosome 21 without sample or meta data
-SNVdata_chrom22 <- SNVdata(Haplotypes = haplotypes, 
+SNVdata_chrom21 <- SNVdata(Haplotypes = haplotypes, 
                            Mutations = mutations,
                            Samples = SampleData)
-str(SNVdata_chrom22)
+str(SNVdata_chrom21)
 ```
 
 
@@ -274,7 +275,7 @@ library(pryr)
 object_size(vcf_chrom21)
 
 # Determine size of SNVdata object for chromosome 21
-object_size(SNVdata_chrom22)
+object_size(SNVdata_chrom21)
 ```
 
 We note that while the size reduction between the `vcfR` and `SNVdata` object for this chromosome is quite drastic, the size SNVdata object is very similar to the size of the zipped vcf file for chromosome 21.  Even so, we note this format may be very useful for large sparse genomic data sets in R.
