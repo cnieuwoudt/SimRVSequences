@@ -264,7 +264,7 @@ The constructor function for objects of class `SNVdata` has three arguments:
     * `afreq`: (Optional) the derived allele frequency of the SNV.
 3. `Samples` (Optional) this argument allows users to provide data for the individuals whose haplotypes are stored in `Haplotypes`.
 
-The sample data, which describes the individuals whose genotypes are contained in the vcf file used in previous demonstratiosn, may be obtained as follows:
+The sample data, which describes the individuals whose genotypes are contained in the vcf data for chromosome 21 (i.e. from sections XX and XX), may be obtained as follows:
 
 ```{r, tidy = TRUE}
 file_path <- 'https://raw.githubusercontent.com/simrvprojects/1000-Genomes-Exon-Data/master/Vignette%20Data/SampleInfo1.csv'
