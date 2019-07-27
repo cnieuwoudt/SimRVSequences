@@ -63,14 +63,14 @@ Alternatively, we also provide pre-formatted SNV data from .  This data can be o
 
 # Import VCF files
 
-Importing vcf data using the `vcfR` package [2] is accomplished with the `read.vcfR` function.  To import a vcf file the user supplies the file path to the argument `file` of the `read.vcfR` function. For example, suppose the vcf file named "exons_chr21.vcf.gz" was downloaded from https://github.com/cnieuwoudt/1000-Genomes-Exon-Data/tree/master/Exon%20Data and is stored in a folder named "Data" in the "C" directory. We import "exons_chr21.vcf.gz" using the `read.vcfR` function as follows:
+Importing vcf data using the `vcfR` package [2] is accomplished with the `read.vcfR` function.  To import a vcf file the user supplies the file path to the argument `file` of the `read.vcfR` function. For example, suppose the vcf file named "exons_chr21.vcf.gz" was downloaded from https://github.com/simrvprojects/1000-Genomes-Exon-Data/tree/master/Exon%20Data and is stored in a folder named "Data" in the "C" directory. We import "exons_chr21.vcf.gz" using the `read.vcfR` function as follows:
 
 ```{r}
 # load the vcfR package
 library(vcfR)
 ```
 ```{r, echo = FALSE}
-load(url("https://github.com/cnieuwoudt/1000-Genomes-Exon-Data/raw/master/Vignette%20Data/vcf_chrom21.rda"))
+load(url("https://github.com/simrvprojects/1000-Genomes-Exon-Data/raw/master/Vignette%20Data/vcf_chrom21.rda"))
 ```
 ```{r, eval = FALSE}
 # specify the file path
@@ -267,7 +267,7 @@ The constructor function for objects of class `SNVdata` has three arguments:
 The sample data, which describes the individuals whose genotypes are contained in the vcf file used in previous demonstratiosn, may be obtained as follows:
 
 ```{r, tidy = TRUE}
-file_path <- 'https://raw.githubusercontent.com/cnieuwoudt/1000-Genomes-Exon-Data/master/Vignette%20Data/SampleInfo1.csv'
+file_path <- 'https://raw.githubusercontent.com/simrvprojects/1000-Genomes-Exon-Data/master/Vignette%20Data/SampleInfo1.csv'
 SampleInfo <- read.csv(file_path)
 ```
 
@@ -280,7 +280,7 @@ From the output above, we see that this data set includes a population descripti
 
 To import the reduced sample data, we execute the following commands:
 ```{r}
-file_path <- 'https://raw.githubusercontent.com/cnieuwoudt/1000-Genomes-Exon-Data/master/Formatted-SNVdata/SampleData.csv'
+file_path <- 'https://raw.githubusercontent.com/simrvprojects/1000-Genomes-Exon-Data/master/Formatted-SNVdata/SampleData.csv'
 SampleData <- read.csv(file_path)
 
 # view the first 6 lines of SampleData

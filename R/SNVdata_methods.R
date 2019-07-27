@@ -73,7 +73,7 @@ import_SNVdata <- function(chrom, pathway_df = NULL){
 
   #import the formatted date from github
   for (i in 1:length(chrom)){
-    load(url(paste0("https://github.com/cnieuwoudt/1000-Genomes-Exon-Data/raw/master/Formatted-SNVdata/SNVdata_chrom",
+    load(url(paste0("https://github.com/simrvprojects/1000-Genomes-Exon-Data/raw/master/Formatted-SNVdata/SNVdata_chrom",
                     chrom[i], ".rda", sep = "")))
   }
 
@@ -92,7 +92,7 @@ import_SNVdata <- function(chrom, pathway_df = NULL){
   }
 
   #import sample data from GitHub
-  SampleData <- read.csv(url("https://github.com/cnieuwoudt/1000-Genomes-Exon-Data/raw/master/Formatted-SNVdata/SampleData.csv"),
+  SampleData <- read.csv(url("https://github.com/simrvprojects/1000-Genomes-Exon-Data/raw/master/Formatted-SNVdata/SampleData.csv"),
                          stringsAsFactors = FALSE)
 
   #----------------------#
