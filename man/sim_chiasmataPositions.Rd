@@ -4,8 +4,8 @@
 \alias{sim_chiasmataPositions}
 \title{Simulate crossover positions}
 \usage{
-sim_chiasmataPositions(chrom_map, burn_in = 1000, gamma_params = c(2.63,
-  2.63/0.5))
+sim_chiasmataPositions(chrom_map, burn_in = 1000,
+  gamma_params = c(2.63, 2.63/0.5))
 }
 \arguments{
 \item{chrom_map}{Data.frame with 1 row and 2 columns. The two columns represent the start and stop positions (in cM) over which to simulate recombination.}

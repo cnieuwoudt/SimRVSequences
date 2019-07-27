@@ -4,8 +4,9 @@
 \alias{sim_gameteInheritance}
 \title{Simulate inheritance of parental gamete to offspring}
 \usage{
-sim_gameteInheritance(RV_locus, parent_RValleles, offspring_RVstatus, chrom_map,
-  allele_IDs, burn_in = 1000, gamma_params = c(2.63, 2.63/0.5))
+sim_gameteInheritance(RV_locus, parent_RValleles, offspring_RVstatus,
+  chrom_map, allele_IDs, burn_in = 1000, gamma_params = c(2.63,
+  2.63/0.5))
 }
 \arguments{
 \item{RV_locus}{Numeric list of length 2. A list containing (1) the chromosome upon which the rare variant resides (2) the position in cM where the rare variant resides.}

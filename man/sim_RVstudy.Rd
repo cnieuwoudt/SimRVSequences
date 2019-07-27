@@ -4,9 +4,9 @@
 \alias{sim_RVstudy}
 \title{Simulate sequence data for a sample of pedigrees}
 \usage{
-sim_RVstudy(ped_files, SNV_data, affected_only = TRUE, remove_wild = TRUE,
-  pos_in_bp = TRUE, gamma_params = c(2.63, 2.63/0.5), burn_in = 1000,
-  SNV_map = NULL, haplos = NULL)
+sim_RVstudy(ped_files, SNV_data, affected_only = TRUE,
+  remove_wild = TRUE, pos_in_bp = TRUE, gamma_params = c(2.63,
+  2.63/0.5), burn_in = 1000, SNV_map = NULL, haplos = NULL)
 }
 \arguments{
 \item{ped_files}{Data frame. A data frame of pedigrees for which to simulate sequence data, see details.}
