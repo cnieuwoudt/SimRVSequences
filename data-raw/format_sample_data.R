@@ -1,24 +1,33 @@
+#import the Sample Data
 file_path <- 'https://raw.githubusercontent.com/cnieuwoudt/1000-Genomes-Exon-Data/master/Vignette%20Data/SampleInfo1.csv'
-S1 <- read.csv(file_path)
+orig_sample_data <- read.csv(file_path)
 
 
-#file_path = paste0("C:/Users/Christina/Documents/GitHub/1000-Genomes-Exon-Data/Exon Data/exons_chr", 21, ".vcf.gz", sep = "")
-
+# file path to vcf file for chromosome 21.
+# To execute the code in this script,
+# users must download the vcf file from
+# https://github.com/cnieuwoudt/1000-Genomes-Exon-Data/tree/master/Exon%20Data
+# and redefine the following file path appropriately
 file_path = "C:/Users/cnieuwoudt/Google Drive/SeqSim/Group Meetings/exons_chr21.vcf.gz"
 
 library(vcfR)
-#import the vcf file using read.vcfR from the vcfR package
+# Import the vcf file using read.vcfR from the vcfR package
 vcf <- read.vcfR(file_path)
 
-
+# View structure of vcf
 str(vcf)
+
+# View first 3 rows of genotype data for the first 10 individuals
 vcf@gt[1:3, 1:10]
 
+# Store sample IDs
 vcf_sampleIDs = colnames(vcf@gt[, -1])
 
-#Reduce the Samples data to include only the individuals who are in
-#the vcf file
-S_red <- S1[which(S1$Sample %in% vcf_sampleIDs), ]
+# Reduce the sample data to include only those
+# individuals whose genotypes are included in the vcf file.
+# That is, whose IDs are contained vcf_sampleIDs.
+S_red <- orig_sample_data[which(orig_sample_data$Sample %in% vcf_sampleIDs), ]
+
 head(S_red)
 S_red <- S_red[order(S_red$Sample, S_red$Family.ID), ]
 
@@ -166,13 +175,19 @@ SamDat_TO <- S_red[which(S_red$Third.Order != "" | S_red$Sample %in% ThiOrd_ids)
                                                  "Grandparents", "Avuncular",
                                                  "Half.Siblings", "Unknown.Second.Order"))]
 
-
+# order by Population, then Sample ID, and then Family ID
 SamDat_TO <- SamDat_TO[order(SamDat_TO$Population, SamDat_TO$Sample, SamDat_TO$Family.ID), ]
 row.names(SamDat_TO) = NULL
 
 View(SamDat_TO)
 SamDat_TO$FamID = NA
+
+#View unique population sets
 unique(SamDat_TO$Population)
+
+#We note that relatives do not extend across different populations
+#Therefore, we simplify the task of identifying relatives by assessing
+#the thrid-order relative ID in each population.
 
 #-----#
 # CEU #
@@ -281,7 +296,7 @@ ThiOrd_ids <- c(unique(SampleData$Third.Order)[-c(1, 2, 19, 15, 16, 17)],
 SampleData[which(SampleData$Sample %in% ThiOrd_ids), ]
 # YAY!!!!!!
 
-#reduce to columns we are interested in
+#Subset SampleData to include only relevant columns
 SampleData <- SampleData[, c(1, 3, 4, 5)]
 
 write.table(SampleData, "C:/Users/cnieuwoudt/Documents/GitHub/1000-Genomes-Exon-Data/Formatted-SNVdata/SampleData.csv",
