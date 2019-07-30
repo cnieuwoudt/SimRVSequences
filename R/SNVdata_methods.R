@@ -52,6 +52,7 @@ is.SNVdata <- function(x) {
 #'
 #' @return An object of class \code{SNVdata} or a list of objects of class \code{SNVdata}, i.e. one for each chomosome that was imported.
 #' @export
+#' @importFrom utils read.csv
 #'
 #' @examples
 #' exdata = import_SNVdata(21:22)
