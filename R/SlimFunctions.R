@@ -198,6 +198,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' \code{position} \tab The position of the SNV in base pairs. \cr
 #' \code{afreq} \tab The derived allele frequency of the SNV. \cr
 #' \code{marker} \tab A unique character identifier for the SNV.\cr
+#' \code{type} \tab The mutation type, as specified in the user's slim simulation.\cr
 #' \code{pathwaySNV} \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. \cr
 #' }}
 #'
@@ -433,7 +434,7 @@ read_slim <- function(file_path,
   #reduce RareMutData, to the columns we actually need
   #really should clean this up soon
   RareMutData <- RareMutData[, c("colID", "chrom", "position",
-                                 "afreq", "marker")]
+                                 "afreq", "marker", "type")]
 
   # RareMutData <- RareMutData[, c("colID", "chrom", "position",
   #                                "afreq", "marker", "type",
