@@ -77,6 +77,9 @@ colnames(Mutations)[c(1:3, 7)] = c("colID", "chrom", "position", "afreq")
 #head(Mutations)
 
 
+#store chromosome number as integer
+Mutations$chrom <- as.integer(Mutations$chrom)
+
 # Note that some of the SNVs have an allele count of zero, i.e. AC = 0.
 # Meaning, no individual in the sample carries the SNV.  Also, note that
 # since we removed 22 third order relatives, any SNVs that were carried by
@@ -119,7 +122,12 @@ remove(muts)
 remove(vcf)
 remove(remove_cols)
 
-# After all chromomsomes processed
+#----------------------------------#
+# After all chromomsomes processed #
+#----------------------------------#
+# test import_SNVdata function
+ex_data <- import_SNVdata(1:22, pathway_df = hg_apopPath)
+
 # Quick quality checks
 all(sapply(SampID_order, identical, SampID_order[[1]]))
 all(sapply(dimHaplotypes, function(x){x[[1]]}) == 5052)
