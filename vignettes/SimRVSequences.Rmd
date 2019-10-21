@@ -3,15 +3,17 @@ title: "SimRVSequences"
 author: "Christina Nieuwoudt and Jinko Graham"
 date: "`r Sys.Date()`"
 output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
   html_document:
     number_sections: yes
     toc: yes
     toc_depth: 3
-  pdf_document:
-    toc: yes
-    toc_depth: '3'
-vignette: "%\\VignetteIndexEntry{SimRVSequences} \n%\\VignetteEngine{knitr::rmarkdown}
-  \n%\\VignetteEncoding{UTF-8}{inputenc}\n"
+vignette: > 
+%\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{SimRVSequences}
+  %\usepackage[UTF-8]{inputenc}
 ---
 
 <style type="text/css">
