@@ -48,6 +48,7 @@ The \code{read_slim} function returns an object of class \code{\link{SNVdata}}, 
 \code{position} \tab The position of the SNV in base pairs. \cr
 \code{afreq} \tab The derived allele frequency of the SNV. \cr
 \code{marker} \tab A unique character identifier for the SNV.\cr
+\code{type} \tab The mutation type, as specified in the user's slim simulation.\cr
 \code{pathwaySNV} \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. \cr
 }}
 
