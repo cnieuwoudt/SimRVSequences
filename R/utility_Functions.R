@@ -185,7 +185,7 @@ assign_gen <- function(x){
   # this will also check to see that
   # all required fields are present
   # i.e. FamID, ID, dadID, momID, sex, and affected
-  x <- new.ped(x)
+  if (!("ped" %in% class(x))) x <- new.ped(x)
 
   Gen <- NA
   mates <- cbind(x$dadID, x$momID)

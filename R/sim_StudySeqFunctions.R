@@ -264,14 +264,7 @@ sim_RVstudy <- function(ped_files, SNV_data,
     stop("Expecting SNV_data to be an object of class SNVdata")
   }
 
-  # #check SNV_map for possible issues
-  # check_SNV_map(SNV_map)
-  #
-  # if (!"marker" %in% colnames(SNV_map)) {
-  #   SNV_map$marker <- make.unique(paste0(SNV_map$chrom, sep = "_", SNV_map$position))
-  # }
-
-  # #check to see if DA1 and DA2 are both missing, if so
+  #check to see if DA1 and DA2 are both missing, if so
   #assume fully sporadic and issue warning
   if (is.null(ped_files$DA1) & is.null(ped_files$DA2)) {
     ped_files$DA1 <- 0
@@ -279,8 +272,14 @@ sim_RVstudy <- function(ped_files, SNV_data,
     warning("\n The variables DA1 and DA2 are missing from ped_files. \n Assuming fully sporadic ... \n...setting DA1 = DA2 = 0 for all pedigrees.")
   }
 
+
   #check ped_files for possible issues
   check_peds(ped_files)
+
+  #assign generation number if not included in ped_file
+  if(!"Gen" %in% colnames(ped_files)){
+    ped_files$Gen <- unlist(lapply(unique(ped_files$FamID), function(x){assign_gen(ped_files[ped_files$FamID == x, ])}))
+  }
 
   # if (nrow(SNV_map) != ncol(haplos)) {
   #   stop("\n nrow(SNV_map) != ncol(haplos). \n SNV_map must catalog every SNV in haplos.")
