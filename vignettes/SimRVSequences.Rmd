@@ -1,6 +1,6 @@
 ---
 title: "SimRVSequences"
-author: "Christina Nieuwoudt and Jinko Graham"
+author: "Christina Nieuwoudt,  Wang, and Jinko Graham"
 date: "`r Sys.Date()`"
 output:
   pdf_document:
@@ -67,7 +67,7 @@ We streamline use of pedigrees simulated by the `R` package `SimRVPedigree` [8].
 
 \newpage
 # Prepare Single Nucleotide Variant Data
-Before we can simulate genetic data for a sample of pedigrees, we require single-nucleotide variant (SNV) data for the pedigree founders. Several simulation programs can aid in this task (e.g. msprime and fastsimcoal); however, we have found the Eidos program SLiM [3] to be the most practical for simulation of genome-wide, exon-only SNV data for a large number of unrelated individuals.  In section 3.1, we demonstrate how the methods provided by `SimRVSequences` can be used to assist users in simulating exon-only sequence data with SLiM.  For users who would prefer to upload SNV data from exisiting VCF files, we provide a detailed demonstration of the process required to import and format VCF data in section 3.2.  Additionally, we offer formatted genome-wide exon-only SNV data from tho 1000 Genomes Project (CITATION) which can be imported using our `import_SNVdata` function; we illustrate the usage of this function in section 3.3.
+Before we can simulate genetic data for a sample of pedigrees, we require single-nucleotide variant (SNV) data for the pedigree founders. Several simulation programs can aid in this task (e.g. msprime and fastsimcoal); however, we have found the Eidos program SLiM [3] to be the most practical for simulation of genome-wide, exon-only SNV data for a large number of unrelated individuals.  In section 3.1, we demonstrate how the methods provided by `SimRVSequences` can be used to assist users in simulating exon-only sequence data with SLiM.  For users who would prefer to upload SNV data from exisiting VCF files, we provide a detailed demonstration of the process required to import and format VCF data in section 3.2.  Additionally, we offer formatted genome-wide exon-only SNV data from tho 1000 Genomes Project (CITATION) which can be imported using our `load_1KG` function; we illustrate the usage of this function in section 3.3.
 
 ## Option 1: Simulate SNV data with SLiM
 
@@ -496,7 +496,7 @@ We note that while the size reduction between the `vcfR` and `SNVdata` object fo
 ## Option 3: Import Pre-Formatted 1000 Genomes Project Exon-Data 
 The SNVdata objects for each chromosome are stored in the "Formatted-SNVdata" folder in the GitHub repository.
 
-The `import_SNVdata` function allows users to import formatted SNV data for each chromosome.  The `import_SNVdata` function has two arguments:
+The `load_1KG` function allows users to import formatted SNV data for each chromosome.  The `load_1KG` function has two arguments:
 
   1. `chrom` A number or list of numbers that specify which non-sex chromosomes to import.
   2. `pathway_df` (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with our `combine_exons` function.  For additional information regarding the `combine_exons` function please execute `help(combine_exons)` in the console.*
@@ -507,7 +507,7 @@ data("hg_apopPath")
 
 #import SNV data for chromosomes 21 and 22 and identify 
 #SNVs located in the pathway defined by hg_apopPath 
-EXdata = import_SNVdata(chrom = 21:22, 
+EXdata = load_1KG(chrom = 21:22, 
                         pathway_df = hg_apopPath)
 
 # determine the structure of EXdata

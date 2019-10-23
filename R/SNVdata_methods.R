@@ -55,13 +55,13 @@ is.SNVdata <- function(x) {
 #' @importFrom utils read.csv
 #'
 #' @examples
-#' exdata = import_SNVdata(21:22)
+#' exdata = load_1KG(21:22)
 #' unique(exdata$Mutations$chrom)
 #'
 #' head(exdata$Mutations)
 #' exdata$Haplotypes[1:20, 1:10]
 #' head(exdata$Samples)
-import_SNVdata <- function(chrom, pathway_df = NULL){
+load_1KG <- function(chrom, pathway_df = NULL){
 
   if (any(!chrom %in% seq(1:22))){
     stop("\n We expect 'chrom' to be a numeric list of automosomes.
