@@ -1,3 +1,16 @@
+#' Dummy sample function
+#'
+#' @param x A vector from which to sample
+#' @param ... All other arguments in sample
+#'
+#' @return The randomly sampled items
+#' @keywords internal
+resample <- function(x, ...){
+  x[sample.int(length(x), ...)]
+}
+
+
+
 #' Reduce haplos to contain non-cSNV data
 #'
 #' @inheritParams sim_FGenos
@@ -11,74 +24,106 @@ condition_haplos_no_cSNV <- function(haplos, RV_pool_loc){
     which(haplos[, x] == 1)
   })
 
+  #RV rows
   RV_rows <- Reduce(union, RV_haps)
 
   return(haplos[-RV_rows, ])
+}
+
+#' Find haplotypes that do not carry any cRVs
+#'
+#' @inheritParams sim_FGenos
+#'
+#' @return The reduced haplotype matrix.
+#'
+#' @keywords internal
+find_no_cSNV_rows <- function(haplos, RV_pool_loc){
+  #determine which of the haplotypes carry a causal SNV
+  RV_haps <- lapply(RV_pool_loc, function(x){
+    which(haplos[, x] == 1)
+  })
+
+  #RV rows
+  any_RV_rows <- Reduce(union, RV_haps)
+
+  #no RV rows
+  no_RV_rows <- setdiff(1:nrow(haplos), any_RV_rows)
+
+  return(no_RV_rows)
 }
 
 #' Draw Founder Genotypes from Haplotype Distribution Given Familial Risk Variant
 #'
 #' \strong{For internal use.}
 #'
-#' @param founder_ids Numeric list. The ID numbers of all non-seed founders.
-#' @param RV_founder Numeric. The ID number of the seed founder.
-#' @param RV_founder_pat Numeric. RV_founder_pat == 1 if RV founder inherited the RV from dad, and 0 if inherited RV from mom.
+#' @param founder_ids Numeric list. The ID numbers of all founders.
+#' @param RV_founder Numeric. The ID number(s) of the founder who introduced a cRV.
+#' @param founder_pat_allele  Numeric list. The paternally inherited allele for each founder.
+#' @param founder_mat_allele  Numeric list. The maternally inherited allele for each founder.
 #' @param haplos sparseMatrix.  The sparseMatrix of genomes returned by \code{read_slimOut}.
 #' @param RV_col_loc Numeric. The column location of the familial RV in haplos.
-#' @param RV_pool_loc The column locations of each SNV in the pool of candidate SNVs.
+#' @param RV_pool_loc The column locations of each SNV (in haplos)  for SNVs in the pool of cRVs.
 #'
 #' @return list of familial founder genotypes
 #'
 #' @keywords internal
-sim_FGenos <- function(founder_ids, RV_founder, RV_founder_pat,
+sim_FGenos <- function(founder_ids, RV_founder,
+                       founder_pat_allele, founder_mat_allele,
                        haplos, RV_col_loc, RV_pool_loc) {
 
-  #reduce haplos to contain only haplotypes that do
-  #not carry any of the cRVs in our pool of possible SNVs
-  no_CRVhaps <- condition_haplos_no_cSNV(haplos, RV_pool_loc)
+  #Determine which haplotypes carry the familial rare variant and which do not
+  #Determine which haplotypes carry the familial cRV
+  RV_hap_loc <- which(haplos[, RV_col_loc] == 1)
+
+  #Determine which haplotypes do not carry ANY crv in the pool
+  no_CRVrows <- find_no_cSNV_rows(haplos, RV_pool_loc)
+
+
 
   #here we handle the fully sporatic families
   #i.e. families that do not segregate any cSNVs
   #In this case, the haplotypes for ALL founders
   #is sampled from no_CRVhaps
   if(length(RV_founder) == 0){
-
     #sample all founder data from this pool
-    founder_genos <- no_CRVhaps[c(sample(x = 1:nrow(no_CRVhaps),
-                                       size = 2*length(founder_ids),
-                                       replace = TRUE)), ]
+    founder_genos <- haplos[sample(x = no_CRVrows,
+                                   size = 2*length(founder_ids),
+                                   replace = TRUE), ]
   } else {
 
     #Determine which haplotypes carry the familial rare variant and which do not
     RV_hap_loc <- which(haplos[, RV_col_loc] == 1)
 
-    #NOTE: Under this scheme, marry-ins may NOT introduce any SNV
-    #from our pool of causal rare variants
+    #Determine which haplotypes do not carry ANY crv in the pool
+    no_CRVrows <- find_no_cSNV_rows(haplos, RV_pool_loc)
 
-    #for the seed founder: sample one haplotype from those that carry the RV
-    #and one haplotype from those that DO NOT carry the RV
-    #for all other founders: sample 2 haplotypes that do not carry the RV
-    if(length(RV_hap_loc) == 1){
-      founder_genos <- rbind(haplos[RV_hap_loc, ],
-                             no_CRVhaps[c(sample(x = 1:nrow(no_CRVhaps),
-                                                 size = (2*length(founder_ids) + 1),
-                                                 replace = TRUE)), ])
-    } else {
-      founder_genos <- rbind(haplos[sample(x = RV_hap_loc, size = 1), ],
-                             no_CRVhaps[c(sample(x = 1:nrow(no_CRVhaps),
-                                                 size = (2*length(founder_ids) + 1),
-                                                 replace = TRUE)), ])
-    }
+    #sample the paternally inherited founder haplotypes
+    pat_inherited_haps <- sapply(founder_pat_allele, function(x){
+      if(x == 0){
+        resample(x = no_CRVrows, size = 1)
+      } else {
+        resample(x = RV_hap_loc, size = 1)
+      }})
 
-    #Asscociate CRV to row 1, if paternally inherited OR row 2 if maternally inherited.
-    if(RV_founder_pat == 0){
-      founder_genos[c(1,2), ] <- founder_genos[c(2, 1), ]
-    }
+    #sample the maternally inherited founder haplotypes
+    mat_inherited_haps <- sapply(founder_mat_allele, function(x){
+      if(x == 0){
+        resample(x = no_CRVrows, size = 1)
+      } else {
+        resample(x = RV_hap_loc, size = 1)
+      }})
 
+    #pull the sampled haplotypes from the haplos matrix
+    founder_genos <- haplos[c(pat_inherited_haps, mat_inherited_haps), ]
   }
 
   #create IDs to associate founders to rows in founder_genos
-  founder_genos_ID <- rep(c(RV_founder, founder_ids), each = 2)
+  founder_genos_ID <- rep(founder_ids, 2)
+
+  #re-order so that founder haplotypes appear in order
+  founder_genos <- founder_genos[order(founder_genos_ID), ]
+  founder_genos_ID <- founder_genos_ID[order(founder_genos_ID)]
+
 
   return(list(founder_genos, founder_genos_ID))
 }
@@ -281,11 +326,9 @@ sim_RVstudy <- function(ped_files, SNV_data,
     ped_files$Gen <- unlist(lapply(unique(ped_files$FamID), function(x){assign_gen(ped_files[ped_files$FamID == x, ])}))
   }
 
-  # if (nrow(SNV_map) != ncol(haplos)) {
-  #   stop("\n nrow(SNV_map) != ncol(haplos). \n SNV_map must catalog every SNV in haplos.")
-  # }
-
   #quick and dirty assignment to see if new format creates problems down to line...
+  #TODO: change all function definitions to accept new SNVdata object
+  #NOTE: All of the same checks were performed on input data, the new SNVdata object
   SNV_map = SNV_data$Mutations
   haplos = SNV_data$Haplotypes
 
@@ -309,7 +352,7 @@ sim_RVstudy <- function(ped_files, SNV_data,
     #the individuals who connect them along a line of descent.
     Afams <- lapply(FamIDs, function(x){
       affected_onlyPed(ped_file = ped_files[which(ped_files$FamID == x),])
-      })
+    })
 
     #combine the reduced pedigrees
     ped_files <- do.call("rbind", Afams)
@@ -360,14 +403,14 @@ sim_RVstudy <- function(ped_files, SNV_data,
   #haplotypes from conditional haplotype distribution
   f_genos <- lapply(c(1:length(FamIDs)), function(x){
     sim_FGenos(founder_ids = ped_files$ID[which(ped_files$FamID == FamIDs[x]
-                                                & is.na(ped_files$dadID)
-                                                & (ped_files$DA1 + ped_files$DA2) == 0)],
+                                                & is.na(ped_files$dadID))],
                RV_founder = ped_files$ID[which(ped_files$FamID == FamIDs[x]
                                                & is.na(ped_files$dadID)
-                                               & (ped_files$DA1 + ped_files$DA2) == 1)],
-               RV_founder_pat = ped_files$DA1[which(ped_files$FamID == FamIDs[x]
-                                                   & is.na(ped_files$dadID)
-                                                   & (ped_files$DA1 + ped_files$DA2) == 1)],
+                                               & (ped_files$DA1 + ped_files$DA2) != 0)],
+               founder_pat_allele = ped_files$DA1[which(ped_files$FamID == FamIDs[x]
+                                                        & is.na(ped_files$dadID))],
+               founder_mat_allele = ped_files$DA2[which(ped_files$FamID == FamIDs[x]
+                                                        & is.na(ped_files$dadID))],
                haplos, RV_col_loc = which(SNV_map$marker == Fam_RVs[x]),
                RV_pool_loc = SNV_map$colID[SNV_map$is_CRV])
   })
@@ -396,11 +439,11 @@ sim_RVstudy <- function(ped_files, SNV_data,
   #simulate non-founder haploypes via conditional gene drop
   ped_seqs <- lapply(c(1:length(FamIDs)), function(x){
     sim_seq(ped_file = ped_files[ped_files$FamID == FamIDs[x], ],
-              founder_genos = f_genos[[x]],
-              SNV_map, chrom_map,
-              RV_marker = Fam_RVs[x],
-              burn_in, gamma_params)
-    })
+            founder_genos = f_genos[[x]],
+            SNV_map, chrom_map,
+            RV_marker = Fam_RVs[x],
+            burn_in, gamma_params)
+  })
 
   ped_haplos <- do.call("rbind", lapply(ped_seqs, function(x){x$ped_genos}))
   haplo_map <- do.call("rbind", lapply(ped_seqs, function(x){x$geno_map}))

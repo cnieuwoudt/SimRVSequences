@@ -59,26 +59,6 @@ test_that("Error: nrow(SNV_map) != ncol(haplos)", {
                                               Mutations = EXmuts[-1, ])))
 })
 
-test_that("Error if mutiple RV founders in pedigree", {
-
-  #choose a family from study peds
-  test_fam = sample(x = c(1:5), size = 1)
-  red_peds <- study_peds[study_peds$FamID == test_fam, ]
-  rownames(red_peds) = NULL
-
-  founder_locs <- which(is.na(red_peds$dadID))
-
-  #set DA1 to 1 for at least 2 founders
-  red_peds$DA1[sample(founder_locs, size = 3)] <- 1
-
-  expect_error(sim_RVstudy(ped_files = red_peds,
-                           SNV_data = SNVdata(Haplotypes = toy_haps,
-                                              Mutations = toy_muts),
-                           remove_wild = FALSE,
-                           affected_only = TRUE))
-})
-
-
 test_that("Error if de novo mutations detected", {
 
   #choose a family from study peds
@@ -109,12 +89,71 @@ toy_haps <- sparseMatrix(i = seq(1:10), j = seq(1:10), x = rep(1, 10))
 toy_muts <- data.frame(colID = seq(1:10),
                        chrom = rep(1, 10),
                        position = round(seq(1001, 2000001, length.out = 10)*1000),
-                       pathwaySNV = sample(x = c(TRUE, FALSE), size = 10,
-                                           replace = TRUE, prob = c(0.2, 0.8)),
                        is_CRV = sample(c(rep(FALSE, 9), TRUE), size = 10))
 
 toy_muts$marker <- paste0(toy_muts$chrom, sep = "_", toy_muts$position)
 toy_muts$afreq <- round(runif(10, min = 0, max = 0.005), digits = 6)
+
+
+
+ test_that("When mutiple RV founders in pedigree disease-locus genotypes are correct", {
+
+  #choose a family from study peds
+  test_fam = sample(x = c(1, 3:5), size = 1)
+  red_peds <- study_peds[study_peds$FamID == test_fam, ]
+  rownames(red_peds) = NULL
+
+  founder_locs <- which(is.na(red_peds$dadID))
+
+  #set DA1 to 1 for at least 2 founders
+  red_peds$DA1[sample(founder_locs, size = 3)] <- 1
+
+
+  study_dat = sim_RVstudy(ped_files = red_peds,
+                          SNV_data = SNVdata(Haplotypes = toy_haps,
+                                             Mutations = toy_muts),
+                          remove_wild = FALSE,
+                          affected_only = TRUE)
+
+  for(i in 1:nrow(study_dat$ped_files)){
+    #pull alleles from pedigree
+    ref_alleles <- c(study_dat$ped_files$DA1[i], study_dat$ped_files$DA2[i])
+
+    #pull appropriate rows from ped_haplos to compare
+    test_alleles <- study_dat$ped_haplos[study_dat$haplo_map$ID == study_dat$ped_files$ID[i],
+                                         study_dat$SNV_map$marker == study_dat$haplo_map$FamCRV[1], ]
+
+    #test for equality
+    expect_equal(ref_alleles, test_alleles)
+  }
+})
+
+
+test_that("All pedigree members have the correct genotypes at the crv locus", {
+
+  #choose a family from study peds
+  test_fam = study_peds[study_peds$FamID == sample(x = c(1, 3:5), size = 1), ]
+  rownames(test_fam) = NULL
+
+  study_dat = sim_RVstudy(ped_files = test_fam,
+                          SNV_data = SNVdata(Haplotypes = toy_haps,
+                                             Mutations = toy_muts),
+                          remove_wild = FALSE,
+                          affected_only = TRUE)
+
+  for(i in 1:nrow(study_dat$ped_files)){
+    #pull alleles from pedigree
+    ref_alleles <- c(study_dat$ped_files$DA1[i], study_dat$ped_files$DA2[i])
+
+    #pull appropriate rows from ped_haplos to compare
+    test_alleles <- study_dat$ped_haplos[study_dat$haplo_map$ID == study_dat$ped_files$ID[i],
+                                         study_dat$SNV_map$marker == study_dat$haplo_map$FamCRV[1], ]
+
+    #test for equality
+    expect_equal(ref_alleles, test_alleles)
+  }
+})
+
 
 test_that("rows of haplo_map are equal to rows ped_haplos", {
 
