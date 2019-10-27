@@ -1,10 +1,16 @@
 library(testthat)
 library(Matrix)
+library(SimRVPedigree)
 context("sim_RVstudy")
 
+#from simRVsequences
 data("study_peds")
 data("EXhaps")
 data("EXmuts")
+
+#from simRVPedigree
+data("AgeSpecific_Hazards")
+
 
 #SMALL TOY DATASETS FOR TESTING
 toy_haps <- sparseMatrix(i = seq(1:10), j = seq(1:10), x = rep(1, 10))
@@ -85,15 +91,25 @@ test_that("Error if de novo mutations detected", {
 # Output testing #
 #----------------#
 
-toy_haps <- sparseMatrix(i = seq(1:10), j = seq(1:10), x = rep(1, 10))
-toy_muts <- data.frame(colID = seq(1:10),
-                       chrom = rep(1, 10),
-                       position = round(seq(1001, 2000001, length.out = 10)*1000),
-                       is_CRV = sample(c(rep(FALSE, 9), TRUE), size = 10))
+# toy_haps <- sparseMatrix(i = seq(1:10), j = seq(1:10), x = rep(1, 10))
+# toy_muts <- data.frame(colID = seq(1:10),
+#                        chrom = rep(1, 10),
+#                        position = round(seq(1001, 2000001, length.out = 10)*1000),
+#                        is_CRV = sample(c(rep(FALSE, 9), TRUE), size = 10))
+#
+# toy_muts$marker <- paste0(toy_muts$chrom, sep = "_", toy_muts$position)
+# toy_muts$afreq <- round(runif(10, min = 0, max = 0.005), digits = 6)
+
+toy_haps <- sparseMatrix(i = seq(1:100),
+                         j = seq(1:100),
+                         x = rep(1, 100))
+toy_muts <- data.frame(colID = seq(1:100),
+                       chrom = rep(1, 100),
+                       position = round(seq(1001, 2000001, length.out = 100)*1000),
+                       is_CRV = sample(c(rep(FALSE, 99), TRUE), size = 100))
 
 toy_muts$marker <- paste0(toy_muts$chrom, sep = "_", toy_muts$position)
-toy_muts$afreq <- round(runif(10, min = 0, max = 0.005), digits = 6)
-
+toy_muts$afreq <- round(runif(100, min = 0, max = 0.005), digits = 6)
 
 
  test_that("When mutiple RV founders in pedigree disease-locus genotypes are correct", {
@@ -131,11 +147,22 @@ toy_muts$afreq <- round(runif(10, min = 0, max = 0.005), digits = 6)
 
 test_that("All pedigree members have the correct genotypes at the crv locus", {
 
-  #choose a family from study peds
-  test_fam = study_peds[study_peds$FamID == sample(x = c(1, 3:5), size = 1), ]
-  rownames(test_fam) = NULL
+  #Simulate a pedigree using simRVPedigree
+  RVped <- sim_RVped(hazard_rates = hazard(AgeSpecific_Hazards),
+                     GRR = 50, carrier_prob = 0.002,
+                     RVfounder = TRUE,
+                     FamID = 1,
+                     num_affected = 2,
+                     recall_probs = c(1),
+                     founder_byears = c(1900, 1910),
+                     ascertain_span = c(1970, 2015))[[2]]
 
-  study_dat = sim_RVstudy(ped_files = test_fam,
+  #get summary information
+  RVsum <- summary(RVped)
+
+
+  #simulate sequence data for pedigree
+  study_dat = sim_RVstudy(ped_files = RVped,
                           SNV_data = SNVdata(Haplotypes = toy_haps,
                                              Mutations = toy_muts),
                           remove_wild = FALSE,
@@ -209,18 +236,28 @@ test_that("affecteds from genetic families carry the correct number of cRVs at f
                                replace = TRUE)
   }
 
-  test_fam = sample(x = c(1, 3, 4, 5), size = 1)
+  #Simulate a pedigree using simRVPedigree
+  RVped <- sim_RVped(hazard_rates = hazard(AgeSpecific_Hazards),
+                     GRR = 50, carrier_prob = 0.002,
+                     RVfounder = TRUE,
+                     FamID = 1,
+                     num_affected = 2,
+                     recall_probs = c(1),
+                     founder_byears = c(1900, 1910),
+                     ascertain_span = c(1970, 2015))[[2]]
+
+  #get summary information
+  RVsum <- summary(RVped)
 
   #simulate sequence data for study
-  study_seq <- sim_RVstudy(ped_files = study_peds[study_peds$FamID == test_fam, ],
+  study_seq <- sim_RVstudy(ped_files = RVped,
                            SNV_data = SNVdata(Haplotypes = toy_haps,
                                               Mutations = toy_muts2),
                            remove_wild = FALSE,
                            affected_only = TRUE)
 
-  num_affected <- sum(study_peds$affected[study_peds$FamID == test_fam])
 
   fam_RVcount <- colSums(study_seq$ped_haplos[study_seq$haplo_map$affected, ])[which(toy_muts2$marker == study_seq$haplo_map$FamCRV[1])]
 
-  expect_equal(fam_RVcount, num_affected)
+  expect_equal(fam_RVcount, RVsum$family_info$numAffected)
 })
