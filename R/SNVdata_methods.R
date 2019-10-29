@@ -41,18 +41,21 @@ is.SNVdata <- function(x) {
   return(inherits(x, "SNVdata"))
 }
 
-#' Import 1000 genomes exon data formatted for sim_RVstudy
+#' Load pre-formatted 1000 Genomes Project exon data
 #'
-#' Import 1000 genomes exon data formatted for sim_RVstudy
+#' Load pre-formatted 1000 Genomes Project exon data
 #'
-#' We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with our `combine_exons` function.  For additional information regarding the `combine_exons` function please  execute `help(combine_exons)` in the console.
+#' We expect that \code{pathwayDF} does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with the \code{\link{combine_exons}} function.
 #'
-#' @param chrom Numeric.  The chromosome number(s).  A numeric list of chromosome numbers representing the 1000 genomes exon-data to be imported.
-#' @param pathway_df Data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`. See Details.
+#' @param chrom Numeric.  The chromosome number(s).  A numeric list of chromosome numbers representing the 1000 Genomes Project exon-data to load.
+#' @param pathway_df Data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables \code{chrom}, \code{exonStart}, and \code{exonEnd}. See Details.
 #'
-#' @return An object of class \code{SNVdata} or a list of objects of class \code{SNVdata}, i.e. one for each chomosome that was imported.
+#' @return An object of class \code{SNVdata} containing the imported exon data.
 #' @export
 #' @importFrom utils read.csv
+#' @seealso \code{\link{combine_exons}}
+#'
+#' @references 1000 Genomes Project (2010). \emph{A Map of Human Genome Variation from Population-Scale Sequencing}. Nature; 467:1061-1073.
 #'
 #' @examples
 #' exdata = load_1KG(21:22)

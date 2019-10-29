@@ -2,23 +2,23 @@
 % Please edit documentation in R/SNVdata_methods.R
 \name{load_1KG}
 \alias{load_1KG}
-\title{Import 1000 genomes exon data formatted for sim_RVstudy}
+\title{Load pre-formatted 1000 Genomes Project exon data}
 \usage{
 load_1KG(chrom, pathway_df = NULL)
 }
 \arguments{
-\item{chrom}{Numeric.  The chromosome number(s).  A numeric list of chromosome numbers representing the 1000 genomes exon-data to be imported.}
+\item{chrom}{Numeric.  The chromosome number(s).  A numeric list of chromosome numbers representing the 1000 Genomes Project exon-data to load.}
 
-\item{pathway_df}{Data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`. See Details.}
+\item{pathway_df}{Data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables \code{chrom}, \code{exonStart}, and \code{exonEnd}. See Details.}
 }
 \value{
-An object of class \code{SNVdata} or a list of objects of class \code{SNVdata}, i.e. one for each chomosome that was imported.
+An object of class \code{SNVdata} containing the imported exon data.
 }
 \description{
-Import 1000 genomes exon data formatted for sim_RVstudy
+Load pre-formatted 1000 Genomes Project exon data
 }
 \details{
-We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with our `combine_exons` function.  For additional information regarding the `combine_exons` function please  execute `help(combine_exons)` in the console.
+We expect that \code{pathwayDF} does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with the \code{\link{combine_exons}} function.
 }
 \examples{
 exdata = load_1KG(21:22)
@@ -27,4 +27,10 @@ unique(exdata$Mutations$chrom)
 head(exdata$Mutations)
 exdata$Haplotypes[1:20, 1:10]
 head(exdata$Samples)
+}
+\references{
+1000 Genomes Project (2010). \emph{A Map of Human Genome Variation from Population-Scale Sequencing}. Nature; 467:1061-1073.
+}
+\seealso{
+\code{\link{combine_exons}}
 }
