@@ -192,14 +192,14 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' \enumerate{
 #' \item \code{Haplotypes} A sparse matrix of class dgCMatrix (see \code{\link{dgCMatrix-class}}). The columns in {Haplotypes} represent distinct SNVs, while the rows represent individual haplotypes. We note that this matrix contains two rows of data for each diploid individual in the population: one row for the maternally ihnherited haplotype and the other for the paternally inherited haplotype.
 #' \item \code{Mutations} A data frame cataloging SNVs in \code{Haplotypes}. The variables in the \code{Mutations} data set are described as follows:
-#' \tabular{ll}{
-#' \code{colID} \tab Associates the rows, i.e. SNVs, in \code{Mutations} to the columns of \code{Haplotypes}. \cr
-#' \code{chrom} \tab The chromosome that the SNV resides on. \cr
-#' \code{position} \tab The position of the SNV in base pairs. \cr
-#' \code{afreq} \tab The derived allele frequency of the SNV. \cr
-#' \code{marker} \tab A unique character identifier for the SNV.\cr
-#' \code{type} \tab The mutation type, as specified in the user's slim simulation.\cr
-#' \code{pathwaySNV} \tab Identifies SNVs located within the pathway of interest as \code{TRUE}. \cr
+#' \describe{
+#' \item{\code{colID}}{Associates the rows, i.e. SNVs, in \code{Mutations} to the columns of \code{Haplotypes}.}
+#' \item{\code{chrom}}{The chromosome that the SNV resides on.}
+#' \item{\code{position}}{The position of the SNV in base pairs.}
+#' \item{\code{afreq}}{The derived allele frequency of the SNV.}
+#' \item{\code{marker}}{A unique character identifier for the SNV.}
+#' \item{\code{type}}{The mutation type, as specified in the user's slim simulation.}
+#' \item{\code{pathwaySNV}}{Identifies SNVs located within the pathway of interest as \code{TRUE}.}
 #' }}
 #'
 #' Please note: the variable \code{pathwaySNV} will be omitted when \code{pathway_df} is not supplied to \code{read_slim}.

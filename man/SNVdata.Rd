@@ -2,7 +2,7 @@
 % Please edit documentation in R/SNVdata_methods.R
 \name{SNVdata}
 \alias{SNVdata}
-\title{Constructor function for an object of class famStudy}
+\title{Constructor function for an object of class SNVdata}
 \usage{
 SNVdata(Haplotypes, Mutations, Samples = NULL)
 }
@@ -11,11 +11,11 @@ SNVdata(Haplotypes, Mutations, Samples = NULL)
 
 \item{Mutations}{Data frame. A data frame that catalogs the SNVs in \code{Haplotypes}.}
 
-\item{Samples}{A dataframe or matrix describing the individuals in \code{Haplotypes}.}
+\item{Samples}{An optional dataframe or matrix describing the individuals in \code{Haplotypes}.}
 }
 \value{
 an object of class \code{SNVdata}.
 }
 \description{
-Constructor function for an object of class famStudy
+Constructor function for an object of class SNVdata
 }
