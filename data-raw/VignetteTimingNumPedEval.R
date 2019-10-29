@@ -1,95 +1,6 @@
-#simulate data for a sample of pedigrees
-# DO NOT RUN #
-# instead load simulated pedigrees
-library(SimRVPedigree)
+#load pedigrees and SNV data
+source("data-raw/VignetteTimingData.R")
 
-#Create hazard object from AgeSpecific_Hazards data
-data(AgeSpecific_Hazards)
-my_HR = hazard(AgeSpecific_Hazards)
-
-# load libraries needed to simulate pedigrees in parallel.
-library(doParallel)
-library(doRNG)
-
-npeds <- 100    #set the number of pedigrees to generate
-
-cl <- makeCluster(8)   # create cluster
-registerDoParallel(cl) # register cluster
-
-
-#simulate a sample of five pedigrees using foreach
-s_peds = foreach(i = seq(npeds), .combine = rbind,
-                 .packages = c("SimRVPedigree"),
-                 .options.RNG = 844090518
-) %dorng% {
-  # Simulate pedigrees ascertained for at least three disese-affected individuals,
-  # according to the age-specific hazard rates in the `AgeSpecific_Hazards` data
-  # set, ascertained from 1980 to 2018, with seed-founder birth year spanning
-  # from 1900 to 1920, stop year set to 2018, and with genetic relative-risk 50.
-  sim_RVped(hazard_rates = my_HR,
-            GRR = 50, FamID = i,
-            RVfounder = TRUE,
-            founder_byears = c(1900, 1920),
-            ascertain_span = c(1980, 2018),
-            stop_year = 2018,
-            recall_probs = c(1, 0.5, 0),
-            num_affected = 3)[[2]]}
-
-stopCluster(cl) #shut down cluster
-
-
-# save(time_peds, file="data-raw/time_peds.rdata", compress='xz')
-# save(time_peds, file="C:/Users/cnieuwoudt/Google Drive/SeqSim/R code/time_peds.rdata", compress='xz')
-
-
-#import pedigrees
-time_peds <- read.csv("C:/Users/cnieuwoudt/Google Drive/SeqSim/R code/time_peds.csv")
-
-
-#load pedigrees for timing
-load(file="data-raw/time_peds.rdata")
-class(time_peds)
-
-#-------------------------#
-# Timing table - Vignette #
-#-------------------------#
-library(SimRVSequences)
-data(hg_exons)
-data(hg_apopPath)
-data(study_peds)
-
-#create mutation and genome set from slim output
-a = Sys.time()
-sout = read_slim(file_path = "C:/Data/Slim/SlimFINALout.txt",
-                 keep_maf = 0.01,
-                 recomb_map = create_slimMap(hg_exons),
-                 pathway_df = hg_apopPath)
-b = Sys.time()
-difftime(b, a, units = "mins")
-
-class(sout)
-
-#choose pool of causal rare variants
-dim(sout$Mutations)
-table(sout$Mutations$afreq[sout$Mutations$pathwaySNV])
-
-set.seed(411)
-crv_rows <- sample(which(sout$Mutations$pathwaySNV & sout$Mutations$afreq == 5e-05),
-                   size = 20, replace = FALSE)
-sout$Mutations$is_CRV <- FALSE
-sout$Mutations$is_CRV[crv_rows] <- TRUE
-
-sum(sout$Mutations$afreq[sout$Mutations$is_CRV])
-
-# sout$Mutations$is_CRV <- FALSE
-# sout$Mutations$is_CRV[sout$Mutations$marker == "1_170552964"] <- TRUE
-
-
-# create different sized pedigree samples to evaluate timing #
-#modify FamIDs so that we can combine with original 100
-time_peds_dummy200 <- time_peds
-time_peds_dummy200$FamID <- time_peds_dummy200$FamID + 100
-time_peds_dummy200 <- rbind(time_peds, time_peds_dummy200)
 
 #data frame of times to populate for each set of settings
 time_dat <- data.frame(time_ped10 = rep(NA, 10),
@@ -115,9 +26,20 @@ time_res[[4]] = time_dat
 set.seed(2304789)
 for(i in 1:length(num_peds)){
   for(k in 1:10){
-    #sample appropriate number of pedigrees from sample of 200 pedigrees
-    tpeds = time_peds_dummy200[time_peds_dummy200$FamID %in%
-                                 sample(time_peds_dummy200$FamID, size = num_peds[[i]]), ]
+
+    # Must do this complicated sampling, because we must ensure that each
+    # sampled family has a unique famID.
+    tpeds = lapply(1:num_peds[i], function(x){
+      time_peds[time_peds$FamID == sample(time_peds$FamID, size = 1), ]
+    })
+
+    #re-name famID to ensure that each family has unique FamID
+    for (np in 1:length(tpeds)){
+      tpeds[[np]]$FamID <- np
+    }
+
+    #combine into a single dataframe
+    tpeds = do.call(rbind, tpeds)
 
     #time sim_RVstudy for each set of settings
     for(j in 1:nrow(simStudy_settings)){
@@ -139,16 +61,38 @@ time_res2 = time_res[[2]]
 time_res3 = time_res[[3]]
 time_res4 = time_res[[4]]
 
-# save(time_res1, file="C:/Users/cnieuwoudt/Google Drive/SeqSim/R code/time_res1.rdata", compress='xz')
-# save(time_res2, file="C:/Users/cnieuwoudt/Google Drive/SeqSim/R code/time_res2.rdata", compress='xz')
-# save(time_res3, file="C:/Users/cnieuwoudt/Google Drive/SeqSim/R code/time_res3.rdata", compress='xz')
-# save(time_res4, file="C:/Users/cnieuwoudt/Google Drive/SeqSim/R code/time_res4.rdata", compress='xz')
 
 
-load(file="C:/Users/cnieuwoudt/Google Drive/SeqSim/R code/time_res1.rdata", compress='xz')
-load(file="C:/Users/cnieuwoudt/Google Drive/SeqSim/R code/time_res2.rdata", compress='xz')
-load(file="C:/Users/cnieuwoudt/Google Drive/SeqSim/R code/time_res3.rdata", compress='xz')
-load(file="C:/Users/cnieuwoudt/Google Drive/SeqSim/R code/time_res4.rdata", compress='xz')
+# save(time_res1, file = "C:/Data/SimSeqTiming/time_res1.rdata", compress='xz')
+# save(time_res2, file = "C:/Data/SimSeqTiming/time_res2.rdata", compress='xz')
+# save(time_res3, file = "C:/Data/SimSeqTiming/time_res3.rdata", compress='xz')
+# save(time_res4, file = "C:/Data/SimSeqTiming/time_res4.rdata", compress='xz')
+
+
+
+load(file = "C:/Data/SimSeqTiming/time_res1.rdata")
+load(file = "C:/Data/SimSeqTiming/time_res2.rdata")
+load(file = "C:/Data/SimSeqTiming/time_res3.rdata")
+load(file = "C:/Data/SimSeqTiming/time_res4.rdata")
+
+
+apply(time_res1, 2, mean)
+apply(time_res1, 2, sd)
+
+apply(time_res2, 2, mean)
+apply(time_res2, 2, sd)
+
+apply(time_res3, 2, mean)
+apply(time_res3, 2, sd)
+
+apply(time_res4, 2, mean)
+apply(time_res4, 2, sd)
+
+simStudy_settings <- data.frame(affOnly = c(TRUE, TRUE, FALSE, FALSE),
+                                remWild = c(TRUE, FALSE, TRUE, FALSE))
+
+num_peds = c(10, 50, 100, 150, 200)
+
 
 
 my.cols = c(SFUred = rgb(red = 166/225, green = 25/225, blue = 46/225), #SFUred
@@ -159,24 +103,27 @@ my.cols = c(SFUred = rgb(red = 166/225, green = 25/225, blue = 46/225), #SFUred
             SFUteal = rgb(red = 0, green = 128/225, blue = 128/225),
             SFUmidnight = rgb(red = 25/225, green = 25/225, blue = 112/225)) #SFUgreen
 
-win.graph(h = 5, w = 6)
+my_pch = c(19, 17, 15, 18)
+win.graph(h = 6, w = 6)
 plot(x = num_peds, y = apply(time_res1, 2, mean),
      xlab = "Number of Pedigrees",
      xaxt = "n",
-     ylab = "Time (in minutes)",
-     main = "Timing by Number of Pedigree and Settings",
+     ylab = "Computation Time (minutes)",
+     main = "Compuation Time by Number of Pedigrees \n and Simulation Settings",
      col = my.cols[[1]],
-     pch = 19,
+     pch = my_pch[1],
      lwd = 1,
      type = "b",
-     ylim = c(0, 7))
+     ylim = c(0, 10))
 #create legend to detail population
 legend("topleft", #title = "settings",
        legend = c("affected_only = TRUE, remove_wild = TRUE",
                   "affected_only = TRUE, remove_wild = FALSE",
                   "affected_only = FALSE, remove_wild = TRUE",
                   "affected_only = FALSE, remove_wild = FALSE"),
-       col = c(my.cols[1], my.cols[3], my.cols[6], my.cols[7]), lwd = 2)
+       cex = 1,
+       pch = c(my_pch[1], my_pch[2], my_pch[3], my_pch[4]),
+       col = c(my.cols[1], my.cols[3], my.cols[6], my.cols[7]))
 
 axis(side = 1, at = num_peds,
      labels = as.character(num_peds),
@@ -184,14 +131,53 @@ axis(side = 1, at = num_peds,
 
 points(x = num_peds, y = apply(time_res2, 2, mean),
        col = my.cols[[3]],
-       pch = 15,
+       pch = my_pch[2],
      type = "b")
 points(x = num_peds, y = apply(time_res3, 2, mean),
        col = my.cols[[6]],
-       pch = 17,
+       pch = my_pch[3],
        type = "b")
 points(x = num_peds, y = apply(time_res4, 2, mean),
        col = my.cols[[7]],
-       pch = 18,
+       pch = my_pch[4],
        type = "b")
+
+
+
+#-------------#
+# with ggplot #
+#-------------#
+time_res1$settings = "affected_only = T, remove_wild = T"
+time_res2$settings = "affected_only = T, remove_wild = F"
+time_res3$settings = "affected_only = F, remove_wild = T"
+time_res4$settings = "affected_only = F, remove_wild = F"
+
+tdf <- rbind(melt(time_res1, id.vars = 'settings'),
+             melt(time_res2, id.vars = 'settings'),
+             melt(time_res3, id.vars = 'settings'),
+             melt(time_res4, id.vars = 'settings'))
+
+tdf$num_peds <- ifelse(tdf$variable == "time_ped10", 10,
+                       ifelse(tdf$variable == "time_ped50", 50,
+                              ifelse(tdf$variable == "time_ped100", 100,
+                                     ifelse(tdf$variable == "time_ped150", 150, 200))))
+
+#obtain required statistics
+library(dplyr)
+tdf2 <- tdf %>%
+  group_by(settings, num_peds) %>%
+  summarize(mean = mean(value),
+            sd = sd(value),
+            n = n())
+
+#plot with error bars
+library(ggplot2)
+ggplot(data = tdf2, aes(x = num_peds, y = mean,
+                            group = settings, colour = factor(settings))) +
+  geom_line(size = 0.9) + geom_point(size = 1.5) +
+  geom_errorbar(aes(ymin = mean - 1.96*sd/sqrt(n), ymax = mean + 1.96*sd/sqrt(n)), width = 1) +
+  coord_cartesian(xlim = c(0, 210), ylim = c(0, 7)) +
+  labs(title = "Computation Time by Number of Pedigrees and Settings",
+       y = "Computation Time (minutes)",
+       x = "Number of Pedigrees")
 
