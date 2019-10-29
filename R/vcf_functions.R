@@ -37,11 +37,20 @@ get_SMindex_by_person <- function(person_index, person_genos){
 
 #' Convert genotypes to haplotypes.
 #'
-#' This function may be used to convert phased genotype data for diplod organisms into a sparse matrix in which each row represents the phased haplotype data for an individual.
+#' This function may be used to convert phased genotype data for diplod organisms into a sparse matrix.
 #'
-#' @param genotypes The genotypes returned by read.vcfR, see details.
+#' @param genotypes A dataframe or matrix of genotypes.  The columns of \code{genotypes} are assumed to be individuals (i.e. a diploid human) and the rows are assumed to be mutations.  See details.
 #'
-#' @return A sparseMatrix
+#'
+#' The columns of \code{genotypes} are assumed to be individuals (i.e. a diploid human) and the rows are assumed to be mutations.  Thus, the (i,j)th entry of \code{genotypes} is the genotype of the jth person at the ith SNV site.  Please note that \code{genotypes} should not contain missing values.  Additionally, genotypes may take one of the following three forms:
+#' \itemize{
+#' \item "0|0" if the individual is homozygous for the reference allele,
+#' \item "0|1" or "0|1" if the individual is heterozygous for the alternate allele,
+#' \item "1|1" if the individual is homozygous for the alternate allele.
+#' }
+#'
+#'
+#' @return A sparseMatrix.  Note that the rows and columns of the returned matrix have been transposed so that individual haplotypes are rows, and each column represents an SNV.
 #' @export
 #'
 genos2sparseMatrix <- function(genotypes){
