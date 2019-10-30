@@ -2,6 +2,7 @@
 
 language: R
 warnings_are_errors: true
+r_build_args: '--compact-vignettes="gs+qpdf"'
 sudo: false
 cache: packages
 notifications:
