@@ -3,10 +3,6 @@ title: "SimRVSequences"
 author: "Christina Nieuwoudt, Wen Tian Wang, and Jinko Graham"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
-    toc: yes
-    toc_depth: '3'
-    number_sections: true 
   html_document:
     number_sections: yes
     toc: yes
@@ -16,31 +12,6 @@ vignette: >
   \usepackage[utf8]{inputenc}
   %\VignetteEngine{knitr::rmarkdown}
 ---
-
-
-```{r wrap-hook, echo =  FALSE}
-library(knitr)
-hook_output = knit_hooks$get('output')
-knit_hooks$set(output = function(x, options) {
-  # this hook is used only when the linewidth option is not NULL
-  if (!is.null(n <- options$linewidth)) {
-    x = knitr:::split_lines(x)
-    # any lines wider than n should be wrapped
-    if (any(nchar(x) > n)) x = strwrap(x, width = n)
-    x = paste(x, collapse = '\n')
-  }
-  hook_output(x, options)
-})
-
-
-def.chunk.hook  <- knitr::knit_hooks$get("chunk")
-knitr::knit_hooks$set(chunk = function(x, options) {
-  x <- def.chunk.hook(x, options)
-  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
-})
-
-```
-
 
 \newpage
 # Introduction
@@ -65,7 +36,7 @@ To simulate sequence data for a family-based study users are expected to provide
 In section 3 of this vignette, we outline three different SNV data options. The flow chart in Figure 1 illustrates the preparation required for each of the above inputs.  We note that simulation of SNV data with SLiM [4] is NOT accomplished in `R`.  However, we do provide pre- and post-processing methods to assist with importing and formatting the SNV data simulated by SLiM, which are discussed at length in section 3.1.  In section 4 we outline two different pedigree data options, the second of which is a brief review of simulating pedigree data using the `R` package `SimRVPedigree` [10].
 
 
-![Data preparation flow chart.  All tasks completed in `R` are enclosed in rectangular frames while the SLiM simulation component seen in option 1 of the Prepare SNV Data is enclosed in a parallelogram.](flowchart2.png)
+![**Figure 1**: Data preparation flow chart.  All tasks completed in `R` are enclosed in rectangular frames while the SLiM simulation component seen in option 1 of the Prepare SNV Data is enclosed in a parallelogram.](flowchart.png)
 
 
 \newpage
@@ -249,7 +220,7 @@ vcf_file_path <- "C:/Data/exons_chr21.vcf.gz"
 # import vcf file
 vcf_chrom21 <- read.vcfR(vcf_file_path)
 ```
-```{r, linewidth = 80}
+```{r}
 # determine the structure of vcf_chrom21
 str(vcf_chrom21)
 ```
@@ -311,7 +282,7 @@ We now demonstrate how to manipulate the fixed data contained in the `vcfR` obje
 vcf_chrom21@fix[1:2, ]
 ```
 
-```{r, echo = FALSE, size = "footnotesize"}
+```{r, echo = FALSE}
 # View the first two rows of the fixed data
 vcf_chrom21@fix[1:2, ]
 ```
@@ -335,18 +306,18 @@ Descriptions for the semi-colon separated variables in `INFO` field are containe
 vcf_chrom21@meta
 ```
 
-```{r, echo = FALSE, linewidth = 130, size = "scriptsize"}
+```{r, echo = FALSE}
 # View the meta data
 vcf_chrom21@meta
 ```
 
 
 From the output above, we see that the first description for an `INFO` field variable can be found in the eighth item of `@meta`.  
-```{r, eval = FALSE, linewidth = 100}
+```{r, eval = FALSE}
 # View the eight item in the meta data
 vcf_chrom21@meta[[8]]
 ```
-```{r, echo = FALSE, linewidth = 110, size="footnotesize"}
+```{r, echo = FALSE}
 # View the eight item in the meta data
 vcf_chrom21@meta[[8]]
 ```
@@ -354,7 +325,7 @@ The description above indicates that `AF` is a float variable which represents t
 
 The information contained in the `INFO` field is valuable; however, its current semi-colon separated format is undesirable.  The `vcfR` package's `vcfR2tidy` function can be used to improve the format of the fixed data, including the `INFO` field.  We now demonstrate how to use `vcfR2tidy` to format the fixed data for this example.  For additional information on the `vcfR2tidy` function please execute `help(vcfR2tidy)` in the console.
 
-```{r, linewidth = 80}
+```{r}
 # Extract and store the mutation data using vcfR2tidy
 #
 # NOTE: setting info_only = TRUE since we do not need to re-process the genotype data
@@ -380,7 +351,7 @@ summary(muts)
 
 From the output above, we see that `vcfR2tidy` returns two items named `fix` and `meta`.  The information we require is contained in the first item named `fix`. 
 
-```{r, linewidth = 80}
+```{r}
 # View fix (contained in output named muts)
 muts$fix
 ```
@@ -388,14 +359,14 @@ muts$fix
 
 From the output above, we see that the `INFO` variables are now neatly stored in their own columns.
 
-```{r, linewidth = 80}
+```{r}
 # View the first three rows of the fixed data in muts
 head(muts$fix, n = 3)
 ```
 
 Notice that the alternate allele frequency, `AF`, is rounded to two decimal places.  Users who prefer to retain more that 2 significant digits can re-calculate `AF` as the alternate allele count, i.e. `AC`, divided by the allele number values, i.e. `AN`.  In this context, the allele number is the total number of samples with non-missing data at the specified marker.  See http://www.internationalgenome.org/category/allele-frequency/ for additional information. 
 
-```{r, linewidth = 80}
+```{r}
 # Recalculate the alternate allele frequency
 muts$fix$AF <- muts$fix$AC/muts$fix$AN
 
@@ -500,7 +471,7 @@ Comparing the new dimensions to the original dimensions, we see that 44 rows hav
 
 Finally, we are ready to create an object of class `SNVdata`.  To create this object we supply the required arguments to the `SNVdata` constructor function as follows.
 
-```{r, linewidth = 80}
+```{r}
 # create SNVdata object for chromosome 21 without sample or meta data
 SNVdata_chrom21 <- SNVdata(Haplotypes = haplotypes, 
                            Mutations = mutations,
@@ -528,7 +499,7 @@ For ease of use, `SimRVSequences` provides pre-formatted exon-data from the 1000
   1. `chrom` A number or list of numbers of chromosomes to load.  We note that since `SimRVSequences` only simulated sequence data for non-sex chromosomes `load_1KG` cannot be used to import data from chromosomes X or Y. 
   2. `pathway_df` (Optional) A data frame that contains the positions for each exon in a pathway of interest.  This data frame must contain the variables `chrom`, `exonStart`, and `exonEnd`.  *We expect that `pathwayDF` does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with our `combine_exons` function.  For additional information regarding the `combine_exons` function please execute `help(combine_exons)` in the console.*
 
-```{r, linewidth = 80}
+```{r}
 # load the hg_apopPath dataset
 data("hg_apopPath")
 
@@ -624,7 +595,7 @@ sex = c(0, 1, 0, 1, 0, 1)
 ```
 
 
-![A pedigree with 6 members. In this pedigree, males are indicated by squares and females by circles. Parents are connected by a horizontal  line and their offspring branch out below.  Disease-affected relatives are shaded red and unaffected relatives are shaded white.  Each individual in the pedgiree is labeled with a unique ID.  Additionally, the individual's phased genotype at the familial cRV locus is included below the individual's ID number.  In the supplied genotypes "1" indicates inheritance of the alternate allele, while "0" indicates inheritance of the reference (or wild type) allele.](examplePed.png){width=300px}
+![**Figure 2**: A pedigree with 6 members. In this pedigree, males are indicated by squares and females by circles. Parents are connected by a horizontal  line and their offspring branch out below.  Disease-affected relatives are shaded red and unaffected relatives are shaded white.  Each individual in the pedgiree is labeled with a unique ID.  Additionally, the individual's phased genotype at the familial cRV locus is included below the individual's ID number.  In the supplied genotypes "1" indicates inheritance of the alternate allele, while "0" indicates inheritance of the reference (or wild type) allele.](examplePed.png){width=300px}
 
 The variables `dadID` and `momID` represent the identification numbers of an individual's biological parents.  Thus, the $i^{th}$ item in `dadID` should be the ID of the $i^{th}$ individual's father.  For example, the father of the individual with ID 3 is the individual with ID 1; therfore, when specifying the variable `dadID` we must ensure that `dadID[3] = 1`.  Notice that some individuals in family 314 do not have a mother or afather.  The individuals without any parents are known as "founders", while those with both parents represented in the pedigree, e.g. ID 3, are known as "non-founders'.  Since founders do not have parents, there is no `dadID` or `momID` to specify for these individuals.  When this occurs, we specify `NA` in place of the missing parental identification numbers.  We note that individuals MUST be classified as either founders (i.e. no parents) or non-founders (i.e. both parents).  `SimRVSequences` will not accept pedigrees that contain partially identified parents, e.g. mother included but father missing.  When pedigrees contain partially identified parents, we recommend creating a dummy parent in lieu of the missing parent.
 
@@ -714,7 +685,7 @@ stopCluster(cl) #shut down cluster
 
 
 For the purpose of demonstration, we will use the `study_peds` data set provided by `SimRVSequences`.  
-```{r, fig.height = 8, fig.width = 8.6, fig.align = 'center'}
+```{r, fig.height = 8, fig.width = 8.6}
 # import study peds
 data("study_peds")
 
@@ -810,7 +781,7 @@ We will discuss each of the four items contained in the `famStudy` object in the
 ### The `ped_files` data frame
 The data frame `ped_files` contained in the `famStudy` object is a potentially reduced set of pedigree files for the original families. Recall that, by default `affected_only = TRUE`, so the pedigrees supplied to `sim_RVstudy` are reduced to contain only the affected individuals and the individuals who connect them along a line of descent. 
 
-```{r, fig.height = 4.5, fig.width = 5.5, fig.align = 'center'}
+```{r, fig.height = 4.5, fig.width = 5.5}
 # plot the pedigree returned by sim_RVseq for family 3.
 # Since we used the affected_only option the pedigree has
 # been reduced to contain only disease-affected relatives.
@@ -922,7 +893,7 @@ In this section we describe the model assumptions employed by `SimRVSequences` t
     + Case 2: If the **parent carries the cRV but the offspring does not**, we sample the inherited gamete from the two possible parental gametes that do not carry the cRV. For example, in the father to offspring transmission in Figure 3, we choose from the paternal gametes represented by the bottom two chromatids.
     + Case 3: If the **parent is not a carrier of the cRV**, then the cRV status of the offspring is irrelevant for this parent's transmission because the offspring cannot inherit it from this parent.  In this scenario, we sample the inherited gamete from the four parental gametes with equal probability.  For example, this would be the case in the mother to offspring transmission in figure 3, since she is not a carrier of the cRV.
 
-![A family trio with possible maternal and paternal recombinant chromatids for a diploid organism with a single set of homologous chromosomes. The cRV locus is indicated by a dashed vertical line over the chromatids, and the cRV is indicated by a black vertical bar within the chromatids.  The top two chromatids of the father contain the only copies of the cRV.](singlechromgametes.png)
+![**Figure 3**: A family trio with possible maternal and paternal recombinant chromatids for a diploid organism with a single set of homologous chromosomes. The cRV locus is indicated by a dashed vertical line over the chromatids, and the cRV is indicated by a black vertical bar within the chromatids.  The top two chromatids of the father contain the only copies of the cRV.](singlechromgametes.png)
 
 We use these assumptions in our algorithm to simulate sequence data for pedigrees (see introduction.)
 
@@ -967,7 +938,7 @@ To assess how well `SimRVSequences` scales with number of pedigrees we compare t
 
 Figure 4 displays the results of this timing comparison.  From the plot, we see that under the most computationally expensive simulation settings, i.e. `affected_only = FALSE` and `remove_wild = FALSE`, the simulation time for 200 pedigrees was, on average, approximately 4 minutes.  Under the least computationally expensive simulation settings, i.e. `affected_only = TRUE` and `remove_wild = TRUE`, the simulation time for 200 pedigrees was, on average, approximately 1 minute. 
 
-![Computation Time by Number of Pedigrees and Simulation Settings.](TimingPlot.png){width=400px}
+![**Figure 4**: Computation Time by Number of Pedigrees and Simulation Settings.](TimingPlot.png){width=400px}
 
 
 
