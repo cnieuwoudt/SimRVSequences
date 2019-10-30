@@ -197,22 +197,31 @@ test_that("rows of haplo_map are equal to rows ped_haplos", {
 
 test_that("sproadic families to do carry ANY crvs in pool", {
   #create a fully sporadic sample
-  sp_peds <- study_peds
-  sp_peds$DA1 <- 0
-  sp_peds$DA2 <- 0
+  ##Simulate a pedigree using simRVPedigree
+  RVped <- sim_RVped(hazard_rates = hazard(AgeSpecific_Hazards),
+                     GRR = 50, carrier_prob = 0.002,
+                     RVfounder = TRUE,
+                     FamID = 1,
+                     num_affected = 2,
+                     recall_probs = c(1),
+                     founder_byears = c(1900, 1910),
+                     ascertain_span = c(1970, 2015))[[2]]
+
+  RVped$DA1 <- 0
+  RVped$DA2 <- 0
 
   #sample SNVs to be in the causal pool
   toy_muts2 <- toy_muts
   toy_muts2$is_CRV = FALSE
   while (sum(toy_muts2$is_CRV) == 0) {
     toy_muts2$is_CRV <- sample(x = c(TRUE, FALSE),
-                               size = 10,
+                               size = 100,
                                prob = c(0.2, 0.8),
                                replace = TRUE)
   }
 
   #simulate sequence data for study
-  study_seq <- sim_RVstudy(ped_files = sp_peds,
+  study_seq <- sim_RVstudy(ped_files = RVped,
                            SNV_data = SNVdata(Haplotypes = toy_haps,
                                               Mutations = toy_muts2),
                            remove_wild = FALSE,
@@ -231,7 +240,7 @@ test_that("affecteds from genetic families carry the correct number of cRVs at f
   toy_muts2$is_CRV = FALSE
   while (sum(toy_muts2$is_CRV) == 0) {
     toy_muts2$is_CRV <- sample(x = c(TRUE, FALSE),
-                               size = 10,
+                               size = 100,
                                prob = c(0.2, 0.8),
                                replace = TRUE)
   }
@@ -246,8 +255,9 @@ test_that("affecteds from genetic families carry the correct number of cRVs at f
                      founder_byears = c(1900, 1910),
                      ascertain_span = c(1970, 2015))[[2]]
 
+
   #get summary information
-  RVsum <- summary(RVped)
+  num_fam_RVcarriers <- sum(RVped$DA1[RVped$affected], RVped$DA2[RVped$affected])
 
   #simulate sequence data for study
   study_seq <- sim_RVstudy(ped_files = RVped,
@@ -259,5 +269,5 @@ test_that("affecteds from genetic families carry the correct number of cRVs at f
 
   fam_RVcount <- colSums(study_seq$ped_haplos[study_seq$haplo_map$affected, ])[which(toy_muts2$marker == study_seq$haplo_map$FamCRV[1])]
 
-  expect_equal(fam_RVcount, RVsum$family_info$numAffected)
+  expect_equal(fam_RVcount, num_fam_RVcarriers)
 })
