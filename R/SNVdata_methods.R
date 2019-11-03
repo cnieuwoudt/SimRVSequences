@@ -45,7 +45,11 @@ is.SNVdata <- function(x) {
 #'
 #' Load pre-formatted 1000 Genomes Project exon data
 #'
-#' The \code{load_1KG} is used to load pre-formatted, exon-only SNV data from any of the 22 human autosomes.  The original data was obtained from http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/20190312_biallelic_SNV_and_INDEL/.  The data was reduced to remove any related indiviuals, to accopmlish this we randomly sampled one relative from each set of related individuals.  This resulted in the removal of 22 individuals.  Additional information regaring the formatting of the 1000 Genomes Project data may be found at https://github.com/simrvprojects/1000-Genomes-Exon-Data/blob/master/Documentation%20for%20Creating%20Exon%20Data_090319.pdf.
+#' The \code{load_1KG} is used to load pre-formatted, exon-only SNV data from any of the 22 human autosomes.  The original data was obtained from:
+#'
+#' http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/.
+#'
+#' The data was reduced to remove any related indiviuals, to accopmlish this we randomly sampled one relative from each set of related individuals.  This resulted in the removal of 22 individuals.  Additional information regaring the formatting of the 1000 Genomes Project data may be found at https://github.com/simrvprojects/1000-Genomes-Exon-Data/ in the pdf file entitled "Documentation for Creating Exon Data_090319.pdf".
 #'
 #' We expect that \code{pathwayDF} does not contain any overlapping segments.  Users may combine overlapping exons into a single observation with the \code{\link{combine_exons}} function.
 #'

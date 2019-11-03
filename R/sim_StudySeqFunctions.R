@@ -91,12 +91,6 @@ sim_FGenos <- function(founder_ids, RV_founder,
                                    replace = TRUE), ]
   } else {
 
-    #Determine which haplotypes carry the familial rare variant and which do not
-    RV_hap_loc <- which(haplos[, RV_col_loc] == 1)
-
-    #Determine which haplotypes do not carry ANY crv in the pool
-    no_CRVrows <- find_no_cSNV_rows(haplos, RV_pool_loc)
-
     #sample the paternally inherited founder haplotypes
     pat_inherited_haps <- sapply(founder_pat_allele, function(x){
       if(x == 0){
@@ -196,9 +190,11 @@ remove_allWild <- function(f_haps, SNV_map){
 #' \code{sex} \tab numeric \tab sex identification variable: \code{sex = 0} for males, and \code{sex = 1} females. \cr
 #' \code{dadID} \tab numeric \tab identification number of father \cr
 #' \code{momID} \tab numeric \tab identification number of mother \cr
-#' \code{affected} \tab logical \tab disease-affection status: \code{affected = TRUE} if individual has developed disease, and \code{FALSE} otherwise. \cr
-#' \code{DA1} \tab numeric \tab paternally inherited allele at the cRV locus: \code{DA1 = 1} if the cRV is inherited, and \code{0} otherwise. \cr
-#' \code{DA2} \tab numeric \tab maternally inherited allele at the cRV locus: \code{DA2 = 1} if the cRV is inherited, and \code{0} otherwise.\cr
+#' \code{affected} \tab logical \tab disease status indicator: set \code{affected = TRUE} if individual has disease.\cr
+#' \code{DA1} \tab numeric \tab paternally inherited allele at the cRV locus: \cr
+#'  \tab \tab  \code{DA1 = 1} if the cRV is inherited, and \code{0} otherwise. \cr
+#'  \code{DA2} \tab numeric \tab maternally inherited allele at the cRV locus: \cr
+#'  \tab \tab \code{DA2 = 1} if the cRV is inherited, and \code{0} otherwise.\cr
 #' }
 #'
 #' If \code{ped_files} does not contain the variables \code{DA1} and \code{DA2} the pedigrees are assumed to be fully sporadic.  Hence, the supplied pedigrees will not segregate any of the SNVs in the user-specified pool of cRVs.
@@ -210,10 +206,12 @@ remove_allWild <- function(f_haps, SNV_map){
 #' \strong{name} \tab \strong{type} \tab \strong{description} \cr
 #' \code{colID} \tab numeric \tab associates the rows in \code{SNV_map} to the columns of \code{haplos}\cr
 #' \code{chrom} \tab numeric \tab the chromosome that the SNV resides on\cr
-#' \code{position} \tab numeric \tab is the position of the SNV in base pairs when \code{pos_in_bp = TRUE} or centiMorgan when \code{pos_in_bp = FALSE}\cr
-#' \code{marker} \tab character \tab (Optional) a unique character identifier for the SNV. If missing this variable will be created from \code{chrom} and \code{position}. \cr
+#' \code{position} \tab numeric \tab is the position of the SNV in base pairs when argument \cr
+#' \tab \tab \code{pos_in_bp = TRUE} or centiMorgan when \code{pos_in_bp = FALSE}\cr
+#' \code{marker} \tab character \tab (Optional) a unique character identifier for the SNV. \cr
+#' \tab \tab If missing this variable will be created from \code{chrom} and \code{position}. \cr
 #' \code{pathwaySNV} \tab logical \tab (Optional) identifies SNVs located within the pathway of interest as \code{TRUE} \cr
-#' \code{is_CRV} \tab logical \tab  identifies causal rare variants (cRVs) as \code{TRUE}.  Note familial cRVs are sampled, with replacement from the SNVs for which \code{is_crv = TRUE}. \cr
+#' \code{is_CRV} \tab logical \tab  identifies causal rare variants (cRVs) as \code{TRUE}.\cr
 #' }
 #'
 #' Please note that when the variable \code{is_CRV} is missing from \code{SNV_map}, we sample a single SNV to be the causal rare variant for all pedigrees in the study, which is identified in the returned \code{famStudy} object.
@@ -222,8 +220,8 @@ remove_allWild <- function(f_haps, SNV_map){
 #' @param SNV_data SNVdata. An object of class \code{SNVdata} created by \code{\link{SNVdata}}.
 #' @param affected_only Logical. When \code{affected_only = TRUE}, we only simulate SNV data for the disease-affected individuals and the family members that connect them along a line of descent.  When \code{affected_only = FALSE}, SNV data is simulated for the entire study. By default, \code{affected_only = TRUE}.
 #' @param pos_in_bp Logical. This argument indicates if the positions in \code{SNV_map} are listed in base pairs.  By default, \code{pos_in_bp = TRUE}. If the positions in \code{SNV_map} are listed in centiMorgan please set \code{pos_in_bp = FALSE} instead.
-#' @param remove_wild Logical.  When \code{remove_wild = TRUE} the data is reduced by removing SNVs which are not observed in any of the study participants; otherwise if \code{remove_wild = FALSE} no data reduction occurs.  By default, \code{remove_wild = TRUE}.
-#' @param gamma_params Numeric list of length 2. The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma_params = c(2.63, 2*2.63)}, as discussed in Voorrips and Maliepaard (2012).
+#' @param remove_wild Logical.  When \code{remove_wild = TRUE} the data is reduced by removing SNVs which are not observed in any of the study participants; otherwise if \code{remove_wild} \code{= FALSE} no data reduction occurs.  By default, \code{remove_wild = TRUE}.
+#' @param gamma_params Numeric list of length 2. The respective shape and rate parameters of the gamma distribution used to simulate distance between chiasmata.  By default, \code{gamma} \code{_params} \code{= c(2.63, 2*2.63)}, as discussed in Voorrips and Maliepaard (2012).
 #' @param burn_in Numeric. The "burn-in" distance in centiMorgan, as defined by Voorrips and Maliepaard (2012), which is required before simulating the location of the first chiasmata with interference. By default, \code{burn_in = 1000}.
 #' The burn in distance in cM. By default, \code{burn_in = 1000}.
 #' @param SNV_map This argument has been deprecated. Users now supply objects of class \code{SNVdata} to argument \code{SNV_data}.

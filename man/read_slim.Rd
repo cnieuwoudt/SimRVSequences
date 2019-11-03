@@ -10,7 +10,7 @@ read_slim(file_path, keep_maf = 0.01, recomb_map = NULL,
 \arguments{
 \item{file_path}{character.  The file path or URL of the .txt output file created by the outputFull() method in SLiM.}
 
-\item{keep_maf}{numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf = 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R. See details.}
+\item{keep_maf}{numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf} \code{= 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R. See details.}
 
 \item{recomb_map}{data frame. (Optional) A recombination map of the same format as the data frame returned by \code{\link{create_slimMap}}. See details.}
 

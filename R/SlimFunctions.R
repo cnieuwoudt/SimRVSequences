@@ -205,7 +205,7 @@ reMap_mutations <- function(mutationDF, recomb_map){
 #' Please note: the variable \code{pathwaySNV} will be omitted when \code{pathway_df} is not supplied to \code{read_slim}.
 #'
 #' @param file_path character.  The file path or URL of the .txt output file created by the outputFull() method in SLiM.
-#' @param keep_maf numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf = 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R. See details.
+#' @param keep_maf numeric. The largest allele frequency for retained SNVs, by default \code{keep_maf} \code{= 0.01}.  All variants with allele frequency greater than \code{keep_maf} will be removed. Please note, removing common variants is recommended for large data sets due to the limitations of data allocation in R. See details.
 #' @param recomb_map data frame. (Optional) A recombination map of the same format as the data frame returned by \code{\link{create_slimMap}}. See details.
 #' @param pathway_df data frame. (Optional) A data frame that contains the positions for each exon in a pathway of interest.  See details.
 #' @param recode_recurrent logical. When \code{TRUE} recurrent SNVs are cataloged a single observation;  by default, \code{recode_recurrent = TRUE}. See details.

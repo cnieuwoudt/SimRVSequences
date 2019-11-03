@@ -24,7 +24,7 @@ is.famStudy <- function(x) {
 #'
 #' Summary function for objects of class \code{famStudy}, i.e. objects returned by the \code{\link{sim_RVstudy}} function.
 #'
-#' The \code{summary.famStudy} function returns a list containing two items.  The first item, \code{fam_allele_count}, is a matrix that contains counts of the SNVs shared by the disease-affected relatives in each pedigree. This matrix will contain a row of counts for each pedigree in the supplied \code{famSutdy} object.  The first column in \code{fam_allele_count} is named \code{FamID} and identifies each pedigree by their family identification number.  The remaining columns in \code{fam_allele_count} are named according to the respective marker names of the shared SNVs.
+#' The \code{summary.famStudy} function returns a list containing two items.  The first item, \code{fam_allele} \code{_count}, is a matrix that contains counts of the SNVs shared by the disease-affected relatives in each pedigree. This matrix will contain a row of counts for each pedigree in the supplied \code{famSutdy} object.  The first column in \code{fam_allele_count} is named \code{FamID} and identifies each pedigree by their family identification number.  The remaining columns in \code{fam_allele_count} are named according to the respective marker names of the shared SNVs.
 #'
 #' The second item returned by \code{summary.famStudy} is a data frame named \code{pathway_count}, which catalogs the SNVs shared among disease-affected study participants.  This data frame contains the following variables:
 #' \tabular{lll}{
