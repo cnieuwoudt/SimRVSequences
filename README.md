@@ -15,7 +15,7 @@ You can install SimRVSequences from github with:
 devtools::install_github("cnieuwoudt/SimRVSequences")
 ```
 
-## Coming Soon
+## News
 
-We are pleased to announce that `SimRVSequences` (\>= 0.2.0) will
-feature formatted genome-wide exon-data from the 1000 Genomes Project.
+We are pleased to announce that `SimRVSequences` (\>= 0.2.0) features
+pre-formatted, exon-only SNV data from the 1000 Genomes Project.
