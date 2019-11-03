@@ -90,46 +90,35 @@ test_that("Error if de novo mutations detected", {
 #----------------#
 # Output testing #
 #----------------#
-
-# toy_haps <- sparseMatrix(i = seq(1:10), j = seq(1:10), x = rep(1, 10))
-# toy_muts <- data.frame(colID = seq(1:10),
-#                        chrom = rep(1, 10),
-#                        position = round(seq(1001, 2000001, length.out = 10)*1000),
-#                        is_CRV = sample(c(rep(FALSE, 9), TRUE), size = 10))
-#
-# toy_muts$marker <- paste0(toy_muts$chrom, sep = "_", toy_muts$position)
-# toy_muts$afreq <- round(runif(10, min = 0, max = 0.005), digits = 6)
-
 toy_haps <- sparseMatrix(i = seq(1:100),
                          j = seq(1:100),
                          x = rep(1, 100))
 toy_muts <- data.frame(colID = seq(1:100),
                        chrom = rep(1, 100),
                        position = round(seq(1001, 2000001, length.out = 100)*1000),
-                       is_CRV = sample(c(rep(FALSE, 99), TRUE), size = 100))
+                       is_CRV = sample(c(rep(FALSE, 90), rep(TRUE, 10)), size = 100))
 
 toy_muts$marker <- paste0(toy_muts$chrom, sep = "_", toy_muts$position)
-toy_muts$afreq <- round(runif(100, min = 0, max = 0.005), digits = 6)
-
+#toy_muts$afreq <- round(runif(100, min = 0, max = 0.005), digits = 6)
+toy_muts$afreq <- 1/100#round(runif(100, min = 0, max = 0.005), digits = 6)
 
  test_that("When mutiple RV founders in pedigree disease-locus genotypes are correct", {
 
   #choose a family from study peds
-  test_fam = sample(x = c(1, 3:5), size = 1)
+  test_fam = sample(x = 1:5, size = 1)
   red_peds <- study_peds[study_peds$FamID == test_fam, ]
   rownames(red_peds) = NULL
 
-  founder_locs <- which(is.na(red_peds$dadID))
+  founder_locs <- which(is.na(red_peds$dadID) & red_peds$DA1 == 0 & red_peds$DA2 == 0)
 
   #set DA1 to 1 for at least 2 founders
-  red_peds$DA1[sample(founder_locs, size = 3)] <- 1
-
+  red_peds$DA1[sample(founder_locs, size = 2)] <- 1
 
   study_dat = sim_RVstudy(ped_files = red_peds,
                           SNV_data = SNVdata(Haplotypes = toy_haps,
                                              Mutations = toy_muts),
-                          remove_wild = FALSE,
-                          affected_only = TRUE)
+                          remove_wild = TRUE,
+                          affected_only = FALSE)
 
   for(i in 1:nrow(study_dat$ped_files)){
     #pull alleles from pedigree
