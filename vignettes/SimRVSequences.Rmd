@@ -8,7 +8,7 @@ output:
     toc: yes
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{SimRVSequences}
   \usepackage[utf8]{inputenc}
   %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -30,7 +30,7 @@ Please note that `SimRVSequences` does not simulate genotype conditional on phen
 # User Requirements
 To simulate sequence data for a family-based study users are expected to provide:
 
-1. a sample of ascertained pedigrees, and 
+1. a sample of pedigrees, and 
 2. single-nucleotide variant (SNV) data from a sample of unrelated individuals representing the population of pedigree founders.
 
 In section 3 of this vignette, we outline three different SNV data options. The flow chart in Figure 1 illustrates the preparation required for each of the above inputs.  We note that simulation of SNV data with SLiM [4] is NOT accomplished in `R`.  However, we do provide pre- and post-processing methods to assist with importing and formatting the SNV data simulated by SLiM, which are discussed at length in section 3.1.  In section 4 we outline two different pedigree data options, the second of which is a brief review of simulating pedigree data using the `R` package `SimRVPedigree` [10].
@@ -685,7 +685,7 @@ stopCluster(cl) #shut down cluster
 
 
 For the purpose of demonstration, we will use the `study_peds` data set provided by `SimRVSequences`.  
-```{r, fig.height = 8, fig.width = 8.6}
+```{r, fig.height = 8, fig.width = 8.6, fig.align = 'center'}
 # import study peds
 data("study_peds")
 
@@ -724,14 +724,14 @@ The columns displayed in the output above are described as follows:
 
 Not all of the variables above are required to simulate SNV data; the required variables are: `FamID`, `ID`, `sex`, `dadID`, `momID`, `affected`, `DA1`, and `DA2`.  Please note, if `DA1` and `DA2` are not provided, the pedigree is assumed to be fully-sporadic, i.e. `DA1 = DA2 = 0` for all members. 
 
-To learn more about simulating ascertained pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette (https://cran.r-project.org/web/packages/SimRVPedigree/index.html).  Additional information regarding the model employed by `SimRVPedigree` may be found at https://scfbm.biomedcentral.com/articles/10.1186/s13029-018-0069-6.
+To learn more about simulating ascertained pedigrees with `SimRVPedigree` please refer to `SimRVPedigree`'s documentation and vignette https://CRAN.R-project.org/package=SimRVPedigree.  Additional information regarding the model employed by `SimRVPedigree` may be found at https://scfbm.biomedcentral.com/articles/10.1186/s13029-018-0069-6.
 
 
 # Simulate SNV data for Pedigrees 
-Simulation of sequence data for ascertained pedigrees is accomplished with the `sim_RVstudy` function.  We will illustrate the usage of this function in section 5.1.  The `sim_RVstudy` function returns an object of class `famStudy`.  In section 5.2 we discuss objects class `famStudy` in detail.  Finally, in section 5.3 we demonstrate the usage and output of the `summary` function for objects of class `famStudy`. 
+Simulation of sequence data for pedigrees is accomplished with the `sim_RVstudy` function.  We will illustrate the usage of this function in section 5.1.  The `sim_RVstudy` function returns an object of class `famStudy`.  In section 5.2 we discuss objects class `famStudy` in detail.  Finally, in section 5.3 we demonstrate the usage and output of the `summary` function for objects of class `famStudy`. 
 
 ## The `sim_RVstudy` function
-Simulating SNV data for a sample of ascertained pedigrees is achieved with our `sim_RVstudy` function.  This function has the following required and optional arguments:
+Simulating SNV data for a sample of pedigrees is achieved with our `sim_RVstudy` function.  This function has the following required and optional arguments:
 
 Required Arguments:
 
@@ -746,7 +746,7 @@ Optional Arguments:
 7. `gamma_params` The respective shape and rate parameters of the gamma distribution used to simulate the distance between chiasmata.  By default, `gamma_params = c(2.63, 2*2.63)`, as in [13].
 8. `burn_in` The "burn-in" distance in centiMorgans, as defined by [13], which is required before simulating the location of the first chiasmata with interference. By default, `burn_in = 1000`.
 
-We will demonstrate the usage of the `sim_RVstudy` using the `EXhaps` and `EXmuts` datasets that were discussed in sections 3.1 and 3.3.  Notice that the `sim_RVstudy` function expects and object of class `SNVdata`.  We construct this object from the `EXmuts` and `EXhaps` dataset. 
+We will demonstrate the usage of the `sim_RVstudy` using the `EXhaps` and `EXmuts` datasets that were discussed in sections 3.1 and 3.3.  Notice that the `sim_RVstudy` function expects and object of class `SNVdata`.  We construct this object from the `EXmuts` and `EXhaps` dataset as follows. 
 
 ```{r}
 # construct an object of class SNVdata
@@ -781,7 +781,7 @@ We will discuss each of the four items contained in the `famStudy` object in the
 ### The `ped_files` data frame
 The data frame `ped_files` contained in the `famStudy` object is a potentially reduced set of pedigree files for the original families. Recall that, by default `affected_only = TRUE`, so the pedigrees supplied to `sim_RVstudy` are reduced to contain only the affected individuals and the individuals who connect them along a line of descent. 
 
-```{r, fig.height = 4.5, fig.width = 5.5}
+```{r, fig.height = 4.5, fig.width = 5.5, fig.align = 'center'}
 # plot the pedigree returned by sim_RVseq for family 3.
 # Since we used the affected_only option the pedigree has
 # been reduced to contain only disease-affected relatives.
@@ -789,7 +789,7 @@ plot(study_seq$ped_files[study_seq$ped_files$FamID == 3, ],
      location = "bottomleft")
 ```
 
-Comparing the plot above to the plot of the same family in section 4, we can see that the number of relatives for whom we simulate SNV data is far less than the total number of relatives in the ascertained pedigree.
+Comparing the plot above to the plot of the same family in section 4, we can see that the number of relatives for whom we simulate SNV data is far less than the total number of relatives in the original pedigree.
 
 ### The `ped_haplos` matrix 
 Next, we look at the sparse matrix, `ped_haplos`, which is contained in the `famStudy` object.  This sparse matrix contains simulated haplotype data.
@@ -863,7 +863,7 @@ From the output above, we see that when supplied an object of class `famStudy` t
 study_summary$fam_allele_count
 ```
 
-Looking at the output above, we see that only one affected relative in family 1 carries a copy of the first SNV, `1_45043357`.  It is noteworthy that the disease-affected relative in families 1 and 4 carry so many copies of SNV `2_201284953`; not surprisingly, this is the causal rare variant for these two families.
+Looking at the output above, we see that 3 affected relative in family 1 carries a copy of the first SNV, `1_45043357`.  It is noteworthy that the disease-affected relative in families 1 and 4 carry so many copies of SNV `2_201284953`; not surprisingly, this is the causal rare variant for these two families.
 
 The item `pathway_count` is a data frame that catalogs the total number of SNVs observed in disease-affected study participants.
 
@@ -878,11 +878,11 @@ From `pathway_count`, we see that there are several SNVs carried by more than 1 
 
 In this section we describe the model assumptions employed by `SimRVSequences` to simulate single-nucleotide variant (SNV) data for pedigrees.  
 
-1. Given a sample of ascertained pedigrees we allow families to segregate different rare variants, but assume that within a family genetic cases are due to a single, **causal rare variant (cRV)** that increases disease susceptibility.  We assume that only one copy of the familial cRV is introduced to the pedigree and that the cRV status of every pedigree member is known.  The `R` package `SimRVPedigree` [10] may be used to simulate pedigrees that meet these criteria (see section 4).  
-2. Recall that users are expected to specify a pool of cRVs which may represent cRVs located in a pathway, or different cRVs in the same gene.  The size of the pool is entirely up to the user: it can contain many SNVs or only a single SNV.  However, we urge those who are using `SimRVPedigree` in conjunction with `SimRVSequences` to choose cRVs so that their cumulative carrier probability is less than or equal to 0.002 [11].  From this pool we sample a single cRV for each pedigree with replacement.  
-3. Founder haplotypes are sampled from a user-specified, population distribution of haplotypes, conditional on their cRV status.
-    + For the founder who introduces the cRV we sample one haplotype from the haplotypes that carry the familial cRV and the other from the haplotypes that do not carry ANY of the cRVs in our pool.  This ensures that this founder introduces only a single copy of the familial cRV.
-    + For the pedigree founders who do NOT introduce a cRV we sample their haplotypes from the haplotypes that do not carry ANY of the cRVs in our pool. Hence, fully sporadic families will not segregate any cRVs, nor will any non-carrier individual who marries into a genetic family.  
+1. Given a sample of pedigrees we allow families to segregate different rare variants, but assume that within a family genetic cases are due to a single, **causal rare variant (cRV)** that increases disease susceptibility.  We assume that the cRV status of every pedigree member is known.  The `R` package `SimRVPedigree` [10] may be used to simulate pedigrees that meet these criteria (see section 4).  
+2. Recall that users are expected to specify a pool of cRVs which may represent cRVs located in a pathway, or different cRVs in the same gene.  The size of the pool is entirely up to the user: it can contain many SNVs or only a single SNV.  However, we urge those who are using `SimRVPedigree` in conjunction with `SimRVSequences` to choose cRVs so that the cumulative carrier probability is less than or equal to 0.002 [11].  From this pool we sample a single cRV for each pedigree with replacement.
+3. Founder haplotypes are sampled from a user-specified, population distribution of haplotypes, conditional on their genotype at the familial disease-locus.
+    + If a founder introduces a cRV we sample a haplotype, or two haplotypes if the founder is homozygous for the alternate allele, from the haplotypes that carry the familial cRV.
+    + If a founder does NOT introduce a cRV we sample their haplotypes from the haplotypes that do not carry ANY of the cRVs in our pool. Hence, fully sporadic families will not segregate any cRVs.  
 4. We use a conditional gene-drop algorithm to model inheritance from parent to offspring, which can be described as follows.
   * First, we simulate the formation of a parent's gametes.
     1. Following [13], we model genetic recombination with chiasmata interference.  To accomplish this the distance between chiasmata is modeled by a gamma distribution.  Additionally, we use a "burn-in" process  before the start of the chromosome to simulate the location of the first chiasmata.  The default parameter settings for the gamma distribution are `shape = 2.63` and `rate = 2*2.63`, and `burn_in = 1000`.  To model recombination without chiasmata interference, i.e. according to Haldane's model, set `shape = 1` and `rate = 2` and `burn_in = 0`. **Please note, presently `SimRVSequences` only permits simulation of recombination in autosomes, i.e. non-sex chromosomes.**
@@ -936,7 +936,7 @@ For the sample of 100 pedigrees used to time `sim_RVstudy`, setting `affected_on
 
 To assess how well `SimRVSequences` scales with number of pedigrees we compare the time required to simulate sequence data for 10, 50, 100, 150, and 200 pedigrees.  To amass samples with the required pedigree sizes, we sampled the requisite number of pedigrees with replacement from the original pool of 100 pedigrees and then recorded the computation time required for each set of simulation settings.  We report the average time for each combination of settings and sample sizes over 10 replicates.
 
-Figure 4 displays the results of this timing comparison.  From the plot, we see that under the most computationally expensive simulation settings, i.e. `affected_only = FALSE` and `remove_wild = FALSE`, the simulation time for 200 pedigrees was, on average, approximately 4 minutes.  Under the least computationally expensive simulation settings, i.e. `affected_only = TRUE` and `remove_wild = TRUE`, the simulation time for 200 pedigrees was, on average, approximately 1 minute. 
+Figure 4 displays the results of this timing comparison.  From the plot, we see that for the most computationally expensive simulation settings, `affected_only = FALSE` and `remove_wild = FALSE`, the simulation time for 200 pedigrees was, on average, approximately 6.5 minutes.  Under the least computationally expensive simulation settings, `affected_only = TRUE` and `remove_wild = TRUE`, the simulation time for 200 pedigrees was, on average, approximately 2 minutes. 
 
 ![**Figure 4**: Computation Time by Number of Pedigrees and Simulation Settings.](TimingPlot.png){width=400px}
 
