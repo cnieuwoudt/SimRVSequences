@@ -73,12 +73,16 @@ for(k in 1:nrow(sim_set)){
 
 sim_kin_df = do.call(cbind, sim_kin)
 save(sim_kin_df, file = "C:/Data/SimSeqValidation/sim_kin_df.rdata", compress='xz')
+load(file = "C:/Data/SimSeqValidation/sim_kin_df.rdata")
 
 sim_set$observed <- apply(sim_kin_df, 2, mean)
+sim_set$std <- apply(sim_kin_df, 2, function(x){mean(x)*(1-mean(x))/length(x)})
+
+
 sim_set$p.val <- sapply(1:nrow(sim_set), function(x){
-  binom.test(x = sum(sim_kin[[x]]),
+  binom.test(x = sum(sim_kin_df[, x]),
              p = sim_set$expected_kin[x],
-             n = length(sim_kin[[x]]), alternative = "two.sided")$p.value
+             n = length(sim_kin_df[, x]), alternative = "two.sided")$p.value
 })
 
 sim_set
