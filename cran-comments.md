@@ -1,3 +1,22 @@
+## Re-submission November 3, 2019
+
+In this resubmission we have added several new features to SimRVSequences:
+  * We now allow users to model both dominant and recessive disease models
+  * We include a new function to import pre-formatted exon-only SNV data
+  * We include a new function to help users process SNV data from vcf files
+  * We have expanded the vignette to describe how users can format vcf file data for use with SimRVSequences
+
+- Updated the DESCRIPTION file:
+    - Updated the version number to 0.2.0 to reflect:
+         - the new features listed above, and 
+         - the deprecated arguments SNV_map and haplos from the sim_RVstudy function,
+    - Fixed vignette yaml header to fix NOTEs on package check page for flavor r-devel-linux-x86_64-debian-clang, r-devel-linux-x86_64-debian-gcc, nd r-devel-windows-ix86+x86_64.
+
+Test Environments prior to resubmission
+* local Windows OS install, R 3.5.3
+* ubuntu 14.04.5 LTS (on travis-ci), R 3.5.0
+
+
 ## Re-submission April 18, 2019
 In this resubmission we have corrected the sampling probability for causal rare variants in sim_RVstudy.  Previously, was sampling with equal probability, now sampling according to allele frequency in the population.
   
