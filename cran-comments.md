@@ -1,3 +1,13 @@
+## NEXT UPDATE
+ - add catch for same famID in multiple study peds
+ - add catch for fully 0 haplotypes
+
+## Re-submission December 5, 2019
+In this resubmission we have fixed all improper uses of class() == *, and instead switched to using inherits() or is().
+Many thanks to Kurt Hornik for pointing out this deficiency and for sharing the informative blog by Martin Maechler. 
+
+
+
 ## Re-submission November 3, 2019
 
 In this resubmission we have added several new features to SimRVSequences:
@@ -10,9 +20,11 @@ In this resubmission we have added several new features to SimRVSequences:
     - Updated the version number to 0.2.0 to reflect:
          - the new features listed above, and 
          - the deprecated arguments SNV_map and haplos from the sim_RVstudy function,
-    - Fixed vignette yaml header to fix NOTEs on package check page for flavor r-devel-linux-x86_64-debian-clang, r-devel-linux-x86_64-debian-gcc, nd r-devel-windows-ix86+x86_64.
+    - Fixed vignette yaml header to remove NOTEs on package check page for flavor:
+ r-devel-linux-x86_64-debian-clang, r-devel-linux-x86_64-debian-gcc, nd r-devel-windows-ix86+x86_64.
 
 Test Environments prior to resubmission
+* https://win-builder.r-project.org/
 * local Windows OS install, R 3.5.3
 * ubuntu 14.04.5 LTS (on travis-ci), R 3.5.0
 
