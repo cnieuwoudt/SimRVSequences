@@ -1,7 +1,7 @@
 Package: SimRVSequences
 Type: Package
 Title: Simulate Genetic Sequence Data for Pedigrees
-Version: 0.2.2
+Version: 0.2.3
 Authors@R: c(person("Christina", "Nieuwoudt", 
                     role = c("aut", "cre"),
                     email = "cnieuwou@sfu.ca"),
@@ -23,7 +23,7 @@ Imports:
     dplyr (>= 0.7.5), 
     magrittr (>= 1.5),
     rlang (>= 0.2.0),
-    methods (>= 3.5.3)
+    methods (>= 3.5.0)
 Suggests:
     knitr (>= 1.13),
     rmarkdown (>= 0.9.6),
