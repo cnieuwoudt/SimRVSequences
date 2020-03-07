@@ -1,7 +1,7 @@
 Package: SimRVSequences
 Type: Package
 Title: Simulate Genetic Sequence Data for Pedigrees
-Version: 0.2.3
+Version: 0.2.4
 Authors@R: c(person("Christina", "Nieuwoudt", 
                     role = c("aut", "cre"),
                     email = "cnieuwou@sfu.ca"),
